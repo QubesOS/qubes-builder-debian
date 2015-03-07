@@ -175,6 +175,7 @@ function aptInstall() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot apt-get ${APT_GET_OPTIONS} install ${files[@]}
+    chroot apt-get clean
 }
 
 # ==============================================================================
@@ -190,7 +191,11 @@ function installPackages() {
             packages_list="$@"
         fi
     else
-        getFileLocations packages_list "packages.list" "${DIST}"
+        if [ "$TEMPLATE_FLAVOR" == "minimal" ]; then
+            getFileLocations packages_list "packages.list" "${DIST}_minimal"
+        else
+            getFileLocations packages_list "packages.list" "${DIST}"
+        fi
         if [ -z "${packages_list}" ]; then
             error "Can not locate a package.list file!"
             umount_all || true
