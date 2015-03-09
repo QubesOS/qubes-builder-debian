@@ -24,18 +24,15 @@ fi
 # ------------------------------------------------------------------------------
 BUILDPACKAGES="reprepro build-essential devscripts git git-buildpackage pbuilder debhelper quilt libxen-dev python libpulse-dev libtool automake xorg-dev xutils-dev libxdamage-dev libxcomposite-dev libxt-dev libx11-dev"
 
-INITIAL=
-
 if ! [ -d $DIR/home/user ]; then
     # --------------------------------------------------------------------------
     # Install debian choot if /home/user does not exist (initial run)
     # --------------------------------------------------------------------------
-    INITIAL=1
     mkdir -p $DIR
     echo "-> Installing debian build chroot..."
     COMPONENTS="" debootstrap --arch=amd64 \
                 --include=ncurses-term,debian-keyring \
-                --keyring=keys_debian/$DIST-debian-archive-keyring.gpg \
+                --keyring=${DEBIAN_PLUGIN_DIR}keys_debian/$DIST-debian-archive-keyring.gpg \
                 $DEBIANVERSION $DIR http://http.debian.net/debian \
                 || { echo "Error in debootstrap"; exit 1; }
 
@@ -118,21 +115,22 @@ fi
 # ------------------------------------------------------------------------------
 # Install keyring
 # ------------------------------------------------------------------------------
-if ! [ -f keys_debian/$DIST-secring.gpg ]; then
+if ! [ -f $CACHEDIR/keys/$DIST-secring.gpg ]; then
+    mkdir -p $CACHEDIR/keys
     gpg --gen-key --batch <<EOF
 Key-Type: RSA
 Key-Length: 1024
 Key-Usage: sign
 Name-Real: Qubes builder
 Expire-Date: 0
-%pubring keys_debian/$DIST-pubring.gpg
-%secring keys_debian/$DIST-secring.gpg
+%pubring $CACHEDIR/keys/$DIST-pubring.gpg
+%secring $CACHEDIR/keys/$DIST-secring.gpg
 %commit
 EOF
-    chown --reference=keys_debian/ keys_debian/$DIST-*ring.gpg
+    chown --reference=$DEBIAN_PLUGIN_DIR $CACHEDIR/keys/$DIST-*ring.gpg
 fi
 
-cp keys_debian/$DIST-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
+cp $CACHEDIR/keys/$DIST-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
 
 # ------------------------------------------------------------------------------
 # Refresh package list (but not quebes repo since it does not yet exist)
