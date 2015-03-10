@@ -1,0 +1,75 @@
+issues
+------
+Think it makes most sense to run whonix setup right after qubes, then whonix can install qubes-whonix last.
+hook into bfore qubes removes its links to repo
+
+
+installing whonix after qubes-whonix; wq thinks its a template; tries to use proxy.  Need to add
+a chroot option maybe' touch /var/run/qubes/qubes-service/choot and ignore everything; maybe even
+in postinit?  -- gotta be sure IP addresses don't get changed
+
+tests
+-----
+
+test all the vms listed below plus make sure each works with:
+
+- netvm
+- proxyvm
+- sound
+- notifications
+
+NOTE: Backup EXISTING jessie-gnome; its what I use for web access!
+      Make a special version name; test with that and copy my root.img to it after test as my future template to keep
+wheezy
+wheezy+gnome
+jessie
+jessie+gnome
+whonix-gateway
+whonix-workstation
+
+# Before building ubuntu again; combine code base again
+trusty
+trusty+gnome
+utopic
+utopic+gnome
+
+test qubes-whonix package update... at first just add a local file base repo in appvm
+
+
+ubuntu fixups
+-------------
+network manager
+application menus
+- can I convert the hvm? -- or install real ubuntu from live but automated?
+- combine codebase of ubuntu / debian
+
+whonix fixups
+-------------
+move code to qhonix-qubes that can go there
+see if I can get rid of grub yet with new APT-opts command
+review all snapshot code; remove remerences to /run; swap with tmp
+
+todo
+----
+add firfox, etc to installed apps like fedora has - gnome only build; keep minimum debian builds
+flashplayer
+mirror list
+automated test? build, deploy to dom0, install guest + appvm, run some tests in appvm
+
+add in qubes-apps-linux-* during qubes-setup; maybe need to remove thunderbird?
+duplicate 01proxy
+fix the gui-linux commmit
+restore dash -- fix any qubes scripts to use dash or indicated they need bash
+fix any qubes scripts that use sysconfig; since we dont
+
+
+condsider
+---------
+salt module; maybe can use for tests
+
+
+merge
+-----
+merge to debian first
+then from debian to master
+then from master to ubuntu -- rebase whonix again
