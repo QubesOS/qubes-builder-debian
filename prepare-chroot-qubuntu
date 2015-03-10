@@ -30,7 +30,7 @@ if ! [ -d $DIR/home/user ]; then
     echo "-> Installing qubuntu build chroot..."
     COMPONENTS="" debootstrap --arch=amd64 \
                 --include=ncurses-term,ubuntu-keyring \
-                --keyring=keys_qubuntu/$DIST-qubuntu-archive-keyring.gpg \
+                --keyring=${DEBIAN_PLUGIN_DIR}/keys/$DIST-qubuntu-archive-keyring.gpg \
                 $DEBIANVERSION $DIR http://archive.ubuntu.com/ubuntu \
                 || { echo "Error in debootstrap"; exit 1; }
 
@@ -104,22 +104,23 @@ chroot $DIR apt-get install -y libpulse-dev
 # ------------------------------------------------------------------------------
 # Install keyring
 # ------------------------------------------------------------------------------
-if ! [ -f keys_qubuntu/$DIST-secring.gpg ]; then
+if ! [ -f $CACHEDIR/repo-secring.gpg ]; then
+    mkdir -p $CACHEDIR/keys
     gpg --gen-key --batch <<EOF
 Key-Type: RSA
 Key-Length: 1024
 Key-Usage: sign
 Name-Real: Qubes builder
 Expire-Date: 0
-%pubring keys_qubuntu/$DIST-pubring.gpg
-%secring keys_qubuntu/$DIST-secring.gpg
+%pubring $CACHEDIR/repo-pubring.gpg
+%secring $CACHEDIR/repo-secring.gpg
 %commit
 EOF
-    chown --reference=keys_qubuntu/ keys_qubuntu/$DIST-*ring.gpg
+    chown --reference=$DEBIAN_PLUGIN_DIR $CACHEDIR/repo-*ring.gpg
 fi
 
-echo cp keys_qubuntu/$DIST-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
-cp keys_qubuntu/$DIST-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
+echo cp $CACHEDIR/repo-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
+cp $CACHEDIR/repo-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
 
 # ------------------------------------------------------------------------------
 # Update qubuntu apt sources list to use local qubes repo

@@ -22,7 +22,7 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
         --arch=amd64 \
         --include="ncurses-term locales tasksel" \
         --components=main \
-        --keyring="${SCRIPTSDIR}/keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
+        --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
         "${DIST}" "${INSTALLDIR}" "${DEBIAN_MIRROR}" || { 
             error "Debootstrap failed!";
             exit 1; 

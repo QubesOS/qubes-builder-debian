@@ -356,8 +356,8 @@ EOF
 # Install Qubes Repo
 # ==============================================================================
 installQubesRepo() {
-    info " Defining Qubes CUSTOMREPO Location: ${PWD}/yum_repo_qubes/${DIST}"
-    export CUSTOMREPO="${PWD}/yum_repo_qubes/${DIST}"
+    info " Defining Qubes CUSTOMREPO Location: ${PWD}/pkgs-for-template/${DIST}"
+    export CUSTOMREPO="${PWD}/pkgs-for-template/${DIST}"
 
     info "Mounting local qubes_repo"
     mkdir -p "${INSTALLDIR}/tmp/qubes_repo"
