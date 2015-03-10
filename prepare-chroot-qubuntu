@@ -105,7 +105,6 @@ chroot $DIR apt-get install -y libpulse-dev
 # Install keyring
 # ------------------------------------------------------------------------------
 if ! [ -f $CACHEDIR/repo-secring.gpg ]; then
-    mkdir -p $CACHEDIR/keys
     gpg --gen-key --batch <<EOF
 Key-Type: RSA
 Key-Length: 1024

@@ -7,7 +7,7 @@ set -e
 REPO_DIR=$BUILDER_REPO_DIR
 DIST=$1
 
-KEYS_DIR="${CACHEDIR}/keys"
+KEYS_DIR="${CACHEDIR}"
 
 pushd $REPO_DIR
 mkdir -p dists/$DIST/main/binary-amd64
@@ -34,8 +34,8 @@ calc_sha1 main/binary-amd64/Packages >> dists/$1/Release.gz
 
 rm -f dists/$DIST/Release.gpg
 gpg -abs --no-default-keyring \
-    --secret-keyring $KEYS_DIR/$1-secring.gpg \
-    --keyring $KEYS_DIR/$1-pubring.gpg \
+    --secret-keyring $KEYS_DIR/repo-secring.gpg \
+    --keyring $KEYS_DIR/repo-pubring.gpg \
     -o dists/$DIST/Release.gpg \
     dists/$DIST/Release
 popd
