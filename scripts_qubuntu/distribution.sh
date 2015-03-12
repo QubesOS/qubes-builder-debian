@@ -1,1 +1,0 @@
-../scripts_debian/distribution.sh
