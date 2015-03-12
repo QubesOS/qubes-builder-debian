@@ -60,7 +60,7 @@ RUN_AS_USER = user
 REPO_CHROOT_DIR ?= chroot-$(DISTRIBUTION)
 
 DEBIAN_DEPENDENCIES := dpkg-dev debootstrap
-DEBIAN_PARSER=$(DEBIAN_PLUGIN_DIR)/scripts-debian/debian-parser
+DEBIAN_PARSER=$(DEBIAN_PLUGIN_DIR)/scripts/debian-parser
 export DEBIAN_PARSER
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
@@ -148,7 +148,7 @@ ifdef INCREMENT_DEVEL_VERSIONS
 	# Update changelog with -develXX appended to version
 	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in 
 	#       builder configuration to use this feature
-	cd $(DEBIAN_CHROOT_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts-debian/debian-changelog.sh
+	cd $(DEBIAN_CHROOT_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
 
 	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
 	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
@@ -164,7 +164,7 @@ else
 
 	# Only used to update changelog to new version since changelog is 
 	# also called below
-	cd $(DEBIAN_CHROOT_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts-debian/debian-changelog.sh
+	cd $(DEBIAN_CHROOT_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
 
 	# Break the hardlink
 	cp $(DEBIAN_CHROOT_DIR)/changelog $(DEBIAN_CHROOT_DIR)/changelog.copy

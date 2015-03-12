@@ -1,1 +1,0 @@
-../scripts_debian/01_install_core.sh

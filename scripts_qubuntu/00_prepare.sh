@@ -1,1 +1,0 @@
-../scripts_debian/00_prepare.sh
