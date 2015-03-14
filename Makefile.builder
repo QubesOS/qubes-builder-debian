@@ -8,7 +8,7 @@ ifneq (,$(findstring $(DIST),trusty utopic vivid))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
     DISTRIBUTION := qubuntu
     BUILDER_MAKEFILE = $(DEBIAN_PLUGIN_DIR)Makefile.qubuntu
-    TEMPLATE_SCRIPTS = $(DEBIAN_PLUGIN_DIR)template_qbuntu
+    TEMPLATE_SCRIPTS = $(DEBIAN_PLUGIN_DIR)template_qubuntu
 endif
 
 # vim: ft=make
