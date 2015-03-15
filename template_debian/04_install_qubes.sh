@@ -31,11 +31,7 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_qubes" ]; then
     #### '----------------------------------------------------------------------
     installQubesRepo
     aptUpdate
-    if [ "${TEMPLATE_FLAVOR}" == "minimal" ]; then
-        installPackages packages_qubes_minimal.list
-    else
-        installPackages packages_qubes.list
-    fi
+    installPackages packages_qubes.list
     uninstallQubesRepo
 
     #### '----------------------------------------------------------------------

@@ -183,19 +183,22 @@ function aptInstall() {
 # -and / or- TEMPLATE_FLAVOR directories
 # ==============================================================================
 function installPackages() {
+
+    # Install custom (specified) packages -or- a list of package names
     if [ -n "${1}" ]; then
-        # Locate packages within sub dirs
+        # Example: installPackages packages_qubes.list
         if [ ${#@} == "1" ]; then
             getFileLocations packages_list "${1}" ""
+
+        # Example: installPackages somefile1.list somefile2.list
         else
             packages_list="$@"
         fi
+
+    # Install distribution related packages
+    # Example: installPackages
     else
-        if [ "$TEMPLATE_FLAVOR" == "minimal" ]; then
-            getFileLocations packages_list "packages.list" "${DIST}_minimal"
-        else
-            getFileLocations packages_list "packages.list" "${DIST}"
-        fi
+        getFileLocations packages_list "packages.list" "${DIST}"
         if [ -z "${packages_list}" ]; then
             error "Can not locate a package.list file!"
             umount_all || true

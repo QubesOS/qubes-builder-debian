@@ -35,6 +35,6 @@ DEBIAN_MIRRORS=('http://ftp.us.debian.org/debian',
 # ------------------------------------------------------------------------------
 APT_GET_OPTIONS="-o Dpkg::Options::="--force-confnew" --force-yes --yes"
 
-if [ "$TEMPLATE_FLAVOR" == "minimal" ]; then
+containsFlavor 'no-recommends' && {
     APT_GET_OPTIONS+=" -o APT::Install-Recommends=0  -o APT::Install-Suggests=0" 
-fi
+} || true
