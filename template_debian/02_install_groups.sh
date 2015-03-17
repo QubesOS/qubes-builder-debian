@@ -36,11 +36,13 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_groups" ]; then
     #### '----------------------------------------------------------------------
     info 'Install standard Debian packages'
     #### '----------------------------------------------------------------------
-    if ! [ -f "${INSTALLDIR}/${TMPDIR}/.debian_packages" ]; then
-        packages="$(chroot tasksel --new-install --task-packages standard)"
-        aptInstall ${packages}
-        touch "${INSTALLDIR}/${TMPDIR}/.debian_packages"
-    fi
+    containsFlavor "minimal" || {
+        if ! [ -f "${INSTALLDIR}/${TMPDIR}/.debian_packages" ]; then
+            packages="$(chroot tasksel --new-install --task-packages standard)"
+            aptInstall ${packages}
+        fi
+    }
+    touch "${INSTALLDIR}/${TMPDIR}/.debian_packages"
 
     #### '----------------------------------------------------------------------
     info ' Distribution specific steps (install systemd, add sources, etc)'

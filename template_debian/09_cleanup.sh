@@ -17,6 +17,8 @@ buildStep "${0}" "pre"
 info ' Cleaning up  any left over files from installation'
 #### '-------------------------------------------------------------------------
 rm -rf "${INSTALLDIR}/var/cache/apt/archives"
+rm -rf "${INSTALLDIR}/var/cache/apt/pkgcache.bin"
+rm -rf "${INSTALLDIR}/var/cache/apt/srcpkgcache.bin"
 rm -f "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list"
 rm -f "${INSTALLDIR}/etc/apt/trusted.gpg.d/qubes-builder.gpg"
 rm -rf "${INSTALLDIR}/${TMPDIR}"

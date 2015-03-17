@@ -175,6 +175,7 @@ function aptInstall() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot apt-get ${APT_GET_OPTIONS} install ${files[@]}
+    chroot apt-get clean
 }
 
 # ==============================================================================
@@ -182,13 +183,20 @@ function aptInstall() {
 # -and / or- TEMPLATE_FLAVOR directories
 # ==============================================================================
 function installPackages() {
+
+    # Install custom (specified) packages -or- a list of package names
     if [ -n "${1}" ]; then
-        # Locate packages within sub dirs
+        # Example: installPackages packages_qubes.list
         if [ ${#@} == "1" ]; then
             getFileLocations packages_list "${1}" ""
+
+        # Example: installPackages somefile1.list somefile2.list
         else
             packages_list="$@"
         fi
+
+    # Install distribution related packages
+    # Example: installPackages
     else
         getFileLocations packages_list "packages.list" "${DIST}"
         if [ -z "${packages_list}" ]; then
