@@ -32,118 +32,95 @@ def debug(message, *arg, **args):
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest='subparser', help='commands')
+    subparsers = parser.add_subparsers(dest='mode', help='commands')
 
-    # debug
-    parser.add_argument( '--debug',
-                         action='store_true',
-                         help='Enable debug output')
+    # -----------------------------------------------------------------------------
+    # debug / test
+    # -----------------------------------------------------------------------------
+    parser.add_argument( '--debug', action='store_true',
+            help='Enable debug output')
 
+    # -----------------------------------------------------------------------------
     # control
+    # -----------------------------------------------------------------------------
     control_parser = subparsers.add_parser(
         'control',
         help='Parses values within debian/control',
         description='Parses the debian/control package file and returns requested values'
     )
-    control_parser.add_argument( '--build-depends',
-                                 action='store_true',
-                                 help='Parse Build-Depends'
-                                 )
-    control_parser.add_argument( '--qubes-build-depends',
-                                 action='store',
-                                 nargs='?',
-                                 help='Parse X-Qubes-Build-Depends-<distro> field.  Needs distro as argument.'
-                                 )
-    control_parser.add_argument( '--depends',
-                                 action='store_true',
-                                 help='Parse Depends'
-                                 )
-    control_parser.add_argument( '--recommends',
-                                 action='store_true',
-                                 help='Parse Recommends'
-                                 )
-    control_parser.add_argument( '--source',
-                                 action='store_true',
-                                 help='Parse Source'
-                                 )
-    control_parser.add_argument( '--maintainer',
-                                 action='store_true',
-                                 help='Parse Maintainer'
-                                 )
-    control_parser.add_argument( '--uploaders',
-                                 action='store_true',
-                                 help='Parse Uploaders'
-                                 )
-    control_parser.add_argument( '--section',
-                                 action='store_true',
-                                 help='Parse Section'
-                                 )
-    control_parser.add_argument( '--priority',
-                                 action='store_true',
-                                 help='Parse Priority'
-                                 )
-    control_parser.add_argument( '--standards-version',
-                                 action='store_true',
-                                 help='Parse Standards Version'
-                                 )
-    control_parser.add_argument( '--homepage',
-                                 action='store_true',
-                                 help='Parse Homepage'
-                                 )
-    control_parser.add_argument( '--vcs-browser',
-                                 action='store_true',
-                                 help='Parse VCS Browser'
-                                 )
-    control_parser.add_argument( '--vcs-git',
-                                 action='store_true',
-                                 help='Parse VCS Git'
-                                 )
-    control_parser.add_argument( '--package',
-                                 action='store_true',
-    #                             default='binary',
-                                 help='Parse Package'
-                                 )
-    control_parser.add_argument( '--architecture',
-                                 action='store_true',
-                                 help='Parse Architecture'
-                                 )
-    #control_parser.add_argument( '--section',
-    #                             action='store_true',
-    #                             default='binary',
-    #                             help='Parse Section'
-    #                             )
-    #control_parser.add_argument( '--priority',
-    #                             action='store_true',
-    #                             help='Parse Priority'
-    #                             )
-    control_parser.add_argument( '--essential',
-                                 action='store_true',
-                                 help='Parse Essential'
-                                 )
-    control_parser.add_argument( '--description',
-                                 action='store_true',
-                                 help='Parse Description'
-                                 )
-    #control_parser.add_argument( '--homepage',
-    #                             action='store_true',
-    #                             help='Parse Homepage'
-    #                             )
-    control_parser.add_argument( '--built-using',
-                                 action='store_true',
-                                 help='Parse Built Using'
-                                 )
-    control_parser.add_argument( '--package-field',
-                                 action='store_true',
-                                 help='Parse Package Field'
-                                 )
-    control_parser.add_argument( 'filename',
-                                 action='store',
-                                 nargs='?',
-                                 #const='debian/control',
-                                 default='debian/control',
-                                 help='Location of debian/control file'
-                                 )
+    control_parser.add_argument( '--build-depends', action='store_true',
+            help='Parse Build-Depends')
+
+    control_parser.add_argument( '--qubes-build-depends', action='store', nargs='?',
+            help='Parse X-Qubes-Build-Depends-<distro> field.  Needs distro as argument.')
+
+    control_parser.add_argument( '--depends', action='store_true',
+            help='Parse Depends')
+
+    control_parser.add_argument( '--recommends', action='store_true',
+            help='Parse Recommends')
+
+    control_parser.add_argument( '--source', action='store_true',
+            help='Parse Source')
+
+    control_parser.add_argument( '--maintainer', action='store_true',
+            help='Parse Maintainer')
+
+    control_parser.add_argument( '--uploaders', action='store_true',
+            help='Parse Uploaders')
+
+    control_parser.add_argument( '--section', action='store_true',
+            help='Parse Section')
+
+    control_parser.add_argument( '--priority', action='store_true',
+            help='Parse Priority')
+
+    control_parser.add_argument( '--standards-version', action='store_true',
+            help='Parse Standards Version')
+
+    control_parser.add_argument( '--homepage', action='store_true',
+            help='Parse Homepage')
+
+    control_parser.add_argument( '--vcs-browser', action='store_true',
+            help='Parse VCS Browser')
+
+    control_parser.add_argument( '--vcs-git', action='store_true',
+            help='Parse VCS Git')
+
+    control_parser.add_argument( '--package', action='store_true',
+            help='Parse Package')
+
+    control_parser.add_argument( '--architecture', action='store_true',
+            help='Parse Architecture')
+
+    #control_parser.add_argument( '--section', action='store_true', default='binary',
+    #        help='Parse Section')
+
+    #control_parser.add_argument( '--priority', action='store_true',
+    #        help='Parse Priority')
+
+    control_parser.add_argument( '--essential', action='store_true',
+            help='Parse Essential')
+
+    control_parser.add_argument( '--description', action='store_true',
+            help='Parse Description')
+
+    #control_parser.add_argument( '--homepage', action='store_true',
+    #        help='Parse Homepage')
+
+    control_parser.add_argument( '--built-using', action='store_true',
+            help='Parse Built Using')
+
+    control_parser.add_argument( '--package-field', action='store_true',
+            help='Parse Package Field')
+
+    control_parser.add_argument( 'filename', action='store', nargs='?',
+            default='debian/control',
+            help='Location of debian/control file')
+
+    # -----------------------------------------------------------------------------
     # changelog
+    # -----------------------------------------------------------------------------
     changelog_parser = subparsers.add_parser(
         'changelog',
         help='''Parses values with debian/changelog and returns specified labels.
@@ -151,46 +128,35 @@ def main(argv):
         be returned in json format''',
         description='Parses the debian/changelog package file and returns requested values'
     )
-    changelog_parser.add_argument( '--package-name',
-                                 action='store_true',
-                                 help='Return package name'
-                                 )
-    changelog_parser.add_argument( '--package-version',
-                                 action='store_true',
-                                 help='Return package version.  Will not contain EPOC.'
-                                 )
-    changelog_parser.add_argument( '--package-version-epoc',
-                                 action='store_true',
-                                 help='Returns package EPOC version number.  If no EPOC exist it wil be assumed to be 0'
-                                 )
-    changelog_parser.add_argument( '--package-revision',
-                                 action='store_true',
-                                 help='Return package version.  Will not contain EPOC.'
-                                 )
-    changelog_parser.add_argument( '--package-version-full',
-                                 action='store_true',
-                                 help='Return fullpackage version which will include EPOC.'
-                                 )
-    changelog_parser.add_argument( '--package-release-name',
-                                 action='store_true',
-                                 help='Return package release name (<package-name>_<package-version>) with no EPOC included'
-                                 )
-    changelog_parser.add_argument( '--package-release-name-full',
-                                 action='store_true',
-                                 help='Return package release name (<package-name>_<package-version>-<revision>) with no EPOC included'
-                                 )
-    changelog_parser.add_argument( '--package-distribution',
-                                 action='store_true',
-                                 help='Return package distribution such as develop, low'
-                                 )
-    changelog_parser.add_argument( '--package-urgency',
-                                 action='store_true',
-                                 help='Return package urgency such as urgent low'
-                                 )
-    changelog_parser.add_argument( 'filename',
-                                   action='store',
-                                   help='Location of debian/control file'
-                                   )
+    changelog_parser.add_argument( '--package-name', action='store_true',
+            help='Return package name')
+
+    changelog_parser.add_argument( '--package-version', action='store_true',
+            help='Return package version.  Will not contain EPOC.')
+
+    changelog_parser.add_argument( '--package-version-epoc', action='store_true',
+            help='Returns package EPOC version number.  If no EPOC exist it wil be assumed to be 0')
+
+    changelog_parser.add_argument( '--package-revision', action='store_true',
+            help='Return package version.  Will not contain EPOC.')
+
+    changelog_parser.add_argument( '--package-version-full', action='store_true',
+            help='Return fullpackage version which will include EPOC.')
+
+    changelog_parser.add_argument( '--package-release-name', action='store_true',
+            help='Return package release name (<package-name>_<package-version>) with no EPOC included')
+
+    changelog_parser.add_argument( '--package-release-name-full', action='store_true',
+            help='Return package release name (<package-name>_<package-version>-<revision>) with no EPOC included')
+
+    changelog_parser.add_argument( '--package-distribution', action='store_true',
+            help='Return package distribution such as develop, low')
+
+    changelog_parser.add_argument( '--package-urgency', action='store_true',
+            help='Return package urgency such as urgent low')
+
+    changelog_parser.add_argument( 'filename', action='store',
+              help='Location of debian/control file')
 
     args = vars(parser.parse_args())
 
@@ -213,10 +179,10 @@ def main(argv):
     if DEBUG:
         pprint(args)
 
-    subparser = args.pop('subparser',  '')
-    if subparser in ['control']:
+    mode = args.pop('mode',  '')
+    if mode in ['control']:
         parseControlFile(**args)
-    elif subparser in ['changelog']:
+    elif mode in ['changelog']:
         parseChangelog(**args)
 
 
@@ -280,6 +246,82 @@ def getContent(filename):
     return content
 
 
+def _test_version(changelog, package_full_version):
+    changelog['package_version_full'] = package_full_version
+    changelog = _changelog_version(changelog)
+
+    return [changelog['package_version_epoc'],
+            changelog['package_version'],
+            changelog['package_revision']]
+
+
+def _changelog_version(changelog):
+    '''Split apart epoch, version and revsion
+
+    - epoch is identified by version contains a colon.  Version number or revison
+      may not have a colon if epoch is not defined
+    - revision is identified by the first hyphen.  Version number or revision
+      may not have any hyphens if revision is not defined
+
+    epoch is an int
+
+    valid characters are as follows:
+      epoch defined    : '0-9a-zA-Z.+-:~'
+      epoch not defined: '0-9a-zA-Z.+-~'
+
+      remove hyphen from above list if revision is not defined
+
+    >>> changelog = {'package_release_name': '',
+    ...              'package_name': '',
+    ...              'package_version_full':  '',
+    ...              'package_distrib': '',
+    ...              'package_urgency': '',
+    ...              }
+
+    >>> _test_version(changelog, '2014.7.2+ds-1')
+    ['', '2014.7.2+ds', '1']
+
+    >>> _test_version(changelog, '2001:4.4.1-6')
+    ['2001', '4.4.1', '6']
+
+    >>> _test_version(changelog, '2001:2014.7.2+ds-1')
+    ['2001', '2014.7.2+ds', '1']
+
+    >>> _test_version(changelog, '2001:2014.7-2+ds-1')
+    ['2001', '2014.7-2+ds', '1']
+
+    >>> _test_version(changelog, '2014.7.2+ds-1')
+    ['', '2014.7.2+ds', '1']
+
+    >>> _test_version(changelog, '2001:2014.7-2+d:s-1')
+    ['2001', '2014.7-2+d:s', '1']
+    '''
+    version_re = re.compile(r'''
+        (?P<package_version_epoc> ^[\d]+(?=:) |) (:?)
+        (?P<package_version>
+            [\d][0-9a-zA-Z.+-:~]*(?=[-]) |
+            [\d][0-9a-zA-Z.+:~]*
+        )
+        ([-] |)(?P<package_revision> .* |)
+        $
+        ''', re.VERBOSE)
+
+    match = version_re.match(changelog['package_version_full'])
+
+    if match:
+        version = match.groupdict()
+        changelog.update(version)
+        changelog['package_release_name'] = '{0[package_name]}_{0[package_version]}'.format(changelog)
+
+        if changelog['package_revision']:
+            changelog['package_release_name_full'] = '{package_name}_{package_version}-{package_revision}'.format(**changelog)
+
+        else:
+            changelog['package_release_name_full'] = changelog['package_release_name']
+
+    return changelog
+
+
 def parseChangelog(filename, **args):
     '''
     '''
@@ -287,43 +329,23 @@ def parseChangelog(filename, **args):
 
     changelog_re = re.compile(r'^(?P<package_name>.*) \((?P<package_version_full>.*)\) (?P<package_distrib>.*); (?P<package_urgency>.*)$' )
     match = changelog_re.match(content.split('\n')[0].strip())
-    info = match.groupdict()
+    changelog = match.groupdict()
 
-    # Split apart epoch and version so one can reference any part
-    version_re = re.compile(r'''
-        (?P<package_version_epoc> ^[\d]+ |) (:?)
-        (?P<package_version> 
-            [\d][0-9a-zA-Z.+-:~]*(?=[-]) | 
-            [\d][0-9a-zA-Z.+:~]*
-        )
-        ([-] |)(?P<package_revision> .* |)
-        $
-        ''', re.VERBOSE)
+    changelog = _changelog_version(changelog)
 
-    match = version_re.match(info['package_version_full'])
-    if match:
-        version = match.groupdict()
-        info.update(version)
-        info['package_release_name'] = '{0[package_name]}_{0[package_version]}'.format(info)
-        if info['package_revision']:
-            info['package_release_name_full'] = '{package_name}_{package_version}-{package_revision}'.format(**info)
-        else:
-            info['package_release_name_full'] = info['package_release_name']
-
-    #from pprint import pprint
-    #pprint(info)
-
-    # Clear out values from info that were not selected so we return only requested
-    # info
-    for key, value in info.items():
+    # Clear out values from changelog that were not selected so we return only requested
+    # changelog
+    for key, value in changelog.items():
         if key not in args.keys():
-            info.pop(key,  None)
+            changelog.pop(key,  None)
 
-    if len(info) == 1:
-        print(' '.join(info.values()))
-    elif len(info) > 1:
+    if len(changelog) == 1:
+        print(' '.join(changelog.values()))
+    elif len(changelog) > 1:
         import json
-        print(json.dumps(info))
+        print(json.dumps(changelog))
+
+    return changelog
 
 
 def parseControlFile(filename, **args):
