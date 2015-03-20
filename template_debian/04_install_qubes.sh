@@ -27,16 +27,25 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_qubes" ]; then
     trap cleanup EXIT
 
     #### '----------------------------------------------------------------------
-    info ' Install Qubes packages listed in packages_qubes.list file(s)'
+    info ' Install Qubes Repo and update'
     #### '----------------------------------------------------------------------
     installQubesRepo
     aptUpdate
+
+    #### '----------------------------------------------------------------------
+    info ' Execute any distribution specific flavor or sub flavor'
+    #### '----------------------------------------------------------------------
+    buildStep "${0}" "${DIST}"
+
+    #### '----------------------------------------------------------------------
+    info ' Install Qubes packages listed in packages_qubes.list file(s)'
+    #### '----------------------------------------------------------------------
     installPackages packages_qubes.list
     uninstallQubesRepo
 
     #### '----------------------------------------------------------------------
     info ' Re-update locales'
-    #      Locales get reset during package installation sometimes
+    ####   (Locales get reset during package installation sometimes)
     #### '----------------------------------------------------------------------
     updateLocale
 
