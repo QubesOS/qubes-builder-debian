@@ -14,19 +14,30 @@ debug ' Installing base system using debootstrap'
 # ==============================================================================
 buildStep "${0}" "pre"
 
+
+bootstrap() {
+    for mirror in ${DEBIAN_MIRRORS[@]}; do
+        if [ ! -d "${INSTALLDIR}/${TMPDIR}" ]; then
+            mkdir -p "${INSTALLDIR}/${TMPDIR}"
+        fi
+        echo ${mirror} > "${INSTALLDIR}/${TMPDIR}/.mirror"
+        COMPONENTS="" debootstrap \
+            --arch=amd64 \
+            --include="ncurses-term locales tasksel" \
+            --components=main \
+            --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
+            "${DIST}" "${INSTALLDIR}" "${mirror}" && return 0
+    done
+    error "Debootstrap failed!"
+    exit 1;
+}
+
+
 if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
     #### "------------------------------------------------------------------
     info " $(templateName): Installing base '${DISTRIBUTION}-${DIST}' system"
     #### "------------------------------------------------------------------
-    COMPONENTS="" debootstrap \
-        --arch=amd64 \
-        --include="ncurses-term locales tasksel" \
-        --components=main \
-        --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
-        "${DIST}" "${INSTALLDIR}" "${DEBIAN_MIRROR}" || { 
-            error "Debootstrap failed!";
-            exit 1; 
-        }
+    bootstrap || exit 1
 
     #### '----------------------------------------------------------------------
     info ' Configure keyboard'
