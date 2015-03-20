@@ -9,9 +9,8 @@ source ./functions.sh
 
 # ------------------------------------------------------------------------------
 # Temp directory to place installation files and progress markers
-# (Do not use /tmp since if built in a real VM, /tmp will be empty on a reboot)
 # ------------------------------------------------------------------------------
-TMPDIR="/var/lib/qubes-whonix/install"
+TMPDIR="/tmp"
 
 # ------------------------------------------------------------------------------
 # The codename of the debian version to install.
@@ -22,13 +21,11 @@ DEBIANVERSION=${DIST}
 # ------------------------------------------------------------------------------
 # Location to grab Debian packages
 # ------------------------------------------------------------------------------
-DEBIAN_MIRROR=http://ftp.us.debian.org/debian
-
-# TODO: Not yet implemented
-DEBIAN_MIRRORS=('http://ftp.us.debian.org/debian',
-                'http://http.debian.net/debian,
-                'http://ftp.ca.debian.org/debian,
-               )
+DEBIAN_MIRRORS=(
+    'http://http.debian.net/debian'
+    'http://ftp.us.debian.org/debian'
+    'http://ftp.ca.debian.org/debian'
+)
 
 # ------------------------------------------------------------------------------
 # apt-get configuration options
