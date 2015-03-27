@@ -1,6 +1,5 @@
 #
 # Generic Makefile.builder for Debian quilt packages
-# (for use with Whonix packages)
 #
 
 ifeq ($(PACKAGE_SET),vm)
@@ -11,6 +10,7 @@ ifeq ($(PACKAGE_SET),vm)
 endif
 
 all: 
+	@true
 
 install:
 	find . -maxdepth 1 -type d ! -path "./debian" -a ! -path "./deb" -a ! -path "./.git" -a ! -path "." -exec cp -a '{}' $$DESTDIR \;
@@ -21,8 +21,8 @@ source-debian-quilt-copy-in: ORIG_FILE = "$(CHROOT_DIR)/$(DIST_SRC)/../$(NAME)_$
 source-debian-quilt-copy-in:
 	cd $(CHROOT_DIR)/$(DIST_SRC); \
 	rm -f Makefile; \
-	ln -s Makefile.builder Makefile
+	ln -sf Makefile.builder Makefile
 	-$(shell $(ORIG_SRC)/debian-quilt $(ORIG_SRC)/series-debian-vm.conf $(CHROOT_DIR)/$(DIST_SRC)/debian/patches)
-	tar cfz $(ORIG_FILE) --exclude-vcs --exclude=debian -C $(CHROOT_DIR)/$(DIST_SRC) .
+	tar cfz $(ORIG_FILE) --exclude-vcs --exclude=rpm --exclude=pkgs --exclude=deb --exclude=debian -C $(CHROOT_DIR)/$(DIST_SRC) .
 
 # vim: filetype=make
