@@ -29,7 +29,7 @@ info ' Installing qubes-whonix and other required packages'
 chroot mkdir -p '/usr/local/share/applications'  # whonix-setup-wizard needs this
 
 installQubesRepo
-aptInstall python-guimessages whonix-setup-wizard qubes-whonix
+aptInstall python-guimessages whonix-setup-wizard whonix-repository qubes-whonix
 uninstallQubesRepo
 
 #### '--------------------------------------------------------------------------
