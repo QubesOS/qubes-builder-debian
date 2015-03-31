@@ -217,9 +217,9 @@ else
 	fi
 
 	if [ "X$(release_name_dist)" != "X" ]; then \
-		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes"; \
+		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes"; \
 	else \
-		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes"; \
+		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes"; \
 	fi
 	sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
 	sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-deb
