@@ -33,6 +33,7 @@ calc_sha1 main/binary-amd64/Packages >> dists/$1/Release
 calc_sha1 main/binary-amd64/Packages >> dists/$1/Release.gz
 
 rm -f dists/$DIST/Release.gpg
+export GNUPGHOME=$CACHEDIR/gnupg-home
 gpg -abs --no-default-keyring \
     --secret-keyring $KEYS_DIR/repo-secring.gpg \
     --keyring $KEYS_DIR/repo-pubring.gpg \

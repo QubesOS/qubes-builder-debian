@@ -117,6 +117,8 @@ fi
 # ------------------------------------------------------------------------------
 if ! [ -f $CACHEDIR/repo-secring.gpg ]; then
     mkdir -p $CACHEDIR/keys
+    mkdir -m 700 -p $CACHEDIR/gnupg-home
+    export GNUPGHOME=$CACHEDIR/gnupg-home
     gpg --gen-key --batch <<EOF
 Key-Type: RSA
 Key-Length: 1024
@@ -128,6 +130,7 @@ Expire-Date: 0
 %commit
 EOF
     chown --reference=$DEBIAN_PLUGIN_DIR $CACHEDIR/repo-*ring.gpg
+    chown --reference=$DEBIAN_PLUGIN_DIR -R $GNUPGHOME
 fi
 
 cp $CACHEDIR/repo-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
