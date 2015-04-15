@@ -385,7 +385,7 @@ EOF
 # Uninstall Qubes Repo
 # ==============================================================================
 uninstallQubesRepo() {
-    info ' Removing Quebes build repo from sources.list.d'
+    info ' Removing Qubes build repo from sources.list.d'
 
     # Lets not umount; we do that anyway when 04 exits
     umount_kill "${INSTALLDIR}/tmp/qubes_repo"
