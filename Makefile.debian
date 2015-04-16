@@ -120,10 +120,9 @@ dist-prep:
 		rpm -q $(DEBIAN_DEPENDENCIES) >/dev/null 2>&1 || exit 1; \
 	fi
 
-dist-build-dep: REPO_DIR=$(PWD)/qubes-rpms-mirror-repo/$(DIST)
 dist-build-dep: 
-	if [ ! -d ${REPO_DIR}/dists ]; then \
-		mkdir -p $(REPO_DIR)/dists; \
+	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
+	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
 	fi
 	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
 	sudo chroot $(CHROOT_DIR) apt-get update
