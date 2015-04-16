@@ -175,7 +175,9 @@ function aptInstall() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot apt-get ${APT_GET_OPTIONS} install ${files[@]}
+    retcode=$?
     chroot apt-get clean
+    return $retcode
 }
 
 # ==============================================================================
@@ -212,7 +214,7 @@ function installPackages() {
         readarray -t packages < "${package_list}"
 
         info "Packages: "${packages[@]}""
-        aptInstall "${packages[@]}" || return $?
+        aptInstall "${packages[@]}"
     done
 }
 
