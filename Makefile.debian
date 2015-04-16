@@ -67,6 +67,10 @@ ifneq (,$(DEBIAN_BUILD_DIRS))
   release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 endif
 
+ifndef OUTPUT_DIR
+OUTPUT_DIR = deb/$(DIST)
+endif
+
 listfiles = awk 'section == "Files:" { print $$5 } /^[A-Z].*.$$/ { section=$$1 }'
 
 ifdef UPDATE_REPO
@@ -175,13 +179,13 @@ endif
 
 dist-copy-out:
 	mkdir -p $(BUILDER_REPO_DIR)/deb
-	mkdir -p $(ORIG_SRC)/deb/$(DIST)
+	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
 	cd $(DEBIAN_CHROOT_DIR)/../..; \
 		cp -t $(BUILDER_REPO_DIR)/deb `$(listfiles) $(release_name)*.changes`
 	cp -t $(BUILDER_REPO_DIR)/deb/ $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
 	cd $(DEBIAN_CHROOT_DIR)/../..; \
-		mv -t $(PWD)/$(ORIG_SRC)/deb/$(DIST)  `$(listfiles) $(release_name)*.changes`
-	mv -t $(PWD)/$(ORIG_SRC)/deb/$(DIST) $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
+		mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR)  `$(listfiles) $(release_name)*.changes`
+	mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
 
 update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
 update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog)
