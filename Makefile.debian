@@ -228,3 +228,28 @@ endif
 	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
 	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-deb
 endif
+
+ifeq (,$(DEBIAN_BUILD_DIRS))
+check-repo:
+	@true
+else
+check-repo: package_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+check-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+check-repo:
+ifndef UPDATE_REPO
+	$(error "You need to specify destination repo in UPDATE_REPO variable")
+endif
+	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo $(REPO_CHROOT_DIR)/tmp/qubes-deb 2>/dev/null || true
+
+	@# Softlink to the first distribution called; it will be used to create and store repo
+	@if ! [ -L $(REPO_CHROOT_DIR) ]; then \
+	    ln -sf chroot-${DIST} ${REPO_CHROOT_DIR}; \
+	fi
+	@if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo/dists ]; then \
+		mkdir -p $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
+		sudo mount --bind $(UPDATE_REPO) $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
+	fi
+
+	sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) 'Package (== $$package_name), Version (== $$package_ver+$(DIST)1)'" | grep -q "$$package_name"
+	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
+endif
