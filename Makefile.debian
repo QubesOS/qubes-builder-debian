@@ -187,43 +187,44 @@ dist-copy-out:
 		mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR)  `$(listfiles) $(release_name)*.changes`
 	mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
 
+ifeq (,$(DEBIAN_BUILD_DIRS))
+update-repo:
+	@true
+else
 update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
 update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog)
 update-repo:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
-ifeq (,$(DEBIAN_BUILD_DIRS))
-	@true
-else
 	@mkdir -p $(UPDATE_REPO)/conf
-	if [ ! -e $(UPDATE_REPO)/conf/distributions ]; then \
+	@if [ ! -e $(UPDATE_REPO)/conf/distributions ]; then \
 		touch $(UPDATE_REPO)/conf/distributions; \
 	fi
-	grep $(DIST) $(UPDATE_REPO)/conf/distributions > /dev/null; \
+	@grep $(DIST) $(UPDATE_REPO)/conf/distributions > /dev/null; \
 	if [ $$? -ne 0 ]; then \
 		echo "$$aptdistributions" >> $(UPDATE_REPO)/conf/distributions; \
 	fi
-	-sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo $(REPO_CHROOT_DIR)/tmp/qubes-deb 2>/dev/null
+	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo $(REPO_CHROOT_DIR)/tmp/qubes-deb 2>/dev/null || true
 
-	# Softlink to the first distribution called; it will be used to create and store repo
-	if ! [ -L $(REPO_CHROOT_DIR) ]; then \
+	@# Softlink to the first distribution called; it will be used to create and store repo
+	@if ! [ -L $(REPO_CHROOT_DIR) ]; then \
 	    ln -sf chroot-${DIST} ${REPO_CHROOT_DIR}; \
 	fi
-	if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-deb/deb ]; then \
+	@if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-deb/deb ]; then \
 		mkdir -p $(REPO_CHROOT_DIR)/tmp/qubes-deb ;\
 		sudo mount --bind $(BUILDER_REPO_DIR) $(REPO_CHROOT_DIR)/tmp/qubes-deb ;\
 	fi
-	if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo/dists ]; then \
+	@if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo/dists ]; then \
 		mkdir -p $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
 		sudo mount --bind $(UPDATE_REPO) $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
 	fi
 
-	if [ "X$(release_name_dist)" != "X" ]; then \
+	@if [ "X$(release_name_dist)" != "X" ]; then \
 		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes"; \
 	else \
 		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes"; \
 	fi
-	sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
-	sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-deb
+	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
+	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-deb
 endif
