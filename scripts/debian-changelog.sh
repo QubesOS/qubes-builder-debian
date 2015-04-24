@@ -42,6 +42,14 @@ deb_version=$($debian_parser changelog --package-version debian/changelog)
 deb_revision=$($debian_parser changelog --package-revision debian/changelog)
 deb_epoc=$($debian_parser changelog --package-version-epoc debian/changelog)
 
+version="$(cat version)"
+# only two components supports non-default revisions: linux-kernel and vmm-xen
+revision="$(cat rel 2>/dev/null)"
+previous_tag="v${deb_version}-${deb_revision}"
+if [ -z "$revision" ]; then
+    revision="1"
+    previous_tag="v${deb_version}"
+fi
 
 # =============================================================================
 #                            R E L E A S E   M O D E 
@@ -54,7 +62,7 @@ deb_epoc=$($debian_parser changelog --package-version-epoc debian/changelog)
 #                          same changelog section
 #           --multimaint:  Indicate parts of a changelog entry have been made
 #                          by different maintainers
-if [ "${deb_version}" != $(cat version) ]; then
+if [ "${deb_version}-${deb_revision}" != "${version}-${revision}" ]; then
     # -----------------------------------------------------------------------------
     # Create new version number adding epoc and revision info for quilt packages
     # if they exist
@@ -62,7 +70,7 @@ if [ "${deb_version}" != $(cat version) ]; then
     if [ "X${deb_revision}" == "X" ]; then
         new_version="$(cat version)"
     else
-        new_version="$(cat version)-1"
+        new_version="$(cat version)-${revision}"
         if [ "X${deb_epoc}" != "X" ]; then
             new_version="${deb_epoc}:${new_version}"
         fi
@@ -72,7 +80,7 @@ if [ "${deb_version}" != $(cat version) ]; then
     # Add new version number and git commit history to changelog
     # -----------------------------------------------------------------------------
     IFS=%
-    (git log --no-merges --topo-order --reverse --pretty=format:%an%%%ae%%%ad%%%s v${deb_version}..HEAD;echo) |\
+    (git log --no-merges --topo-order --reverse --pretty=format:%an%%%ae%%%ad%%%s ${previous_tag}..HEAD;echo) |\
         while read a_name a_email date sum; do
             export DEBFULLNAME="${a_name}"
             export DEBEMAIL="${a_email}"
