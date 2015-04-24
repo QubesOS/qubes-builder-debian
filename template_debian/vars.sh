@@ -21,11 +21,16 @@ DEBIANVERSION=${DIST}
 # ------------------------------------------------------------------------------
 # Location to grab Debian packages
 # ------------------------------------------------------------------------------
-DEBIAN_MIRRORS=(
+DEFAULT_DEBIAN_MIRRORS=(
     'http://http.debian.net/debian'
     'http://ftp.us.debian.org/debian'
     'http://ftp.ca.debian.org/debian'
 )
+
+# DEBIAN_MIRRORS can be set in configuration file to override the defaults
+if [ -z "${DEBIAN_MIRRORS}" ]; then
+    DEBIAN_MIRRORS="${DEFAULT_DEBIAN_MIRRORS}"
+fi
 
 # ------------------------------------------------------------------------------
 # apt-get configuration options
