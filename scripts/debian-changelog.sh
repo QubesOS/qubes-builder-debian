@@ -47,6 +47,7 @@ version="$(cat version)"
 revision="$(cat rel 2>/dev/null)"
 previous_tag="v${deb_version}-${deb_revision}"
 if [ -z "$revision" ]; then
+    revision="1"
     previous_tag="v${deb_version}"
 fi
 
@@ -66,9 +67,6 @@ if [ "${deb_version}-${deb_revision}" != "${version}-${revision}" ]; then
     # Create new version number adding epoc and revision info for quilt packages
     # if they exist
     # -----------------------------------------------------------------------------
-    if [ -z "$revision" ]; then
-        revision="1"
-    fi
     if [ "X${deb_revision}" == "X" ]; then
         new_version="$(cat version)"
     else
