@@ -22,7 +22,7 @@ DEBIAN_MIRRORS=(
 # ------------------------------------------------------------------------------
 # apt-get configuration options
 # ------------------------------------------------------------------------------
-APT_GET_OPTIONS="-o Dpkg::Options::="--force-confnew" --force-yes --yes"
+APT_GET_OPTIONS="-o Dpkg::Options::="--force-confnew" --yes"
 
 containsFlavor 'no-recommends' && {
     APT_GET_OPTIONS+=" -o APT::Install-Recommends=0  -o APT::Install-Suggests=0" 
