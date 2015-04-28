@@ -191,6 +191,9 @@ ifeq (,$(DEBIAN_BUILD_DIRS))
 update-repo:
 	@true
 else
+update-repo: package_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
 update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
 update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog)
 update-repo:
@@ -227,6 +230,13 @@ endif
 	fi
 	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
 	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-deb
+ifdef SNAPSHOT_FILE
+	@if [ "X$(package_ver_dist)" != "X" ]; then \
+		echo 'Package (== $(package_name)), Version (== $(package_ver_dist))' > $(SNAPSHOT_FILE); \
+	else \
+		echo 'Package (== $(package_name)), Version (== $(package_ver)+$(DIST)1)' > $(SNAPSHOT_FILE); \
+	fi
+endif
 endif
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
