@@ -165,7 +165,7 @@ function aptUpdate() {
 function aptRemove() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot apt-get ${APT_GET_OPTIONS} remove ${files[@]}
+        chroot apt-get ${APT_GET_OPTIONS} --force-yes remove ${files[@]}
 }
 
 # ==============================================================================
