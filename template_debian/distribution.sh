@@ -138,7 +138,7 @@ function prepareChroot() {
 function aptUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none apt-get upgrade -u -y --force-yes
+        chroot env APT_LISTCHANGES_FRONTEND=none apt-get upgrade -u -y
 }
 
 # ==============================================================================
@@ -147,7 +147,7 @@ function aptUpgrade() {
 function aptDistUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none apt-get dist-upgrade -u -y --force-yes
+        chroot env APT_LISTCHANGES_FRONTEND=none apt-get dist-upgrade -u -y
 }
 
 # ==============================================================================
