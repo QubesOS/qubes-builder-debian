@@ -100,6 +100,10 @@ function addDivertPolicy() {
     outputc green "Deactivating initctl..."
     chroot dpkg-divert --local --rename --add /sbin/initctl || true
 
+    outputc green "Creating policy-rc.d"
+    echo exit 101 > "${INSTALLDIR}/usr/sbin/policy-rc.d"
+    chmod +x "${INSTALLDIR}/usr/sbin/policy-rc.d"
+
     # utopic systemd install still broken...
     outputc green "Hacking invoke-rc.d to ignore missing init scripts..."
     chroot sed -i -e "s/exit 100/exit 0 #exit 100/" /usr/sbin/invoke-rc.d
@@ -111,6 +115,9 @@ function addDivertPolicy() {
 function removeDivertPolicy() {
     outputc red "Reactivating initctl..."
     chroot dpkg-divert --local --rename --remove /sbin/initctl || true
+
+    outputc green "Removing policy-rc.d"
+    rm -f "${INSTALLDIR}/usr/sbin/policy-rc.d"
 
     outputc red "Restoring invoke-rc.d..."
     chroot sed -i -e "s/exit 0 #exit 100/exit 100/" /usr/sbin/invoke-rc.d
