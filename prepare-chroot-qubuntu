@@ -22,6 +22,7 @@ if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
     APT_GET_OPTIONS+=" -o Dpkg::Options::=--force-unsafe-io"
     eatmydata_maybe=eatmydata
 fi
+APT_GET_OPTIONS+=" -o Acquire::Retries=3"
 
 if [ -n "${REPO_PROXY}" ]; then
     APT_GET_OPTIONS+=" -o Acquire::http::Proxy=${REPO_PROXY}"

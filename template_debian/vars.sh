@@ -36,6 +36,7 @@ fi
 # apt-get configuration options
 # ------------------------------------------------------------------------------
 APT_GET_OPTIONS="-o Dpkg::Options::=--force-confnew --yes"
+APT_GET_OPTIONS+=" -o Acquire::Retries=3"
 
 if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
     APT_GET_OPTIONS+=" -o Dpkg::Options::=--force-unsafe-io"
