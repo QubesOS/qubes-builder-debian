@@ -145,7 +145,7 @@ function prepareChroot() {
 function aptUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none apt-get upgrade -u -y
+        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe apt-get upgrade -u -y
 }
 
 # ==============================================================================
@@ -154,7 +154,7 @@ function aptUpgrade() {
 function aptDistUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none apt-get dist-upgrade -u -y
+        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe apt-get dist-upgrade -u -y
 }
 
 # ==============================================================================
@@ -172,7 +172,7 @@ function aptUpdate() {
 function aptRemove() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot apt-get ${APT_GET_OPTIONS} --force-yes remove ${files[@]}
+        chroot $eatmydata_maybe apt-get ${APT_GET_OPTIONS} --force-yes remove ${files[@]}
 }
 
 # ==============================================================================
@@ -181,7 +181,7 @@ function aptRemove() {
 function aptInstall() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot apt-get ${APT_GET_OPTIONS} install ${files[@]}
+        chroot $eatmydata_maybe apt-get ${APT_GET_OPTIONS} install ${files[@]}
     retcode=$?
     chroot apt-get clean
     return $retcode

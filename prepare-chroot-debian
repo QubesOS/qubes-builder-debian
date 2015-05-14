@@ -23,6 +23,10 @@ fi
 # Build packages to be installed to allow building of Qubes modules
 # ------------------------------------------------------------------------------
 BUILDPACKAGES="reprepro build-essential devscripts git git-buildpackage pbuilder debhelper quilt libxen-dev python libpulse-dev libtool automake xorg-dev xutils-dev libxdamage-dev libxcomposite-dev libxt-dev libx11-dev"
+if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
+    APT_GET_OPTIONS+=" -o Dpkg::Options::=--force-unsafe-io"
+    eatmydata_maybe=eatmydata
+fi
 
 if ! [ -d $DIR/home/user ]; then
     # --------------------------------------------------------------------------
@@ -31,7 +35,7 @@ if ! [ -d $DIR/home/user ]; then
     mkdir -p $DIR
     echo "-> Installing debian build chroot..."
     COMPONENTS="" debootstrap --arch=amd64 \
-                --include=ncurses-term,debian-keyring \
+                --include=ncurses-term,debian-keyring,$eatmydata_maybe \
                 --keyring=${DEBIAN_PLUGIN_DIR}keys/$DIST-debian-archive-keyring.gpg \
                 $DEBIANVERSION $DIR http://http.debian.net/debian \
                 || { echo "Error in debootstrap"; exit 1; }
@@ -76,7 +80,10 @@ else
 
     # update chroot
     chroot $DIR apt-get update
-    chroot $DIR apt-get -y upgrade
+    if [ -n "$eatmydata_maybe" -a ! -f "$DIR/usr/lib/libeatmydata/libeatmydata.so" ]; then
+        chroot $DIR apt-get $APT_GET_OPTIONS -y install eatmydata
+    fi
+    chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y upgrade
 fi
 
 # ------------------------------------------------------------------------------
@@ -89,7 +96,7 @@ fi
 # ------------------------------------------------------------------------------
 # Install all build packages specified
 # ------------------------------------------------------------------------------
-chroot $DIR apt-get -y install $BUILDPACKAGES
+chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 
 if [ "$DIST" == "wheezy" ]; then
     # Looks like a SID only package is being used to build packages
@@ -100,7 +107,7 @@ if [ "$DIST" == "wheezy" ]; then
         echo "$source" >> "${DIR}/etc/apt/sources.list"
     fi
     chroot $DIR apt-get update
-    chroot $DIR apt-get -t wheezy-backports install -y dh-systemd config-package-dev
+    chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -t wheezy-backports install -y dh-systemd config-package-dev
 fi
 
 # ------------------------------------------------------------------------------

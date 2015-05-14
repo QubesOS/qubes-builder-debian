@@ -23,7 +23,7 @@ bootstrap() {
         echo ${mirror} > "${INSTALLDIR}/${TMPDIR}/.mirror"
         COMPONENTS="" debootstrap \
             --arch=amd64 \
-            --include="ncurses-term locales tasksel" \
+            --include="ncurses-term,locales,tasksel,$eatmydata_maybe" \
             --components=main \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "${mirror}" && return 0

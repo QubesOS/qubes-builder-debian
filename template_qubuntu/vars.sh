@@ -22,7 +22,12 @@ DEBIAN_MIRRORS=(
 # ------------------------------------------------------------------------------
 # apt-get configuration options
 # ------------------------------------------------------------------------------
-APT_GET_OPTIONS="-o Dpkg::Options::="--force-confnew" --yes"
+APT_GET_OPTIONS="-o Dpkg::Options::=--force-confnew -o Dpkg::Options::=--force-unsafe-io --yes"
+
+if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
+    APT_GET_OPTIONS+=" -o Dpkg::Options::=--force-unsafe-io"
+    eatmydata_maybe=eatmydata
+fi
 
 containsFlavor 'no-recommends' && {
     APT_GET_OPTIONS+=" -o APT::Install-Recommends=0  -o APT::Install-Suggests=0" 

@@ -18,6 +18,10 @@ fi
 # Build packages to be installed to allow building of Qubes modules
 # ------------------------------------------------------------------------------
 BUILDPACKAGES="reprepro build-essential devscripts git git-buildpackage pbuilder debhelper quilt libxen-dev python libpulse-dev libtool automake xorg-dev xutils-dev libxdamage-dev libxcomposite-dev libxt-dev libx11-dev"
+if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
+    APT_GET_OPTIONS+=" -o Dpkg::Options::=--force-unsafe-io"
+    eatmydata_maybe=eatmydata
+fi
 
 INITIAL=
 
@@ -29,7 +33,7 @@ if ! [ -d $DIR/home/user ]; then
     mkdir -p $DIR
     echo "-> Installing qubuntu build chroot..."
     COMPONENTS="" debootstrap --arch=amd64 \
-                --include=ncurses-term,ubuntu-keyring \
+                --include=ncurses-term,ubuntu-keyring,$eatmydata_maybe \
                 --keyring=${DEBIAN_PLUGIN_DIR}/keys/$DIST-qubuntu-archive-keyring.gpg \
                 $DEBIANVERSION $DIR http://archive.ubuntu.com/ubuntu \
                 || { echo "Error in debootstrap"; exit 1; }
@@ -74,7 +78,7 @@ else
 
     # update chroot
     chroot $DIR apt-get update
-    chroot $DIR apt-get -y upgrade
+    chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y upgrade
 fi
 
 # ------------------------------------------------------------------------------
@@ -93,13 +97,13 @@ chroot $DIR apt-get update
 # ------------------------------------------------------------------------------
 # Install all build packages specified
 # ------------------------------------------------------------------------------
-chroot $DIR apt-get -y install $BUILDPACKAGES
+chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 
 # Install pulseaudio5
-chroot $DIR apt-get install -y software-properties-common
+chroot $DIR apt-get $APT_GET_OPTIONS install -y software-properties-common
 chroot $DIR add-apt-repository -y ppa:ubuntu-audio-dev/pulse-testing
 chroot $DIR apt-get update
-chroot $DIR apt-get install -y libpulse-dev
+chroot $DIR apt-get $APT_GET_OPTIONS install -y libpulse-dev
 
 # ------------------------------------------------------------------------------
 # Install keyring
