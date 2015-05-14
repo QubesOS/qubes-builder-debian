@@ -42,6 +42,11 @@ if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
     eatmydata_maybe=eatmydata
 fi
 
+if [ -n "$REPO_PROXY" ]; then
+    APT_GET_OPTIONS+=" -o Acquire::http::Proxy=${REPO_PROXY}"
+    DEBOOTSTRAP_PREFIX+=" env http_proxy=${REPO_PROXY}"
+fi
+
 containsFlavor 'no-recommends' && {
     APT_GET_OPTIONS+=" -o APT::Install-Recommends=0  -o APT::Install-Suggests=0" 
 } || true

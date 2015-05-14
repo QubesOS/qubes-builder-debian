@@ -23,6 +23,11 @@ if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
     eatmydata_maybe=eatmydata
 fi
 
+if [ -n "${REPO_PROXY}" ]; then
+    APT_GET_OPTIONS+=" -o Acquire::http::Proxy=${REPO_PROXY}"
+    DEBOOTSTRAP_PREFIX+=" env http_proxy=${REPO_PROXY}"
+fi
+
 INITIAL=
 
 if ! [ -d $DIR/home/user ]; then
@@ -32,7 +37,7 @@ if ! [ -d $DIR/home/user ]; then
     INITIAL=1
     mkdir -p $DIR
     echo "-> Installing qubuntu build chroot..."
-    COMPONENTS="" debootstrap --arch=amd64 \
+    COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
                 --include=ncurses-term,ubuntu-keyring,$eatmydata_maybe \
                 --keyring=${DEBIAN_PLUGIN_DIR}/keys/$DIST-qubuntu-archive-keyring.gpg \
                 $DEBIANVERSION $DIR http://archive.ubuntu.com/ubuntu \

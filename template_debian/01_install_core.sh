@@ -21,7 +21,7 @@ bootstrap() {
             mkdir -p "${INSTALLDIR}/${TMPDIR}"
         fi
         echo ${mirror} > "${INSTALLDIR}/${TMPDIR}/.mirror"
-        COMPONENTS="" debootstrap \
+        COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$eatmydata_maybe" \
             --components=main \

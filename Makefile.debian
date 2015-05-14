@@ -92,6 +92,10 @@ Description: Apt repository with qubes domU support tools for $(DISTRIBUTION_CAP
 endef
 export aptdistributions
 
+ifdef REPO_PROXY
+  APT_GET_OPTIONS += -o Acquire::http::Proxy=$(REPO_PROXY)
+endif
+
 dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
 	@if [ $(VERBOSE) -gt 0 ]; then \
 		echo "-> dist-prepare-chroot for $(DIST)"; \
