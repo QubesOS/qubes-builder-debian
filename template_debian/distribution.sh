@@ -145,7 +145,8 @@ function prepareChroot() {
 function aptUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe apt-get upgrade -u -y
+        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
+            apt-get ${APT_GET_OPTIONS} upgrade -u -y
 }
 
 # ==============================================================================
@@ -154,7 +155,8 @@ function aptUpgrade() {
 function aptDistUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe apt-get dist-upgrade -u -y
+        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
+            apt-get ${APT_GET_OPTIONS} dist-upgrade -u -y
 }
 
 # ==============================================================================
@@ -163,7 +165,7 @@ function aptDistUpgrade() {
 function aptUpdate() {
     debug "Updating system"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot apt-get update
+        chroot apt-get ${APT_GET_OPTIONS} update
 }
 
 # ==============================================================================
@@ -183,7 +185,7 @@ function aptInstall() {
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot $eatmydata_maybe apt-get ${APT_GET_OPTIONS} install ${files[@]}
     retcode=$?
-    chroot apt-get clean
+    chroot apt-get ${APT_GET_OPTIONS} clean
     return $retcode
 }
 
@@ -230,7 +232,7 @@ function installPackages() {
 # ==============================================================================
 function installSystemd() {
     buildStep "$0" "pre-systemd"
-    chroot apt-get update
+    chroot apt-get ${APT_GET_OPTIONS} update
 
     aptInstall systemd
     createDbusUuid
@@ -289,7 +291,7 @@ function updateQubuntuSourceList() {
         touch "${INSTALLDIR}/etc/apt/sources.list"
         echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
     fi
-    chroot apt-get update
+    chroot apt-get ${APT_GET_OPTIONS} update
 }
 
 # ==============================================================================

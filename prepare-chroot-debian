@@ -79,7 +79,7 @@ else
     rm -f $DIR/etc/apt/sources.list.d/qubes-builder.list
 
     # update chroot
-    chroot $DIR apt-get update
+    chroot $DIR apt-get $APT_GET_OPTIONS update
     if [ -n "$eatmydata_maybe" -a ! -f "$DIR/usr/lib/libeatmydata/libeatmydata.so" ]; then
         chroot $DIR apt-get $APT_GET_OPTIONS -y install eatmydata
     fi
@@ -106,7 +106,7 @@ if [ "$DIST" == "wheezy" ]; then
         touch "${DIR}/etc/apt/sources.list"
         echo "$source" >> "${DIR}/etc/apt/sources.list"
     fi
-    chroot $DIR apt-get update
+    chroot $DIR apt-get $APT_GET_OPTIONS update
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -t wheezy-backports install -y dh-systemd config-package-dev
 fi
 
@@ -145,7 +145,7 @@ cp $CACHEDIR/repo-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
 # ------------------------------------------------------------------------------
 # Refresh package list (but not quebes repo since it does not yet exist)
 # ------------------------------------------------------------------------------
-chroot $DIR apt-get update
+chroot $DIR apt-get $APT_GET_OPTIONS update
 
 # ------------------------------------------------------------------------------
 # Update debian apt sources list to use local qubes repo

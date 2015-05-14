@@ -129,19 +129,19 @@ dist-build-dep:
 	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
 	fi
 	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
-	sudo chroot $(CHROOT_DIR) apt-get update
+	sudo chroot $(CHROOT_DIR) apt-get ${APT_GET_OPTIONS} update
 
 	# Parse debian/control for Build-Depends and install
 	$(DEBIAN_PARSER) control --build-depends $(DEBIAN_CHROOT_DIR)/control |\
-		xargs sudo chroot $(CHROOT_DIR) apt-get install -y
+		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 	# Parse debian/control for custom X-Qubes-Build-Depends-[debian] depends and install
 	$(DEBIAN_PARSER) control --qubes-build-depends $(DISTRIBUTION) $(DEBIAN_CHROOT_DIR)/control |\
-		xargs sudo chroot $(CHROOT_DIR) apt-get install -y
+		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 	# Parse debian/control for custom X-Qubes-Build-Depends-[wheezy/jessie] depends and install
 	$(DEBIAN_PARSER) control --qubes-build-depends $(DIST) $(DEBIAN_CHROOT_DIR)/control |\
-		xargs sudo chroot $(CHROOT_DIR) apt-get install -y
+		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 dist-package:
 ifndef PACKAGE

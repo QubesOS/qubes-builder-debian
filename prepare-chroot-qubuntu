@@ -77,7 +77,7 @@ else
     rm -f $DIR/etc/apt/sources.list.d/qubes-builder.list
 
     # update chroot
-    chroot $DIR apt-get update
+    chroot $DIR apt-get $APT_GET_OPTIONS update
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y upgrade
 fi
 
@@ -92,7 +92,7 @@ fi
 # Add universe to sources.list
 # ------------------------------------------------------------------------------
 sed -i "s/${DIST} main$/${DIST} main universe/g" $DIR/etc/apt/sources.list
-chroot $DIR apt-get update
+chroot $DIR apt-get $APT_GET_OPTIONS update
 
 # ------------------------------------------------------------------------------
 # Install all build packages specified
@@ -102,7 +102,7 @@ chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 # Install pulseaudio5
 chroot $DIR apt-get $APT_GET_OPTIONS install -y software-properties-common
 chroot $DIR add-apt-repository -y ppa:ubuntu-audio-dev/pulse-testing
-chroot $DIR apt-get update
+chroot $DIR apt-get $APT_GET_OPTIONS update
 chroot $DIR apt-get $APT_GET_OPTIONS install -y libpulse-dev
 
 # ------------------------------------------------------------------------------
