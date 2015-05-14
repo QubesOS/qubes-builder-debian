@@ -50,6 +50,9 @@ if [ -z "$revision" ]; then
     revision="1"
     previous_tag="v${deb_version}"
 fi
+if [ -z "$deb_revision" ]; then
+    revision=""
+fi
 
 # =============================================================================
 #                            R E L E A S E   M O D E 
