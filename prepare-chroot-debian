@@ -126,30 +126,7 @@ if ! grep -r -q "$source" "${DIR}/etc/apt/sources.list"*; then
 fi
 
 # ------------------------------------------------------------------------------
-# Install keyring
-# ------------------------------------------------------------------------------
-if ! [ -f $CACHEDIR/repo-secring.gpg ]; then
-    mkdir -p $CACHEDIR/keys
-    mkdir -m 700 -p $CACHEDIR/gnupg-home
-    export GNUPGHOME=$CACHEDIR/gnupg-home
-    gpg --gen-key --batch <<EOF
-Key-Type: RSA
-Key-Length: 1024
-Key-Usage: sign
-Name-Real: Qubes builder
-Expire-Date: 0
-%pubring $CACHEDIR/repo-pubring.gpg
-%secring $CACHEDIR/repo-secring.gpg
-%commit
-EOF
-    chown --reference=$DEBIAN_PLUGIN_DIR $CACHEDIR/repo-*ring.gpg
-    chown --reference=$DEBIAN_PLUGIN_DIR -R $GNUPGHOME
-fi
-
-cp $CACHEDIR/repo-pubring.gpg $DIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
-
-# ------------------------------------------------------------------------------
-# Refresh package list (but not quebes repo since it does not yet exist)
+# Refresh package list (but not qubes repo since it does not yet exist)
 # ------------------------------------------------------------------------------
 chroot $DIR apt-get $APT_GET_OPTIONS update
 
@@ -157,6 +134,6 @@ chroot $DIR apt-get $APT_GET_OPTIONS update
 # Update debian apt sources list to use local qubes repo
 # ------------------------------------------------------------------------------
 cat > $DIR/etc/apt/sources.list.d/qubes-builder.list <<EOF
-deb file:/tmp/qubes-deb $DEBIANVERSION main
+deb [trusted=yes] file:/tmp/qubes-deb $DEBIANVERSION main
 EOF
 
