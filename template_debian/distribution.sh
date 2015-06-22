@@ -332,7 +332,7 @@ EOF
 function updateLocale() {
     debug "Updating locales"
     chroot localedef -f UTF-8 -i en_US -c en_US.UTF-8
-    chroot update-locale LC_ALL=en_US.UTF-8
+    chroot update-locale LANG=en_US.UTF-8
 }
 
 
