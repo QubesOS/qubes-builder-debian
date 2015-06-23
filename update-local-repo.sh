@@ -7,8 +7,6 @@ set -e
 REPO_DIR=$BUILDER_REPO_DIR
 DIST=$1
 
-KEYS_DIR="${CACHEDIR}"
-
 pushd $REPO_DIR
 mkdir -p dists/$DIST/main/binary-amd64
 dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages
@@ -32,14 +30,6 @@ function calc_sha1() {
 calc_sha1 main/binary-amd64/Packages >> dists/$1/Release
 calc_sha1 main/binary-amd64/Packages >> dists/$1/Release.gz
 
-rm -f dists/$DIST/Release.gpg
-export GNUPGHOME=$CACHEDIR/gnupg-home
-mkdir -p $CACHEDIR/gnupg-home
-gpg -abs --no-default-keyring \
-    --secret-keyring $KEYS_DIR/repo-secring.gpg \
-    --keyring $KEYS_DIR/repo-pubring.gpg \
-    -o dists/$DIST/Release.gpg \
-    dists/$DIST/Release
 popd
 
 if [ `id -u` -eq 0 ]; then
