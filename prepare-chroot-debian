@@ -19,6 +19,14 @@ if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
     set -x
 fi
 
+required_tools_list="debootstrap mount"
+for required_tool in $required_tools_list; do
+   if ! command -v "$required_tool" >/dev/null 2>&1 ; then
+      echo "Required tool '$required_tool' missing! Have you installed build dependencies using 'make install-deps' yet?" >&2
+      exit 1
+   fi
+done
+
 # ------------------------------------------------------------------------------
 # Build packages to be installed to allow building of Qubes modules
 # ------------------------------------------------------------------------------
