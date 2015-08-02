@@ -28,7 +28,7 @@ for required_tool in $required_tools_list; do
 done
 
 # ------------------------------------------------------------------------------
-# Build packages to be installed to allow building of Qubes modules
+# Build dependencies to be installed to allow building of Qubes modules
 # ------------------------------------------------------------------------------
 BUILDPACKAGES="reprepro build-essential devscripts git git-buildpackage pbuilder debhelper quilt libxen-dev python libpulse-dev libtool automake xorg-dev xutils-dev libxdamage-dev libxcomposite-dev libxt-dev libx11-dev"
 if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
@@ -108,7 +108,7 @@ if ! [ -r $DIR/proc/cpuinfo ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# Install all build packages specified
+# Install all build dependencies specified
 # ------------------------------------------------------------------------------
 chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 
