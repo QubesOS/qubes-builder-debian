@@ -63,10 +63,6 @@ DEBIAN_DEPENDENCIES := dpkg-dev debootstrap
 DEBIAN_PARSER=$(DEBIAN_PLUGIN_DIR)/scripts/debian-parser
 export DEBIAN_PARSER
 
-ifneq (,$(DEBIAN_BUILD_DIRS))
-  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
-endif
-
 ifndef OUTPUT_DIR
 OUTPUT_DIR = deb/$(DIST)
 endif
@@ -127,6 +123,7 @@ dist-prep:
 	else \
 		rpm -q $(DEBIAN_DEPENDENCIES) >/dev/null 2>&1 || exit 1; \
 	fi
+	cd $(PWD)/$(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/..;  $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
 
 dist-build-dep: 
 	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
@@ -147,6 +144,9 @@ dist-build-dep:
 	$(DEBIAN_PARSER) control --qubes-build-depends $(DIST) $(DEBIAN_CHROOT_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-package: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+endif
 dist-package:
 ifndef PACKAGE
 	$(error "PACKAGE need to be set!")
@@ -155,8 +155,6 @@ ifdef INCREMENT_DEVEL_VERSIONS
 	# Update changelog with -develXX appended to version
 	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in 
 	#       builder configuration to use this feature
-	cd $(DEBIAN_CHROOT_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
-
 	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
 	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
 
@@ -169,10 +167,6 @@ else
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/rpm/*
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
-	# Only used to update changelog to new version since changelog is 
-	# also called below
-	cd $(DEBIAN_CHROOT_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
-
 	# Break the hardlink
 	cp $(DEBIAN_CHROOT_DIR)/changelog $(DEBIAN_CHROOT_DIR)/changelog.copy
 	mv $(DEBIAN_CHROOT_DIR)/changelog.copy $(DEBIAN_CHROOT_DIR)/changelog
@@ -181,6 +175,9 @@ else
 	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST) "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -k${SIGN_KEY}'
 endif
 
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-copy-out: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+endif
 dist-copy-out:
 	mkdir -p $(BUILDER_REPO_DIR)/deb
 	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
