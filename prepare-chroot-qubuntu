@@ -1,6 +1,10 @@
 #!/bin/bash
 # vim: set ts=4 sw=4 sts=4 et :
 
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+fi
+
 # ------------------------------------------------------------------------------
 # Configuration
 # $1: chroot directory [chroot-trusty, chroot-utopic]
@@ -10,9 +14,6 @@ DIR=$1
 DISTRO=$2
 
 set -e
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
-    set -x
-fi
 
 # ------------------------------------------------------------------------------
 # Build packages to be installed to allow building of Qubes modules
@@ -77,7 +78,7 @@ EOF
 else
     # --------------------------------------------------------------------------
     # /home/user directory already exists, so above stage already complete so
-    # temporary remove builder repo, it will be recreated at the end of this 
+    # temporary remove builder repo, it will be recreated at the end of this
     # script
     # --------------------------------------------------------------------------
     rm -f $DIR/etc/apt/sources.list.d/qubes-builder.list

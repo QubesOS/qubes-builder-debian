@@ -3,8 +3,12 @@
 
 # XXX: Changed shebang from /bin/sh to /bin/bash for building on wheezy since
 #      /bin/sh links to /bin/dash and VERBOSE compare will fail
-#      *NOTE* its a good idea to manually link /bin/sh to /bin/bash incase we
+#      *NOTE* its a good idea to manually link /bin/sh to /bin/bash in case we
 #      run into this sort of issue somewhere else
+
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+fi
 
 # ------------------------------------------------------------------------------
 # Configuration
@@ -15,9 +19,6 @@ DIR=$1
 DISTRO=$2
 
 set -e
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
-    set -x
-fi
 
 required_tools_list="debootstrap mount"
 for required_tool in $required_tools_list; do
@@ -87,7 +88,7 @@ EOF
 else
     # --------------------------------------------------------------------------
     # /home/user directory already exists, so above stage already complete so
-    # temporary remove builder repo, it will be recreated at the end of this 
+    # temporary remove builder repo, it will be recreated at the end of this
     # script
     # --------------------------------------------------------------------------
     rm -f $DIR/etc/apt/sources.list.d/qubes-builder.list
