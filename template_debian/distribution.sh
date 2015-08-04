@@ -88,7 +88,7 @@ function createDbusUuid() {
 function removeDbusUuid() {
     if [ -e "${INSTALLDIR}"/var/lib/dbus/machine-id ]; then
         outputc red "Removing generated machine uuid..."
-        rm -f "${INSTALLDIR}/var/lib/dbus/machine-id"
+        rm "${INSTALLDIR}/var/lib/dbus/machine-id"
     fi
 }
 
