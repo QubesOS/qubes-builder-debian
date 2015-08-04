@@ -4,7 +4,6 @@
 source ./functions.sh >/dev/null
 source ./umount_kill.sh >/dev/null
 
-setVerboseMode
 output "${bold}${under}INFO: ${SCRIPTSDIR}/distribution.sh imported by: ${0}${reset}"
 
 # ==============================================================================
@@ -16,9 +15,6 @@ function cleanup() {
     trap
     error "${1:-"${0}: Error.  Cleaning up and un-mounting any existing mounts"}"
     umount_all || true
-
-    # Return xtrace to original state
-    [[ -n "${XTRACE}" ]] && [[ "${XTRACE}" -eq 0 ]] && set -x || set +x
 
     exit $errval
 }
