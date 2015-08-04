@@ -20,7 +20,7 @@ mirror="$(cat ${INSTALLDIR}/${TMPDIR}/.mirror)"
 source="deb ${mirror} wheezy-backports main"
 if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
     touch "${INSTALLDIR}/etc/apt/sources.list"
-    echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
+    echo -e "$source\n" >> "${INSTALLDIR}/etc/apt/sources.list"
 fi
 aptUpdate
 

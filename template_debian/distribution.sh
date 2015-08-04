@@ -256,23 +256,30 @@ function installSystemd() {
 # ==============================================================================
 
 # ==============================================================================
-# Add universe to sources.list
+# Update Debian sources.list
 # ==============================================================================
 function updateDebianSourceList() {
+    local list="${INSTALLDIR}/etc/apt/sources.list"
+    local mirror="$(cat ${INSTALLDIR}/${TMPDIR}/.mirror)"
+    touch "${list}"
+
     # Add contrib and non-free component to repository
-    touch "${INSTALLDIR}/etc/apt/sources.list"
-    sed -i "s/${DIST} main$/${DIST} main contrib non-free/g" "${INSTALLDIR}/etc/apt/sources.list"
+    sed -i "s/${DIST} main$/${DEBIANVERSION} main contrib non-free/g" "${list}"
+
+    # Add main deb-src repository
+    source="#deb-src ${mirror} main/${DEBIANVERSION} main contrib non-free"
+    if ! grep -r -q "$source" "${list}"*; then
+        echo -e "$source\n" >> "${list}"
+    fi
 
     # Add Debian security repositories
-    source="deb http://security.debian.org ${DEBIANVERSION}/updates main"
-    if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
-        touch "${INSTALLDIR}/etc/apt/sources.list"
-        echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
+    source="deb http://security.debian.org ${DEBIANVERSION}/updates main contrib non-free"
+    if ! grep -r -q "$source" "${list}"*; then
+        echo -e "$source" >> "${list}"
     fi
-    source="deb-src http://security.debian.org ${DEBIANVERSION}/updates main"
-    if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
-        touch "${INSTALLDIR}/etc/apt/sources.list"
-        echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
+    source="#deb-src http://security.debian.org ${DEBIANVERSION}/updates main contrib non-free"
+    if ! grep -r -q "$source" "${list}"*; then
+        echo -e "$source\n" >> "${list}"
     fi
 }
 
