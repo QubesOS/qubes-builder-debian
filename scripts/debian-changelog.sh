@@ -42,6 +42,9 @@ deb_version=$($debian_parser changelog --package-version debian/changelog)
 deb_revision=$($debian_parser changelog --package-revision debian/changelog)
 deb_epoc=$($debian_parser changelog --package-version-epoc debian/changelog)
 
+# drop dist-specific suffix for version comparision
+deb_revision=${deb_revision%+deb*}
+
 version="$(cat version)"
 # only two components supports non-default revisions: linux-kernel and vmm-xen
 revision="$(cat rel 2>/dev/null)"
@@ -125,7 +128,7 @@ fi
 if [ -n "${INCREMENT_DEVEL_VERSIONS}" ]; then
     export DEBFULLNAME=$(git config user.name)
     export DEBEMAIL=$(git config user.email)
-    ${debchange} --nomultimaint-merge --multimaint -l+${DIST}~devel -- 'Test build'
+    ${debchange} --nomultimaint-merge --multimaint -l+${DIST_TAG}u1+devel -- 'Test build'
     ${debchange} --force-distribution --distribution ${DIST} --release -- ''
 
     # Save dist specific changlog for next time
