@@ -1,6 +1,10 @@
 #!/bin/bash -e
 # vim: set ts=4 sw=4 sts=4 et :
 
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+fi
+
 source "${SCRIPTSDIR}/vars.sh"
 source "${SCRIPTSDIR}/distribution.sh"
 
@@ -80,7 +84,7 @@ fi
 buildStep "${0}" "post"
 
 # ==============================================================================
-# Kill all processes and umount all mounts within ${INSTALLDIR}, but not 
+# Kill all processes and umount all mounts within ${INSTALLDIR}, but not
 # ${INSTALLDIR} itself (extra '/' prevents ${INSTALLDIR} from being umounted)
 # ==============================================================================
 umount_all "${INSTALLDIR}/" || true
