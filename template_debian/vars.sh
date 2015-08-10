@@ -49,5 +49,5 @@ if [ -n "$REPO_PROXY" ]; then
 fi
 
 containsFlavor 'no-recommends' && {
-    APT_GET_OPTIONS+=" -o APT::Install-Recommends=0  -o APT::Install-Suggests=0" 
+    APT_GET_OPTIONS+=" -o APT::Install-Recommends=0  -o APT::Install-Suggests=0"
 } || true
