@@ -32,9 +32,3 @@ info ' Install Systemd'
 #### '--------------------------------------------------------------------------
 aptUpdate
 aptInstall systemd-sysv
-
-#### '--------------------------------------------------------------------------
-info ' Set multu-user.target as the default target (runlevel 3)'
-#### '--------------------------------------------------------------------------
-chroot rm -f /etc/systemd/system/default.target
-chroot ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
