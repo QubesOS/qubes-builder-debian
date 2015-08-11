@@ -13,7 +13,7 @@ debug " Configuring and Installing packages for ${DIST}"
 ##### "=========================================================================
 
 # If .prepared_debootstrap has not been completed, don't continue
-exitOnNoFile "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" "prepared_debootstrap installataion has not completed!... Exiting"
+exitOnNoFile "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" "prepared_debootstrap installation has not completed!... Exiting"
 
 # Create system mount points
 prepareChroot
@@ -27,7 +27,7 @@ createResolvConf
 buildStep "${0}" "pre"
 
 # ==============================================================================
-# Configure base system and install any adddtional packages which could
+# Configure base system and install any additional packages which could
 # include +TEMPLATE_FLAVOR such as gnome as set in configuration file
 # ==============================================================================
 if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_groups" ]; then
