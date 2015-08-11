@@ -38,7 +38,7 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_groups" ]; then
     trap cleanup EXIT
 
     #### '----------------------------------------------------------------------
-    info 'Install standard Debian packages'
+    info ' Install standard Debian packages'
     #### '----------------------------------------------------------------------
     containsFlavor "minimal" || {
         if ! [ -f "${INSTALLDIR}/${TMPDIR}/.debian_packages" ]; then
