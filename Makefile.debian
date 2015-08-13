@@ -60,7 +60,7 @@ export DEBIANVERSION DEBIAN_PARSER
 ### Local variables
 RUN_AS_USER = user
 CHROOT_REPO_DIR ?= chroot-$(DISTRIBUTION)
-DEBIAN_CHROOT_DIR = $(CHROOT_DIR)/$(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
+CHROOT_DEBIAN_DIR = $(CHROOT_DIR)/$(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
 
 DEBIAN_DEPENDENCIES := dpkg-dev debootstrap
 
@@ -134,15 +134,15 @@ dist-build-dep:
 	sudo chroot $(CHROOT_DIR) apt-get ${APT_GET_OPTIONS} update
 
 	# Parse debian/control for Build-Depends and install
-	$(DEBIAN_PARSER) control --build-depends $(DEBIAN_CHROOT_DIR)/control |\
+	$(DEBIAN_PARSER) control --build-depends $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 	# Parse debian/control for custom X-Qubes-Build-Depends-[debian] depends and install
-	$(DEBIAN_PARSER) control --qubes-build-depends $(DISTRIBUTION) $(DEBIAN_CHROOT_DIR)/control |\
+	$(DEBIAN_PARSER) control --qubes-build-depends $(DISTRIBUTION) $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 	# Parse debian/control for custom X-Qubes-Build-Depends-[wheezy/jessie] depends and install
-	$(DEBIAN_PARSER) control --qubes-build-depends $(DIST) $(DEBIAN_CHROOT_DIR)/control |\
+	$(DEBIAN_PARSER) control --qubes-build-depends $(DIST) $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
@@ -156,8 +156,8 @@ ifdef INCREMENT_DEVEL_VERSIONS
 	# Update changelog with -develXX appended to version
 	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in 
 	#       builder configuration to use this feature
-	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
-	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
+	cp -fp $(CHROOT_DEBIAN_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
+	cp -fp $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
 
 	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -k${SIGN_KEY}'
 else
@@ -169,8 +169,8 @@ else
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
 	# Break the hardlink
-	cp $(DEBIAN_CHROOT_DIR)/changelog $(DEBIAN_CHROOT_DIR)/changelog.copy
-	mv $(DEBIAN_CHROOT_DIR)/changelog.copy $(DEBIAN_CHROOT_DIR)/changelog
+	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
+	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 
 	echo "Building package in $(DIST_SRC)"
 	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST_TAG)u "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -k${SIGN_KEY}'
@@ -182,12 +182,12 @@ endif
 dist-copy-out:
 	mkdir -p $(BUILDER_REPO_DIR)/deb
 	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
-	cd $(DEBIAN_CHROOT_DIR)/../..; \
+	cd $(CHROOT_DEBIAN_DIR)/../..; \
 		cp -t $(BUILDER_REPO_DIR)/deb `$(listfiles) $(release_name)*.changes`
-	cp -t $(BUILDER_REPO_DIR)/deb/ $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
-	cd $(DEBIAN_CHROOT_DIR)/../..; \
+	cp -t $(BUILDER_REPO_DIR)/deb/ $(CHROOT_DEBIAN_DIR)/../../$(release_name)*.changes
+	cd $(CHROOT_DEBIAN_DIR)/../..; \
 		mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR)  `$(listfiles) $(release_name)*.changes`
-	mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
+	mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(CHROOT_DEBIAN_DIR)/../../$(release_name)*.changes
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 update-repo:
@@ -195,9 +195,9 @@ update-repo:
 else
 update-repo: package_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
-update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
-update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
-update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog)
+update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
+update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
+update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog)
 update-repo:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
