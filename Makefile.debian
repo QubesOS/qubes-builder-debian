@@ -48,9 +48,7 @@
 ### Variables required by Makefile.generic
 PACKAGE_LIST = $(DEBIAN_BUILD_DIRS)
 DIST_BUILD_DIR = /home/user
-
-### Variables determined by package's Makefile.builder
-DEBIAN_DIR = $(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
+DIST_SRC_DEBIAN_DIR = $(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
 
 ### Global variables
 DEBIANVERSION = $(DIST)
@@ -159,7 +157,7 @@ ifdef INCREMENT_DEVEL_VERSIONS
 	cp -fp $(CHROOT_DEBIAN_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
 	cp -fp $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
 
-	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -k${SIGN_KEY}'
+	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -k${SIGN_KEY}'
 else
 	# Cleanup; delete any old builds, except leave the orig that may have
 	# been created on copy-in build stage
@@ -173,7 +171,7 @@ else
 	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 
 	echo "Building package in $(DIST_SRC)"
-	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST_TAG)u "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -k${SIGN_KEY}'
+	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST_TAG)u "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -k${SIGN_KEY}'
 endif
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
