@@ -48,6 +48,8 @@
 ### Variables required by Makefile.generic
 PACKAGE_LIST = $(DEBIAN_BUILD_DIRS)
 DIST_BUILD_DIR = /home/user
+
+### Variables determined by package's Makefile.builder
 DIST_SRC_DEBIAN_DIR = $(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
 
 ### Global variables
@@ -88,6 +90,41 @@ export aptdistributions
 
 ifdef REPO_PROXY
   APT_GET_OPTIONS += -o Acquire::http::Proxy=$(REPO_PROXY)
+endif
+
+ifdef DEBUG
+  $(info ╔══ DEBUG ══════════════════════════════════════════════════════════════════════)
+  $(info ║ Repo Variables)
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ SRC_DIR:             $(SRC_DIR))              # qubes-src
+  $(info ║ CHROOT_DIR:          $(CHROOT_DIR))           # /home/user/qubes-builder/chroot-jessie
+  $(info ║ CHROOT_REPO_DIR:     $(CHROOT_REPO_DIR))      # chroot-debian
+  $(info ║ CHROOT_DEBIAN_DIR:   $(CHROOT_DEBIAN_DIR))    # /home/user/qubes/chroot-jessie//home/user/qubes-src/repo/debian
+  $(info ║ BUILDER_REPO_DIR:    $(BUILDER_REPO_DIR))     # /home/user/qubes-builder/qubes-packages-mirror-repo/jessie
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ Chroot Variables)
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ DIST_BUILD_DIR:      $(DIST_BUILD_DIR))       # /home/user 
+  $(info ║ DIST_SRC:            $(DIST_SRC))             # /home/user/qubes-src/repo
+  $(info ║ DIST_SRC_DEBIAN_DIR: $(DIST_SRC_DEBIAN_DIR))  # /home/user/qubes-src/repo/debian
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ Build Variables)
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ DEBIAN_PARSER:       $(DEBIAN_PARSER))        # /home/user/qubes-builder/qubes-src/builder-debian//scripts/debian-parser
+  $(info ║ DEBIAN_PLUGIN_DIR:   $(DEBIAN_PLUGIN_DIR))    # /home/user/qubes-builder/qubes-src/builder-debian/
+  $(info ║ OUTPUT_DIR:          $(OUTPUT_DIR))           # pkgs/jessie
+  $(info ║ PACKAGE_LIST:        $(PACKAGE_LIST))         # debian
+  $(info ║ DISTRIBUTION:        $(DISTRIBUTION))         # debian
+  $(info ║ DIST:                $(DIST))                 # jessie
+  $(info ║ DEBIANVERSION:       $(DEBIANVERSION))        # jessie
+  $(info ║ DEBIAN_DEPENDENCIES: $(DEBIAN_DEPENDENCIES))  # dpkg-dev debootstrap
+  $(info ║ UPDATE_REPO:         $(UPDATE_REPO))          # 
+  $(info ║ REPO_SUFFIX:         $(REPO_SUFFIX))          # 
+  $(info ║ DISTRIBUTION_CAP:    $(DISTRIBUTION_CAP))     # Debian
+  $(info ║ REPO_PROXY:          $(REPO_PROXY))           # 
+  $(info ║ APT_GET_OPTIONS:     $(APT_GET_OPTIONS))      # 
+  $(info ║ CHROOT_ENV:          $(CHROOT_ENV))           # BACKEND_VMM=xen DEBIAN=/home/user/qubes-src/repo/debian
+  $(info ╚═══════════════════════════════════════════════════════════════════════════════)
 endif
 
 dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
