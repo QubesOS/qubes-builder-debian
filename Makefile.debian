@@ -29,7 +29,7 @@
 #   PACKAGE_LIST - list of packages to build. Targets 'build-dep', 'package' and 'copy-out'
 #     will be run for each word on the list, with PACKAGE set to current word
 #   DIST_BUILD_DIR - basedir for sources inside of chroot - relative to
-#     CHROOT_DIR (qubes-src will be created in this directory)
+#   CHROOT_DIR - qubes-src will be created in this directory
 # targets:
 #   dist-prepare-chroot - initial preparation of chroot environment
 #   dist-prep - some preparation of sources (if needed)
@@ -45,26 +45,27 @@
 #
 # This file can specify additional targets (like update-repo-*)
 
-### Variables required Makefile.generic
+### Variables required by Makefile.generic
 PACKAGE_LIST = $(DEBIAN_BUILD_DIRS)
 DIST_BUILD_DIR = /home/user
+
+### Variables determined by package's Makefile.builder
 DEBIAN_DIR = $(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
-DEBIAN_CHROOT_DIR = $(CHROOT_DIR)/$(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
 
 ### Global variables
-DEBIANVERSION=$(DIST)
-export DEBIANVERSION
+DEBIANVERSION = $(DIST)
+DEBIAN_PARSER = $(DEBIAN_PLUGIN_DIR)/scripts/debian-parser
+export DEBIANVERSION DEBIAN_PARSER
 
 ### Local variables
 RUN_AS_USER = user
 REPO_CHROOT_DIR ?= chroot-$(DISTRIBUTION)
+DEBIAN_CHROOT_DIR = $(CHROOT_DIR)/$(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
 
 DEBIAN_DEPENDENCIES := dpkg-dev debootstrap
-DEBIAN_PARSER=$(DEBIAN_PLUGIN_DIR)/scripts/debian-parser
-export DEBIAN_PARSER
 
 ifndef OUTPUT_DIR
-OUTPUT_DIR = deb/$(DIST)
+  OUTPUT_DIR = deb/$(DIST)
 endif
 
 listfiles = awk 'section == "Files:" { print $$5 } /^[A-Z].*.$$/ { section=$$1 }'
