@@ -1,6 +1,5 @@
 qubes-core-agent
 qubes-gui-agent
-chrony
 ntpdate
 libxvmc1
 x11-session-utils
