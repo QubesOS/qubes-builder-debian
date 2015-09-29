@@ -192,7 +192,7 @@ ifeq (,$(DEBIAN_BUILD_DIRS))
 update-repo:
 	@true
 else
-update-repo: package_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+update-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
 update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
@@ -233,9 +233,9 @@ endif
 	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-deb
 ifdef SNAPSHOT_FILE
 	@if [ "X$(package_ver_dist)" != "X" ]; then \
-		echo 'Package (== $(package_name)), Version (== $(package_ver_dist))' > $(SNAPSHOT_FILE); \
+		echo 'Source (== $(source_name)), Version (== $(package_ver_dist))' > $(SNAPSHOT_FILE); \
 	else \
-		echo 'Package (== $(package_name)), Version (== $(package_ver)+$(DIST_TAG)u1)' > $(SNAPSHOT_FILE); \
+		echo 'Source (== $(source_name)), Version (== $(package_ver)+$(DIST_TAG)u1)' > $(SNAPSHOT_FILE); \
 	fi
 endif
 endif
@@ -244,7 +244,7 @@ ifeq (,$(DEBIAN_BUILD_DIRS))
 check-repo:
 	@true
 else
-check-repo: package_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+check-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 check-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 check-repo:
 ifndef UPDATE_REPO
@@ -261,6 +261,6 @@ endif
 		sudo mount --bind $(UPDATE_REPO) $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
 	fi
 
-	sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) 'Package (== $$package_name), Version (== $$package_ver+$(DIST_TAG)u1)'" | grep -q "$$package_name"
+	sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) 'Source (== $$source_name), Version (== $$package_ver+$(DIST_TAG)u1)'" | grep -q "$$source_name"
 	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
 endif
