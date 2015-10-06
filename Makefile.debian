@@ -29,7 +29,7 @@
 #   PACKAGE_LIST - list of packages to build. Targets 'build-dep', 'package' and 'copy-out'
 #     will be run for each word on the list, with PACKAGE set to current word
 #   DIST_BUILD_DIR - basedir for sources inside of chroot - relative to
-#     CHROOT_DIR (qubes-src will be created in this directory)
+#   CHROOT_DIR - qubes-src will be created in this directory
 # targets:
 #   dist-prepare-chroot - initial preparation of chroot environment
 #   dist-prep - some preparation of sources (if needed)
@@ -45,26 +45,26 @@
 #
 # This file can specify additional targets (like update-repo-*)
 
-### Variables required Makefile.generic
+### Variables required by Makefile.generic
 PACKAGE_LIST = $(DEBIAN_BUILD_DIRS)
 DIST_BUILD_DIR = /home/user
-DEBIAN_DIR = $(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
-DEBIAN_CHROOT_DIR = $(CHROOT_DIR)/$(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
+
+### Variables determined by package's Makefile.builder
+DIST_SRC_DEBIAN_DIR = $(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
 
 ### Global variables
-DEBIANVERSION=$(DIST)
-export DEBIANVERSION
+DEBIANVERSION = $(DIST)
+DEBIAN_PARSER = $(DEBIAN_PLUGIN_DIR)/scripts/debian-parser
+export DEBIANVERSION DEBIAN_PARSER
 
 ### Local variables
 RUN_AS_USER = user
-REPO_CHROOT_DIR ?= chroot-$(DISTRIBUTION)
-
-DEBIAN_DEPENDENCIES := dpkg-dev debootstrap
-DEBIAN_PARSER=$(DEBIAN_PLUGIN_DIR)/scripts/debian-parser
-export DEBIAN_PARSER
+CHROOT_REPO_DIR ?= chroot-$(DISTRIBUTION)
+CHROOT_DEBIAN_DIR = $(CHROOT_DIR)/$(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
+DEBIAN_DEPENDENCIES ?= dpkg-dev debootstrap
 
 ifndef OUTPUT_DIR
-OUTPUT_DIR = deb/$(DIST)
+  OUTPUT_DIR = deb/$(DIST)
 endif
 
 listfiles = awk 'section == "Files:" { print $$5 } /^[A-Z].*.$$/ { section=$$1 }'
@@ -90,6 +90,41 @@ export aptdistributions
 
 ifdef REPO_PROXY
   APT_GET_OPTIONS += -o Acquire::http::Proxy=$(REPO_PROXY)
+endif
+
+ifdef DEBUG
+  $(info ╔══ DEBUG ══════════════════════════════════════════════════════════════════════)
+  $(info ║ Repo Variables)
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ SRC_DIR:             $(SRC_DIR))              # qubes-src
+  $(info ║ CHROOT_DIR:          $(CHROOT_DIR))           # /home/user/qubes-builder/chroot-jessie
+  $(info ║ CHROOT_REPO_DIR:     $(CHROOT_REPO_DIR))      # chroot-debian
+  $(info ║ CHROOT_DEBIAN_DIR:   $(CHROOT_DEBIAN_DIR))    # /home/user/qubes/chroot-jessie//home/user/qubes-src/repo/debian
+  $(info ║ BUILDER_REPO_DIR:    $(BUILDER_REPO_DIR))     # /home/user/qubes-builder/qubes-packages-mirror-repo/jessie
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ Chroot Variables)
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ DIST_BUILD_DIR:      $(DIST_BUILD_DIR))       # /home/user 
+  $(info ║ DIST_SRC:            $(DIST_SRC))             # /home/user/qubes-src/repo
+  $(info ║ DIST_SRC_DEBIAN_DIR: $(DIST_SRC_DEBIAN_DIR))  # /home/user/qubes-src/repo/debian
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ Build Variables)
+  $(info ╠───────────────────────────────────────────────────────────────────────────────)
+  $(info ║ DEBIAN_PARSER:       $(DEBIAN_PARSER))        # /home/user/qubes-builder/qubes-src/builder-debian//scripts/debian-parser
+  $(info ║ DEBIAN_PLUGIN_DIR:   $(DEBIAN_PLUGIN_DIR))    # /home/user/qubes-builder/qubes-src/builder-debian/
+  $(info ║ OUTPUT_DIR:          $(OUTPUT_DIR))           # pkgs/jessie
+  $(info ║ PACKAGE_LIST:        $(PACKAGE_LIST))         # debian
+  $(info ║ DISTRIBUTION:        $(DISTRIBUTION))         # debian
+  $(info ║ DIST:                $(DIST))                 # jessie
+  $(info ║ DEBIANVERSION:       $(DEBIANVERSION))        # jessie
+  $(info ║ DEBIAN_DEPENDENCIES: $(DEBIAN_DEPENDENCIES))  # dpkg-dev debootstrap
+  $(info ║ UPDATE_REPO:         $(UPDATE_REPO))          # 
+  $(info ║ REPO_SUFFIX:         $(REPO_SUFFIX))          # 
+  $(info ║ DISTRIBUTION_CAP:    $(DISTRIBUTION_CAP))     # Debian
+  $(info ║ REPO_PROXY:          $(REPO_PROXY))           # 
+  $(info ║ APT_GET_OPTIONS:     $(APT_GET_OPTIONS))      # 
+  $(info ║ CHROOT_ENV:          $(CHROOT_ENV))           # BACKEND_VMM=xen DEBIAN=/home/user/qubes-src/repo/debian
+  $(info ╚═══════════════════════════════════════════════════════════════════════════════)
 endif
 
 dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
@@ -133,15 +168,15 @@ dist-build-dep:
 	sudo chroot $(CHROOT_DIR) apt-get ${APT_GET_OPTIONS} update
 
 	# Parse debian/control for Build-Depends and install
-	$(DEBIAN_PARSER) control --build-depends $(DEBIAN_CHROOT_DIR)/control |\
+	$(DEBIAN_PARSER) control --build-depends $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 	# Parse debian/control for custom X-Qubes-Build-Depends-[debian] depends and install
-	$(DEBIAN_PARSER) control --qubes-build-depends $(DISTRIBUTION) $(DEBIAN_CHROOT_DIR)/control |\
+	$(DEBIAN_PARSER) control --qubes-build-depends $(DISTRIBUTION) $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 	# Parse debian/control for custom X-Qubes-Build-Depends-[wheezy/jessie] depends and install
-	$(DEBIAN_PARSER) control --qubes-build-depends $(DIST) $(DEBIAN_CHROOT_DIR)/control |\
+	$(DEBIAN_PARSER) control --qubes-build-depends $(DIST) $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
@@ -155,10 +190,10 @@ ifdef INCREMENT_DEVEL_VERSIONS
 	# Update changelog with -develXX appended to version
 	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in 
 	#       builder configuration to use this feature
-	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
-	cp -fp $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
+	cp -fp $(CHROOT_DEBIAN_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
+	cp -fp $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ || true
 
-	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -k${SIGN_KEY}'
+	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -k${SIGN_KEY}'
 else
 	# Cleanup; delete any old builds, except leave the orig that may have
 	# been created on copy-in build stage
@@ -168,11 +203,11 @@ else
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
 	# Break the hardlink
-	cp $(DEBIAN_CHROOT_DIR)/changelog $(DEBIAN_CHROOT_DIR)/changelog.copy
-	mv $(DEBIAN_CHROOT_DIR)/changelog.copy $(DEBIAN_CHROOT_DIR)/changelog
+	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
+	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 
 	echo "Building package in $(DIST_SRC)"
-	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST_TAG)u "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -k${SIGN_KEY}'
+	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST_TAG)u "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -k${SIGN_KEY}'
 endif
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
@@ -181,12 +216,12 @@ endif
 dist-copy-out:
 	mkdir -p $(BUILDER_REPO_DIR)/deb
 	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
-	cd $(DEBIAN_CHROOT_DIR)/../..; \
+	cd $(CHROOT_DEBIAN_DIR)/../..; \
 		cp -t $(BUILDER_REPO_DIR)/deb `$(listfiles) $(release_name)*.changes`
-	cp -t $(BUILDER_REPO_DIR)/deb/ $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
-	cd $(DEBIAN_CHROOT_DIR)/../..; \
+	cp -t $(BUILDER_REPO_DIR)/deb/ $(CHROOT_DEBIAN_DIR)/../../$(release_name)*.changes
+	cd $(CHROOT_DEBIAN_DIR)/../..; \
 		mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR)  `$(listfiles) $(release_name)*.changes`
-	mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(DEBIAN_CHROOT_DIR)/../../$(release_name)*.changes
+	mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(CHROOT_DEBIAN_DIR)/../../$(release_name)*.changes
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 update-repo:
@@ -194,9 +229,9 @@ update-repo:
 else
 update-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
-update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
-update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog.$(DIST) 2>&-)
-update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(DEBIAN_CHROOT_DIR)/changelog)
+update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
+update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
+update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog)
 update-repo:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
@@ -209,28 +244,28 @@ endif
 	if [ $$? -ne 0 ]; then \
 		echo "$$aptdistributions" >> $(UPDATE_REPO)/conf/distributions; \
 	fi
-	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo $(REPO_CHROOT_DIR)/tmp/qubes-deb 2>/dev/null || true
+	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo $(CHROOT_REPO_DIR)/tmp/qubes-deb 2>/dev/null || true
 
 	@# Softlink to the first distribution called; it will be used to create and store repo
-	@if ! [ -L $(REPO_CHROOT_DIR) ]; then \
-	    ln -sf chroot-${DIST} ${REPO_CHROOT_DIR}; \
+	@if ! [ -L $(CHROOT_REPO_DIR) ]; then \
+	    ln -sf chroot-${DIST} ${CHROOT_REPO_DIR}; \
 	fi
-	@if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-deb/deb ]; then \
-		mkdir -p $(REPO_CHROOT_DIR)/tmp/qubes-deb ;\
-		sudo mount --bind $(BUILDER_REPO_DIR) $(REPO_CHROOT_DIR)/tmp/qubes-deb ;\
+	@if ! [ -d $(CHROOT_REPO_DIR)/tmp/qubes-deb/deb ]; then \
+		mkdir -p $(CHROOT_REPO_DIR)/tmp/qubes-deb ;\
+		sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_REPO_DIR)/tmp/qubes-deb ;\
 	fi
-	@if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo/dists ]; then \
-		mkdir -p $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
-		sudo mount --bind $(UPDATE_REPO) $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
+	@if ! [ -d $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo/dists ]; then \
+		mkdir -p $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
+		sudo mount --bind $(UPDATE_REPO) $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
 	fi
 
 	@if [ "X$(release_name_dist)" != "X" ]; then \
-		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes" || exit 1; \
+		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes" || exit 1; \
 	else \
-		sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes" || exit 1; \
+		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes" || exit 1; \
 	fi
-	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
-	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-deb
+	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
+	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-deb
 ifdef SNAPSHOT_FILE
 	@if [ "X$(package_ver_dist)" != "X" ]; then \
 		echo 'Source (== $(source_name)), Version (== $(package_ver_dist))' > $(SNAPSHOT_FILE); \
@@ -250,17 +285,17 @@ check-repo:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
-	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo $(REPO_CHROOT_DIR)/tmp/qubes-deb 2>/dev/null || true
+	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo $(CHROOT_REPO_DIR)/tmp/qubes-deb 2>/dev/null || true
 
 	@# Softlink to the first distribution called; it will be used to create and store repo
-	@if ! [ -L $(REPO_CHROOT_DIR) ]; then \
-	    ln -sf chroot-${DIST} ${REPO_CHROOT_DIR}; \
+	@if ! [ -L $(CHROOT_REPO_DIR) ]; then \
+	    ln -sf chroot-${DIST} ${CHROOT_REPO_DIR}; \
 	fi
-	@if ! [ -d $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo/dists ]; then \
-		mkdir -p $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
-		sudo mount --bind $(UPDATE_REPO) $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo ;\
+	@if ! [ -d $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo/dists ]; then \
+		mkdir -p $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
+		sudo mount --bind $(UPDATE_REPO) $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
 	fi
 
-	sudo $(CHROOT_ENV) chroot $(REPO_CHROOT_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) 'Source (== $$source_name), Version (== $$package_ver+$(DIST_TAG)u1)'" | grep -q "$$source_name"
-	@sudo umount $(REPO_CHROOT_DIR)/tmp/qubes-apt-repo
+	sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) 'Source (== $$source_name), Version (== $$package_ver+$(DIST_TAG)u1)'" | grep -q "$$source_name"
+	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
 endif
