@@ -63,10 +63,6 @@ CHROOT_REPO_DIR ?= chroot-$(DISTRIBUTION)
 CHROOT_DEBIAN_DIR = $(CHROOT_DIR)/$(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
 DEBIAN_DEPENDENCIES ?= dpkg-dev debootstrap
 
-ifneq (,$(DEBIAN_BUILD_DIRS))
-  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
-endif
-
 ifndef OUTPUT_DIR
   OUTPUT_DIR = deb/$(DIST)
 endif
@@ -182,6 +178,9 @@ dist-build-dep:
 	$(DEBIAN_PARSER) control --qubes-build-depends $(DIST) $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
 
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-package:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+endif
 dist-package:
 ifndef PACKAGE
 	$(error "PACKAGE need to be set!")
@@ -216,6 +215,9 @@ else
 	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST_TAG)u "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -k${SIGN_KEY}'
 endif
 
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-copy-out:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(CHROOT_DEBIAN_DIR)/changelog)
+endif
 dist-copy-out:
 	mkdir -p $(BUILDER_REPO_DIR)/deb
 	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
