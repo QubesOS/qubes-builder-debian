@@ -26,8 +26,10 @@
 debchange=$(dirname ${0})/debchange
 debian_parser=$(dirname ${0})/debian-parser
 
+previous_changelog=debian/changelog
 # Create seperate changelogs for each dist
 if [ -n "${INCREMENT_DEVEL_VERSIONS}" ]; then
+    previous_changelog=debian/changelog.dist
     if [ ! -e debian/changelog.dist ]; then
         cp -p debian/changelog debian/changelog.dist
     fi
@@ -38,9 +40,9 @@ if [ -n "${INCREMENT_DEVEL_VERSIONS}" ]; then
     fi
 fi
 
-deb_version=$($debian_parser changelog --package-version debian/changelog)
-deb_revision=$($debian_parser changelog --package-revision debian/changelog)
-deb_epoc=$($debian_parser changelog --package-version-epoc debian/changelog)
+deb_version=$($debian_parser changelog --package-version $previous_changelog)
+deb_revision=$($debian_parser changelog --package-revision $previous_changelog)
+deb_epoc=$($debian_parser changelog --package-version-epoc $previous_changelog)
 
 # drop dist-specific suffix for version comparision
 deb_revision=${deb_revision%+deb*}
