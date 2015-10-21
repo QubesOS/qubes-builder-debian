@@ -185,6 +185,13 @@ dist-package:
 ifndef PACKAGE
 	$(error "PACKAGE need to be set!")
 endif
+	# Cleanup; delete any old builds, except leave the orig that may have
+	# been created on copy-in build stage
+	cd $(CHROOT_DIR)/$(DIST_SRC)/..; GLOBIGNORE=$(release_name)*orig*; rm -f $(release_name)*; GLOBIGNORE=
+	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/deb/*
+	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/rpm/*
+	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
+
 ifdef INCREMENT_DEVEL_VERSIONS
 	# Break the hardlink - keep modified debian/changelog only inside of chroot
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
@@ -201,13 +208,6 @@ ifdef INCREMENT_DEVEL_VERSIONS
 
 	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -k${SIGN_KEY}'
 else
-	# Cleanup; delete any old builds, except leave the orig that may have
-	# been created on copy-in build stage
-	cd $(CHROOT_DIR)/$(DIST_SRC)/..; GLOBIGNORE=$(release_name)*orig*; rm -f $(release_name)*; GLOBIGNORE=
-	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/deb/*
-	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/rpm/*
-	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
-
 	# Only used to update changelog to new version since changelog is 
 	# also called below
 	cd $(CHROOT_DEBIAN_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
