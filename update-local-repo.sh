@@ -28,7 +28,7 @@ function calc_sha1() {
     echo $1
 }
 calc_sha1 main/binary-amd64/Packages >> dists/$1/Release
-calc_sha1 main/binary-amd64/Packages >> dists/$1/Release.gz
+calc_sha1 main/binary-amd64/Packages.gz >> dists/$1/Release
 
 popd
 
