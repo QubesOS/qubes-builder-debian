@@ -76,6 +76,13 @@ ifdef UPDATE_REPO
     REPO_SUFFIX = -unstable
   endif
 endif
+ifdef SNAPSHOT_REPO
+  ifneq (,$(findstring current-testing,$(SNAPSHOT_REPO)))
+    SNAPSHOT_REPO_SUFFIX = -testing
+  else ifneq (,$(findstring unstable,$(SNAPSHOT_REPO)))
+    SNAPSHOT_REPO_SUFFIX = -unstable
+  endif
+endif
 
 DISTRIBUTION_CAP=$(shell echo $(DISTRIBUTION) | sed -e 's/^./\U&/';)
 define aptdistributions
@@ -242,10 +249,8 @@ update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-
 update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
 update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
 update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog)
-update-repo:
-ifndef UPDATE_REPO
-	$(error "You need to specify destination repo in UPDATE_REPO variable")
-endif
+
+update-repo-prepare:
 	@mkdir -p $(UPDATE_REPO)/conf
 	@if [ ! -e $(UPDATE_REPO)/conf/distributions ]; then \
 		touch $(UPDATE_REPO)/conf/distributions; \
@@ -269,6 +274,10 @@ endif
 		sudo mount --bind $(UPDATE_REPO) $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
 	fi
 
+update-repo: update-repo-prepare
+ifndef UPDATE_REPO
+	$(error "You need to specify destination repo in UPDATE_REPO variable")
+endif
 	@if [ "X$(release_name_dist)" != "X" ]; then \
 		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes" || exit 1; \
 	else \
@@ -284,6 +293,12 @@ ifdef SNAPSHOT_FILE
 	fi
 endif
 endif
+
+update-repo-from-snapshot: pkg_filter = $(shell cat $(SNAPSHOT_FILE))
+update-repo-from-snapshot: update-repo-prepare
+	@sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo copyfilter $(DIST)$(REPO_SUFFIX) $(DIST)$(SNAPSHOT_REPO_SUFFIX) '$(subst $$,\$$,$(pkg_filter))'"
+	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
+	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-deb
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 check-repo:
