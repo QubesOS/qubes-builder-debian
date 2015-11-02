@@ -2,8 +2,7 @@ xdg-user-dirs
 gnome-themes-standard
 xsettingsd
 gnome-packagekit
-
 qubes-pdf-converter
 qubes-gpg-split
 qubes-thunderbird
-
+firmware-linux

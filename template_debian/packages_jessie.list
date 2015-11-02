@@ -13,6 +13,5 @@ libglib2.0-bin
 ltrace
 strace
 haveged
-firmware-linux
 wireless-tools
 wpasupplicant
