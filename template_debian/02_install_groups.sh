@@ -40,10 +40,11 @@ trap cleanup EXIT
 info ' Install standard Debian packages'
 #### '----------------------------------------------------------------------
 containsFlavor "minimal" || {
-    if ! [ -f "${INSTALLDIR}/${TMPDIR}/.debian_packages" ]; then
-        packages="$(chroot tasksel --new-install --task-packages standard)"
-        aptInstall ${packages}
+    packages="$(chroot tasksel --new-install --task-packages standard)"
+    if [ -n "$eatmydata_maybe" ]; then
+        eatmydata_maybe= aptInstall $eatmydata_maybe
     fi
+    aptInstall ${packages}
 }
 
 #### '----------------------------------------------------------------------
