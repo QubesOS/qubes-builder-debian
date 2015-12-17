@@ -72,6 +72,8 @@ listfiles = awk 'section == "Files:" { print $$5 } /^[A-Z].*.$$/ { section=$$1 }
 ifdef UPDATE_REPO
   ifneq (,$(findstring current-testing,$(UPDATE_REPO)))
     REPO_SUFFIX = -testing
+  else ifneq (,$(findstring security-testing,$(UPDATE_REPO)))
+    REPO_SUFFIX = -securitytesting
   else ifneq (,$(findstring unstable,$(UPDATE_REPO)))
     REPO_SUFFIX = -unstable
   endif
@@ -79,6 +81,8 @@ endif
 ifdef SNAPSHOT_REPO
   ifneq (,$(findstring current-testing,$(SNAPSHOT_REPO)))
     SNAPSHOT_REPO_SUFFIX = -testing
+  else ifneq (,$(findstring security-testing,$(SNAPSHOT_REPO)))
+    SNAPSHOT_REPO_SUFFIX = -securitytesting
   else ifneq (,$(findstring unstable,$(SNAPSHOT_REPO)))
     SNAPSHOT_REPO_SUFFIX = -unstable
   endif
