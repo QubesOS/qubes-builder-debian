@@ -8,3 +8,4 @@ qubes-thunderbird
 firmware-linux
 cryptsetup
 lvm2
+apt-transport-https
