@@ -6,3 +6,5 @@ qubes-pdf-converter
 qubes-gpg-split
 qubes-thunderbird
 firmware-linux
+cryptsetup
+lvm2
