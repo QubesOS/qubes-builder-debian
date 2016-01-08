@@ -9,3 +9,4 @@ firmware-linux
 cryptsetup
 lvm2
 apt-transport-https
+exfat-fuse
