@@ -10,3 +10,4 @@ cryptsetup
 lvm2
 apt-transport-https
 apt-transport-tor
+exfat-fuse
