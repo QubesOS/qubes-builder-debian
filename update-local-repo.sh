@@ -7,7 +7,7 @@ set -e
 REPO_DIR=$BUILDER_REPO_DIR
 DIST=$1
 
-pushd $REPO_DIR
+cd $REPO_DIR
 mkdir -p dists/$DIST/main/binary-amd64
 dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages
 gzip -9c dists/$DIST/main/binary-amd64/Packages > dists/$DIST/main/binary-amd64/Packages.gz
@@ -30,8 +30,6 @@ function calc_sha1() {
 calc_sha1 main/binary-amd64/Packages >> dists/$1/Release
 calc_sha1 main/binary-amd64/Packages.gz >> dists/$1/Release
 
-popd
-
 if [ `id -u` -eq 0 ]; then
-    chown -R --reference=$REPO_DIR $REPO_DIR
+    chown -R --reference=. .
 fi
