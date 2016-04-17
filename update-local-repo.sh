@@ -20,7 +20,7 @@ Architectures: amd64
 Components: main
 SHA1:
 EOF
-function calc_sha1() {
+calc_sha1() {
     f=dists/$DIST/$1
     echo -n " "
     echo -n `sha1sum $f|cut -d' ' -f 1` ""
