@@ -74,7 +74,7 @@ function createDbusUuid() {
     outputc green "Creating DBUS uuid..."
     removeDbusUuid
     if [ -e "${INSTALLDIR}/bin/dbus-uuidgen" ]; then
-        chroot dbus-uuidgen --ensure 1>/dev/null 2>&1
+        chroot_cmd dbus-uuidgen --ensure 1>/dev/null 2>&1
     fi
 }
 
@@ -94,7 +94,7 @@ function removeDbusUuid() {
 # ==============================================================================
 function addDivertPolicy() {
     outputc green "Deactivating initctl..."
-    chroot dpkg-divert --local --rename --add /sbin/initctl || true
+    chroot_cmd dpkg-divert --local --rename --add /sbin/initctl || true
 
     outputc green "Creating policy-rc.d"
     echo exit 101 > "${INSTALLDIR}/usr/sbin/policy-rc.d"
@@ -102,7 +102,7 @@ function addDivertPolicy() {
 
     # utopic systemd install still broken...
     outputc green "Hacking invoke-rc.d to ignore missing init scripts..."
-    chroot sed -i -e "s/exit 100/exit 0 #exit 100/" /usr/sbin/invoke-rc.d
+    chroot_cmd sed -i -e "s/exit 100/exit 0 #exit 100/" /usr/sbin/invoke-rc.d
 }
 
 # ==============================================================================
@@ -110,13 +110,13 @@ function addDivertPolicy() {
 # ==============================================================================
 function removeDivertPolicy() {
     outputc red "Reactivating initctl..."
-    chroot dpkg-divert --local --rename --remove /sbin/initctl || true
+    chroot_cmd dpkg-divert --local --rename --remove /sbin/initctl || true
 
     outputc green "Removing policy-rc.d"
     rm -f "${INSTALLDIR}/usr/sbin/policy-rc.d"
 
     outputc red "Restoring invoke-rc.d..."
-    chroot sed -i -e "s/exit 0 #exit 100/exit 100/" /usr/sbin/invoke-rc.d
+    chroot_cmd sed -i -e "s/exit 0 #exit 100/exit 100/" /usr/sbin/invoke-rc.d
 }
 
 # ==============================================================================
@@ -141,7 +141,7 @@ function prepareChroot() {
 function aptUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
+        chroot_cmd env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
             apt-get ${APT_GET_OPTIONS} upgrade -u -y
 }
 
@@ -151,7 +151,7 @@ function aptUpgrade() {
 function aptDistUpgrade() {
     aptUpdate
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
+        chroot_cmd env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
             apt-get ${APT_GET_OPTIONS} dist-upgrade -u -y
 }
 
@@ -161,7 +161,7 @@ function aptDistUpgrade() {
 function aptUpdate() {
     debug "Updating system"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot apt-get ${APT_GET_OPTIONS} update
+        chroot_cmd apt-get ${APT_GET_OPTIONS} update
 }
 
 # ==============================================================================
@@ -170,7 +170,7 @@ function aptUpdate() {
 function aptRemove() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot $eatmydata_maybe apt-get ${APT_GET_OPTIONS} --force-yes remove ${files[@]}
+        chroot_cmd $eatmydata_maybe apt-get ${APT_GET_OPTIONS} --force-yes remove ${files[@]}
 }
 
 # ==============================================================================
@@ -179,9 +179,9 @@ function aptRemove() {
 function aptInstall() {
     files="$@"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot $eatmydata_maybe apt-get ${APT_GET_OPTIONS} install ${files[@]}
+        chroot_cmd $eatmydata_maybe apt-get ${APT_GET_OPTIONS} install ${files[@]}
     retcode=$?
-    chroot apt-get ${APT_GET_OPTIONS} clean
+    chroot_cmd apt-get ${APT_GET_OPTIONS} clean
     return $retcode
 }
 
@@ -228,19 +228,19 @@ function installPackages() {
 # ==============================================================================
 function installSystemd() {
     buildStep "$0" "pre-systemd"
-    chroot apt-get ${APT_GET_OPTIONS} update
+    chroot_cmd apt-get ${APT_GET_OPTIONS} update
 
     aptInstall systemd
     createDbusUuid
 
     # Set multi-user.target as default target
-    chroot rm -f /etc/systemd/system/default.target
-    chroot ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
+    chroot_cmd rm -f /etc/systemd/system/default.target
+    chroot_cmd ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 
     # XXX: TEMP lets see how stuff work with upstart in control for now
     # Boot using systemd
-    chroot rm -f /sbin/init
-    chroot ln -sf /lib/systemd/systemd /sbin/init
+    chroot_cmd rm -f /sbin/init
+    chroot_cmd ln -sf /lib/systemd/systemd /sbin/init
 
     buildStep "$0" "post-systemd"
 }
@@ -294,7 +294,7 @@ function updateQubuntuSourceList() {
         touch "${INSTALLDIR}/etc/apt/sources.list"
         echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
     fi
-    chroot apt-get ${APT_GET_OPTIONS} update
+    chroot_cmd apt-get ${APT_GET_OPTIONS} update
 }
 
 # ==============================================================================
@@ -326,7 +326,7 @@ keyboard-configuration  keyboard-configuration/layoutcode   string  us
 keyboard-configuration  keyboard-configuration/variantcode  string
 keyboard-configuration  keyboard-configuration/optionscode  string
 EOF
-    chroot debconf-set-selections /tmp/keyboard.conf
+    chroot_cmd debconf-set-selections /tmp/keyboard.conf
 }
 
 # ==============================================================================
@@ -334,8 +334,8 @@ EOF
 # ==============================================================================
 function updateLocale() {
     debug "Updating locales"
-    chroot localedef -f UTF-8 -i en_US -c en_US.UTF-8
-    chroot update-locale LANG=en_US.UTF-8
+    chroot_cmd localedef -f UTF-8 -i en_US -c en_US.UTF-8
+    chroot_cmd update-locale LANG=en_US.UTF-8
 }
 
 

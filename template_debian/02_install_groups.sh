@@ -40,7 +40,7 @@ trap cleanup EXIT
 info ' Install standard Debian packages'
 #### '----------------------------------------------------------------------
 containsFlavor "minimal" || {
-    packages="$(chroot tasksel --new-install --task-packages standard)"
+    packages="$(chroot_cmd tasksel --new-install --task-packages standard)"
     if [ -n "$eatmydata_maybe" ]; then
         eatmydata_maybe= aptInstall $eatmydata_maybe
     fi

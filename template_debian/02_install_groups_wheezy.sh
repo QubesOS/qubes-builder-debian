@@ -40,7 +40,7 @@ echo 'Yes, do as I say!' | aptRemove sysvinit
 #### '----------------------------------------------------------------------
 info ' Preventing sysvinit re-installation'
 #### '----------------------------------------------------------------------
-chroot apt-mark hold sysvinit
+chroot_cmd apt-mark hold sysvinit
 
 #### '----------------------------------------------------------------------
 info ' Pin sysvinit to prevent being re-installed'
@@ -61,8 +61,8 @@ aptInstall systemd-sysv
 #### '----------------------------------------------------------------------
 info ' Set multu-user.target as the default target (runlevel 3)'
 #### '----------------------------------------------------------------------
-chroot rm -f /etc/systemd/system/default.target
-chroot ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
+chroot_cmd rm -f /etc/systemd/system/default.target
+chroot_cmd ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 
 
 # ==============================================================================
@@ -77,7 +77,7 @@ info ' Installing init-system-helpers'
 #### '----------------------------------------------------------------------
 aptUpdate
 DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    chroot apt-get ${APT_GET_OPTIONS} -t wheezy-backports install init-system-helpers
+    chroot_cmd apt-get ${APT_GET_OPTIONS} -t wheezy-backports install init-system-helpers
 
 #### '----------------------------------------------------------------------
 info ' Installing pulseaudo backport'
@@ -87,7 +87,7 @@ info ' Installing pulseaudo backport'
 # start-pulseaudio-with-vchan
 
 #DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-#    chroot apt-get ${APT_GET_OPTIONS} -t wheezy-backports install pulseaudio \
+#    chroot_cmd apt-get ${APT_GET_OPTIONS} -t wheezy-backports install pulseaudio \
 #                                                                  libpulse0 \
 #                                                                  pulseaudio-utils \
 #                                                                  libpulse-mainloop-glib0 \

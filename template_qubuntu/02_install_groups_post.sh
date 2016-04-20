@@ -7,6 +7,6 @@ source "${SCRIPTSDIR}/distribution.sh"
 #### '-------------------------------------------------------------------------
 info ' Installing pulseaudio 5'
 #### '-------------------------------------------------------------------------
-chroot add-apt-repository -y ppa:ubuntu-audio-dev/pulse-testing
+chroot_cmd add-apt-repository -y ppa:ubuntu-audio-dev/pulse-testing
 aptUpdate
 aptInstall pulseaudio

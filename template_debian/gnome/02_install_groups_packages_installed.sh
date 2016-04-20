@@ -7,7 +7,7 @@ source "${SCRIPTSDIR}/distribution.sh"
 #### '----------------------------------------------------------------------
 info ' Installing Gnome'
 #### '----------------------------------------------------------------------
-#packages="$(chroot tasksel --new-install --task-packages desktop)"
-#packages+=" $(chroot tasksel --new-install --task-packages gnome-desktop)"
-packages="$(chroot tasksel --new-install --task-packages gnome-desktop)"
+#packages="$(chroot_cmd tasksel --new-install --task-packages desktop)"
+#packages+=" $(chroot_cmd tasksel --new-install --task-packages gnome-desktop)"
+packages="$(chroot_cmd tasksel --new-install --task-packages gnome-desktop)"
 aptInstall ${packages}

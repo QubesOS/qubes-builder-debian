@@ -56,8 +56,8 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
     #### '----------------------------------------------------------------------
     info 'Link mtab'
     #### '----------------------------------------------------------------------
-    chroot rm -f /etc/mtab
-    chroot ln -s /proc/self/mounts /etc/mtab
+    chroot_cmd rm -f /etc/mtab
+    chroot_cmd ln -s /proc/self/mounts /etc/mtab
 
     # TMPDIR is set in vars.  /tmp should not be used since it will be cleared
     # if building template with LXC contaniners on a reboot
