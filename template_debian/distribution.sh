@@ -359,6 +359,12 @@ installQubesRepo() {
     cat > "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [trusted=yes] file:/tmp/qubes_repo ${DIST} main
 EOF
+    if [ -n "$USE_QUBES_REPO_VERSION" ]; then
+        cat >> "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+deb [arch=amd64] http://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm $DIST main
+EOF
+        chroot_cmd apt-key add - < ${SCRIPTSDIR}/../keys/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc
+    fi
 }
 
 # ==============================================================================

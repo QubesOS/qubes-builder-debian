@@ -38,6 +38,11 @@ manage_snapshot() {
     cp -f "${snapshot}" "${IMG}"
 }
 
+
+# generate metadata in pkgs-for-template even if the repository is empty
+BUILDER_REPO_DIR=pkgs-for-template/$DIST \
+    $SCRIPTSDIR/../update-local-repo.sh ${DIST}
+
 # ==============================================================================
 # Determine if a snapshot should be used, reuse an existing image or
 # delete the existing image to start fresh based on configuration options
