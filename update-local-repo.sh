@@ -18,12 +18,12 @@ Codename: $DIST
 Date: `date -R`
 Architectures: amd64
 Components: main
-SHA1:
+SHA256:
 EOF
 calc_sha1() {
     f=dists/$DIST/$1
     echo -n " "
-    echo -n `sha1sum $f|cut -d' ' -f 1` ""
+    echo -n `sha256sum $f|cut -d' ' -f 1` ""
     echo -n `stat -c %s $f` ""
     echo $1
 }
