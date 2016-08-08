@@ -3,6 +3,7 @@ gnome-themes-standard
 xsettingsd
 gnome-packagekit
 qubes-img-converter
+qubes-input-proxy-sender
 qubes-pdf-converter
 qubes-gpg-split
 qubes-thunderbird
