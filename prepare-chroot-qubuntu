@@ -7,8 +7,8 @@ fi
 
 # ------------------------------------------------------------------------------
 # Configuration
-# $1: chroot directory [chroot-trusty, chroot-utopic]
-# $2: distribution [trusty, utopic]
+# $1: chroot directory [chroot-trusty ]
+# $2: distribution [trusty ]
 # ------------------------------------------------------------------------------
 DIR=$1
 DISTRO=$2
