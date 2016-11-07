@@ -7,7 +7,7 @@ ifneq (,$(findstring $(DIST),wheezy jessie stretch))
     DIST_TAG := $(strip $(subst jessie, deb8, $(DIST_TAG)))
     DIST_TAG := $(strip $(subst stretch, deb9, $(DIST_TAG)))
 endif
-ifneq (,$(findstring $(DIST),trusty utopic vivid))
+ifneq (,$(findstring $(DIST),trusty utopic vivid xenial))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
     DISTRIBUTION := qubuntu
     BUILDER_MAKEFILE = $(DEBIAN_PLUGIN_DIR)Makefile.qubuntu

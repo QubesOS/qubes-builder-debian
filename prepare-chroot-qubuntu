@@ -106,11 +106,13 @@ chroot $DIR apt-get $APT_GET_OPTIONS update
 # ------------------------------------------------------------------------------
 chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 
+if [ $DIST != 'xenial' ]; then
 # Install pulseaudio5
 chroot $DIR apt-get $APT_GET_OPTIONS install -y software-properties-common
 chroot $DIR add-apt-repository -y ppa:ubuntu-audio-dev/pulse-testing
 chroot $DIR apt-get $APT_GET_OPTIONS update
 chroot $DIR apt-get $APT_GET_OPTIONS install -y libpulse-dev
+fi
 
 # ------------------------------------------------------------------------------
 # Update qubuntu apt sources list to use local qubes repo
