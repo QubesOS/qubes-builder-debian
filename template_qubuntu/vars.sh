@@ -24,6 +24,11 @@ DEBIAN_MIRRORS=(
 # ------------------------------------------------------------------------------
 APT_GET_OPTIONS="-o Dpkg::Options::=--force-confnew -o Dpkg::Options::=--force-unsafe-io --yes"
 APT_GET_OPTIONS+=" -o Acquire::Retries=3"
+if [ -n "$REPO_PROXY" ]; then
+     APT_GET_OPTIONS+=" -o Acquire::http::Proxy=${REPO_PROXY}"
+     DEBOOTSTRAP_PREFIX+=" env http_proxy=${REPO_PROXY}"
+fi
+
 
 if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
     APT_GET_OPTIONS+=" -o Dpkg::Options::=--force-unsafe-io"
