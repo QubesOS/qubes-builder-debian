@@ -1,8 +1,6 @@
 sudo: required
 dist: trusty
 install: git clone https://github.com/QubesOS/qubes-builder ~/qubes-builder
-# debootstrap in trusty is old...
-before_script: sudo ln -s sid /usr/share/debootstrap/scripts/stretch
 script: ~/qubes-builder/scripts/travis-build linux-template-builder
 after_success:
  - ls -l ~/qubes-builder/qubes-src/linux-template-builder/rpm/noarch
