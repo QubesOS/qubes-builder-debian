@@ -321,3 +321,6 @@ endif
 	sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) '\$$Source (== $$source_name), Version (== $$package_ver+$(DIST_TAG)u1)'" | grep -q "$$source_name"
 	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
 endif
+
+sign:
+	@echo "Signing individual packages not supported in Debian, repository metadata are signed"
