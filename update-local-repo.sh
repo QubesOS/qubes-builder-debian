@@ -15,7 +15,7 @@ cat > dists/$DIST/Release <<EOF
 Label: Qubes builder repo
 Suite: $DIST
 Codename: $DIST
-Date: `date -R`
+Date: `date -u +"%a, %d %b %Y %H:%M:%S %Z"`
 Architectures: amd64
 Components: main
 SHA256:
