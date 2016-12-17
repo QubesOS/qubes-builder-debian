@@ -170,6 +170,10 @@ dist-build-dep:
 	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
 	sudo chroot $(CHROOT_DIR) apt-get ${APT_GET_OPTIONS} update
 
+	# check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+	# apt is installed
+	wc -L "$(CHROOT_DIR)/var/lib/apt/lists/"*InRelease | awk '$$1 > 1024 {print; exit 1}'
+
 	# Parse debian/control for Build-Depends and install
 	$(DEBIAN_PARSER) control --build-depends $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y

@@ -95,6 +95,9 @@ else
 
     # update chroot
     chroot $DIR apt-get $APT_GET_OPTIONS update
+    # check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+    # apt is installed
+    wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
     if [ -n "$eatmydata_maybe" -a ! -f "$DIR/usr/lib/libeatmydata/libeatmydata.so" ]; then
         chroot $DIR apt-get $APT_GET_OPTIONS -y install eatmydata
     fi
@@ -121,6 +124,7 @@ if [ "$DIST" == "wheezy" ]; then
         touch "${DIR}/etc/apt/sources.list"
         echo "$source" >> "${DIR}/etc/apt/sources.list"
     fi
+    # wheezy is not affected by CVE-2016-1252
     chroot $DIR apt-get $APT_GET_OPTIONS update
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -t wheezy-backports install -y dh-systemd config-package-dev
 fi
@@ -154,6 +158,9 @@ fi
 # Refresh package list (but not qubes repo since it does not yet exist)
 # ------------------------------------------------------------------------------
 chroot $DIR apt-get $APT_GET_OPTIONS update
+# check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+# apt is installed
+wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 
 # ------------------------------------------------------------------------------
 # Update debian apt sources list to use local qubes repo
