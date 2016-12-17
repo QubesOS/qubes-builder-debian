@@ -24,13 +24,33 @@ bootstrap() {
         if [ ! -d "${INSTALLDIR}/${TMPDIR}" ]; then
             mkdir -p "${INSTALLDIR}/${TMPDIR}"
         fi
+        rm -rf "${INSTALLDIR}/${TMPDIR}/dummy-repo"
+        mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}"
         echo ${mirror} > "${INSTALLDIR}/${TMPDIR}/.mirror"
+
+        # Download packages first, and log hash of them _before_ installing
+        # them. Needs to copy Release{,.gpg} to a dummy _local_ repo, because
+        # debootstrap insists on downloading it each time but we want to be sure to use
+        # packages downloaded earlier (and logged)
+        COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
+            --arch=amd64 \
+            --include="ncurses-term,locales,tasksel,$eatmydata_maybe" \
+            --components=main \
+            --download-only \
+            --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
+            "${DIST}" "${INSTALLDIR}" "${mirror}" && \
+        sha256sum "${INSTALLDIR}/var/cache/apt/archives"/*.deb && \
+        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_jessie_Release" \
+            "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release" && \
+        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_jessie_Release.gpg" \
+            "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg" && \
         COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$eatmydata_maybe" \
             --components=main \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
-            "${DIST}" "${INSTALLDIR}" "${mirror}" && return 0
+            "${DIST}" "${INSTALLDIR}" "file://${INSTALLDIR}/${TMPDIR}/dummy-repo" && \
+        return 0
     done
     error "Debootstrap failed!"
     exit 1;
