@@ -162,6 +162,9 @@ function aptUpdate() {
     debug "Updating system"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot_cmd apt-get ${APT_GET_OPTIONS} update
+    # check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+    # apt is installed
+    wc -L "${INSTALLDIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 }
 
 # ==============================================================================
@@ -228,7 +231,7 @@ function installPackages() {
 # ==============================================================================
 function installSystemd() {
     buildStep "$0" "pre-systemd"
-    chroot_cmd apt-get ${APT_GET_OPTIONS} update
+    aptUpdate
 
     aptInstall systemd
     createDbusUuid
@@ -294,7 +297,7 @@ function updateQubuntuSourceList() {
         touch "${INSTALLDIR}/etc/apt/sources.list"
         echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
     fi
-    chroot_cmd apt-get ${APT_GET_OPTIONS} update
+    aptUpdate
 }
 
 # ==============================================================================

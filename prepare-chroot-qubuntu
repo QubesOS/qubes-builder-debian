@@ -85,6 +85,9 @@ else
 
     # update chroot
     chroot $DIR apt-get $APT_GET_OPTIONS update
+    # check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+    # apt is installed
+    wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y upgrade
 fi
 
@@ -100,6 +103,9 @@ fi
 # ------------------------------------------------------------------------------
 sed -i "s/${DIST} main$/${DIST} main universe/g" $DIR/etc/apt/sources.list
 chroot $DIR apt-get $APT_GET_OPTIONS update
+# check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+# apt is installed
+wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 
 # ------------------------------------------------------------------------------
 # Install all build packages specified
@@ -110,6 +116,9 @@ chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 chroot $DIR apt-get $APT_GET_OPTIONS install -y software-properties-common
 chroot $DIR add-apt-repository -y ppa:ubuntu-audio-dev/pulse-testing
 chroot $DIR apt-get $APT_GET_OPTIONS update
+# check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+# apt is installed
+wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 chroot $DIR apt-get $APT_GET_OPTIONS install -y libpulse-dev
 
 # ------------------------------------------------------------------------------
