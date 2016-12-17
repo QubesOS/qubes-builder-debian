@@ -141,7 +141,8 @@ function prepareChroot() {
 function aptUpgrade() {
     aptUpdate
     chroot_cmd apt-get ${APT_GET_OPTIONS} --download-only upgrade -u -y
-    sha256sum "${INSTALLDIR}/var/cache/apt/archives"/*.deb
+    find "${INSTALLDIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
+        xargs -0r sha256sum
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot_cmd env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
             apt-get ${APT_GET_OPTIONS} upgrade -u -y
@@ -154,7 +155,8 @@ function aptUpgrade() {
 function aptDistUpgrade() {
     aptUpdate
     chroot_cmd apt-get ${APT_GET_OPTIONS} --download-only dist-upgrade -u -y
-    sha256sum "${INSTALLDIR}/var/cache/apt/archives"/*.deb
+    find "${INSTALLDIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
+        xargs -0r sha256sum
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot_cmd env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
             apt-get ${APT_GET_OPTIONS} dist-upgrade -u -y
@@ -188,7 +190,8 @@ function aptRemove() {
 function aptInstall() {
     files="$@"
     chroot_cmd apt-get ${APT_GET_OPTIONS} --download-only install ${files[@]}
-    sha256sum "${INSTALLDIR}/var/cache/apt/archives"/*.deb
+    find "${INSTALLDIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
+        xargs -0r sha256sum
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot_cmd $eatmydata_maybe apt-get ${APT_GET_OPTIONS} install ${files[@]}
     retcode=$?
