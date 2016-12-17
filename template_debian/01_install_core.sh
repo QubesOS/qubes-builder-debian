@@ -40,9 +40,9 @@ bootstrap() {
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "${mirror}" && \
         sha256sum "${INSTALLDIR}/var/cache/apt/archives"/*.deb && \
-        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_jessie_Release" \
+        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST}_Release" \
             "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release" && \
-        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_jessie_Release.gpg" \
+        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST}_Release.gpg" \
             "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg" && \
         COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
