@@ -112,7 +112,9 @@ wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 # ------------------------------------------------------------------------------
 chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 
-if [ $DIST != 'xenial' ]; then
+if [ $DIST == 'trusty' ]; then
+cp ${DEBIAN_PLUGIN_DIR}/keys/Launchpad-Ubuntu-Audio.gpg $DIR/tmp
+chroot $DIR apt-key add /tmp/Launchpad-Ubuntu-Audio.gpg 
 # Install pulseaudio5
 chroot $DIR apt-get $APT_GET_OPTIONS install -y software-properties-common
 chroot $DIR add-apt-repository -y ppa:ubuntu-audio-dev/pulse-testing

@@ -4,7 +4,7 @@
 source "${SCRIPTSDIR}/vars.sh"
 source "${SCRIPTSDIR}/distribution.sh"
 
-if  [ $DIST = "trusty" ]; then
+if  [ $DIST != "trusty" ]; then
 #### '-------------------------------------------------------------------------
 info ' Installing pulseaudio 5'
 #### '-------------------------------------------------------------------------
