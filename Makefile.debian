@@ -275,7 +275,8 @@ update-repo-prepare:
 		sudo mount --bind $(UPDATE_REPO) $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
 	fi
 
-update-repo: update-repo-prepare
+update-repo: update-repo-prepare update-repo-do
+update-repo-do:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
@@ -296,7 +297,8 @@ endif
 endif
 
 update-repo-from-snapshot: pkg_filter = $(shell cat $(SNAPSHOT_FILE))
-update-repo-from-snapshot: update-repo-prepare
+update-repo-from-snapshot: update-repo-prepare update-repo-from-snapshot-do
+update-repo-from-snapshot-do:
 	@sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo copyfilter $(DIST)$(REPO_SUFFIX) $(DIST)$(SNAPSHOT_REPO_SUFFIX) '$(subst $$,\$$,$(pkg_filter))'"
 	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
 	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-deb
