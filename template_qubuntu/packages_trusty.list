@@ -16,7 +16,6 @@ git
 gnome-terminal
 xterm
 libfile-mimeinfo-perl
-libglib2.0-bin
 ltrace
 strace
 haveged
