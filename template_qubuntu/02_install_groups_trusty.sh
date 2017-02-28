@@ -8,7 +8,7 @@ source "${SCRIPTSDIR}/distribution.sh"
 info 'HACK: Copying utopic sources.list to install systemd'
 #### '--------------------------------------------------------------------------
 cat > "${INSTALLDIR}/etc/apt/sources.list.d/systemd-utopic.list" <<EOF
-deb http://mirror.csclub.uwaterloo.ca/ubuntu/ utopic main
+deb http://old-releases.ubuntu.com/ubuntu/  utopic main
 EOF
 
 #### '--------------------------------------------------------------------------
