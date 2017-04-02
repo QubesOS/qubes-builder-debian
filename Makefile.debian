@@ -174,6 +174,9 @@ dist-build-dep:
 	# apt is installed
 	wc -L "$(CHROOT_DIR)/var/lib/apt/lists/"*InRelease | awk '$$1 > 1024 {print; exit 1}'
 
+	# update the base system inside
+	sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) dist-upgrade -y
+
 	# Parse debian/control for Build-Depends and install
 	$(DEBIAN_PARSER) control --build-depends $(CHROOT_DEBIAN_DIR)/control |\
 		xargs sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) install -y
