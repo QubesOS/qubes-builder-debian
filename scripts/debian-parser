@@ -21,6 +21,8 @@ import os
 import sys
 import re
 import argparse
+import calendar
+from email.utils import parsedate_tz
 
 DEBUG = False
 def debug(message, *arg, **args):
@@ -154,6 +156,9 @@ def main(argv):
 
     changelog_parser.add_argument( '--package-urgency', action='store_true',
             help='Return package urgency such as urgent low')
+
+    changelog_parser.add_argument( '--source-date-epoch', action='store_true',
+            help='Return timestamp of last modification, in epoch format')
 
     changelog_parser.add_argument( 'filename', action='store',
               help='Location of debian/control file')
@@ -328,10 +333,19 @@ def parseChangelog(filename, **args):
     content = getContent(filename)
 
     changelog_re = re.compile(r'^(?P<package_name>.*) \((?P<package_version_full>.*)\) (?P<package_distrib>.*); (?P<package_urgency>.*)$' )
+    last_change_re = re.compile(r'^ --.*  (?P<last_change_time>.*)$')
     match = changelog_re.match(content.split('\n')[0].strip())
     changelog = match.groupdict()
 
     changelog = _changelog_version(changelog)
+
+    for line in content.splitlines():
+        match = last_change_re.match(line)
+        if match:
+            timestamp_tuple = parsedate_tz(match.group('last_change_time'))
+            changelog['source_date_epoch'] = str(
+                    calendar.timegm(timestamp_tuple) - timestamp_tuple[9])
+            break
 
     # Clear out values from changelog that were not selected so we return only requested
     # changelog
