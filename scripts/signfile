@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <file-to-sign>"
+    echo "Clearsign a file in-place, if not already signed"
+    echo ""
+    echo "Optional environment variables:"
+    echo "  - GNUPG - alternative gpg2 binary to use"
+    echo "  - SIGN_KEY - alternative key to be used"
+    exit 1
+fi
+
+# check if already signed
+if grep -q '^-----BEGIN PGP SIGNATURE-----' $1; then
+    exit 0
+fi
+
+if [ -z "$GNUPG" ]; then
+    GNUPG=gpg2
+fi
+
+SIGN_OPTS=
+if [ -n "$SIGN_KEY" ]; then
+    SIGN_OPTS="--local-user=$SIGN_KEY"
+fi
+
+
+rm -f $1.asc
+$GNUPG $SIGN_OPTS --batch --clearsign --digest-algo=sha256 -o $1.asc $1
+mv -f $1.asc $1
