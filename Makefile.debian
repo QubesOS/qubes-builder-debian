@@ -203,7 +203,7 @@ endif
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/rpm/*
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
-ifdef INCREMENT_DEVEL_VERSIONS
+ifneq (,$(INCREMENT_DEVEL_VERSIONS))
 	# Break the hardlink - keep modified debian/changelog only inside of chroot
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
 	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
