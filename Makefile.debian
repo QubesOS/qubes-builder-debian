@@ -160,8 +160,9 @@ $(CHROOT_DIR)/home/user/.prepared_base: $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DI
 	@sudo -E $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION) $(CHROOT_DIR) $(DIST)
 	@touch $(CHROOT_DIR)/home/user/.prepared_base
 
+dist-prep: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 dist-prep:
-	@true
+	@rm -f "$(CHROOT_DIR)/$(DIST_SRC)/../$(release_name)"*
 
 dist-build-dep: 
 	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
@@ -202,6 +203,22 @@ endif
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/deb/*
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/rpm/*
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
+
+	# Create orig.tar.xz if needed
+	if [ "$(shell cat $(CHROOT_DEBIAN_DIR)/source/format)" = "3.0 (quilt)" ]; then \
+		cd $(CHROOT_DIR)/$(DIST_SRC); \
+		if ! ls $(CHROOT_DIR)/$(DIST_SRC)/../$(release_name).orig.* 2>/dev/null >&1; then \
+			SOURCE_DATE_EPOCH=$(shell $(DEBIAN_PARSER) changelog \
+				--source-date-epoch $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog); \
+			find . -path ./debian -prune -o -print0 |\
+				grep -zv '^\./\.git\|~$$' |\
+				LC_ALL=C sort -z |\
+				tar --no-recursion --null -T - \
+				--owner=0 --group=0 --numeric-owner \
+			    --mtime="@$${SOURCE_DATE_EPOCH}" -cJf ../$(release_name).orig.tar.xz; \
+		fi; \
+	fi
+
 
 ifneq (,$(INCREMENT_DEVEL_VERSIONS))
 	# Break the hardlink - keep modified debian/changelog only inside of chroot
