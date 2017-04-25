@@ -228,7 +228,7 @@ else
 	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 
 	echo "Building package in $(DIST_SRC)"
-	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; debchange -l+$(DIST_TAG)u "Build for $(DIST)"; debchange --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -uc -us'
+	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; debchange -t -l+$(DIST_TAG)u "Build for $(DIST)"; debchange -t --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -uc -us'
 endif
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
