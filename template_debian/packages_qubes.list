@@ -1,5 +1,4 @@
-qubes-core-agent
-qubes-gui-agent
+qubes-vm-dependencies
 ntpdate
 libxvmc1
 x11-session-utils

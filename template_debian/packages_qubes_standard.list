@@ -1,13 +1,7 @@
 xdg-user-dirs
 gnome-themes-standard
 xsettingsd
-gnome-packagekit
-qubes-img-converter
-qubes-input-proxy-sender
-qubes-pdf-converter
-qubes-gpg-split
-qubes-thunderbird
-qubes-mgmt-salt-vm-connector
+qubes-vm-recommended
 firmware-linux
 cryptsetup
 lvm2
