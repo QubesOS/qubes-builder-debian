@@ -6,9 +6,6 @@ after_success:
  - ls -l ~/qubes-builder/qubes-src/linux-template-builder/rpm/noarch
 language: generic
 env:
- - DISTS_VM=jessie USE_QUBES_REPO_VERSION=3.1
- - DISTS_VM=jessie+standard USE_QUBES_REPO_VERSION=3.1
- - DISTS_VM=stretch USE_QUBES_REPO_VERSION=3.1
  - DISTS_VM=jessie USE_QUBES_REPO_VERSION=3.2 USE_QUBES_REPO_TESTING=1
  - DISTS_VM=jessie+standard USE_QUBES_REPO_VERSION=3.2 USE_QUBES_REPO_TESTING=1
  - DISTS_VM=stretch USE_QUBES_REPO_VERSION=3.2 USE_QUBES_REPO_TESTING=1
