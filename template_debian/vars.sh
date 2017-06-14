@@ -7,6 +7,9 @@ source ./functions.sh
 # Global variables and functions
 # ==============================================================================
 
+# when building on Fedora, /bin and /sbin isn't included in PATH...
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 # ------------------------------------------------------------------------------
 # Temp directory to place installation files and progress markers
 # ------------------------------------------------------------------------------

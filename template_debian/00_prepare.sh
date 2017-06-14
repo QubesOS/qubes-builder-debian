@@ -5,8 +5,6 @@
 source "${SCRIPTSDIR}/vars.sh"
 source "${SCRIPTSDIR}/distribution.sh"
 
-INSTALLDIR="$(readlink -m mnt)"
-
 # Make sure ${INSTALLDIR} is not mounted
 umount_all "${INSTALLDIR}" || true
 

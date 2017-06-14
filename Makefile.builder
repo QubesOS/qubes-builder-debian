@@ -9,6 +9,7 @@ ifneq (,$(findstring $(DIST),wheezy jessie stretch))
 endif
 ifneq (,$(findstring $(DIST),trusty xenial))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+    TEMPLATE_ENV_WHITELIST += SYSTEMD_NSPAWN_ENABLE
     DISTRIBUTION := qubuntu
     BUILDER_MAKEFILE = $(DEBIAN_PLUGIN_DIR)Makefile.qubuntu
     TEMPLATE_SCRIPTS = $(DEBIAN_PLUGIN_DIR)template_qubuntu
