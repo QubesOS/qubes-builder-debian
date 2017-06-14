@@ -52,32 +52,34 @@ splitPath "${IMG}" path_parts
 packages_snapshot="${path_parts[dir]}${path_parts[base]}-packages${path_parts[dotext]}"
 debootstrap_snapshot="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
 
-if [ -f "${IMG}" ]; then
-    if [ -f "${packages_snapshot}" -a "${SNAPSHOT}" == "1" ]; then
-        # Use 'packages' snapshot
-        manage_snapshot "${packages_snapshot}"
-
-    elif [ -f "${debootstrap_snapshot}" -a "${SNAPSHOT}" == "1" ]; then
-        # Use 'debootstrap' snapshot
-        manage_snapshot "${debootstrap_snapshot}"
-
-    else
-        # Use '$IMG' if debootstrap did not fail
-        mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
-
-        # Assume a failed debootstrap installation if .prepared_debootstrap does not exist
-        if [ -e "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
-            debug "Reusing existing image ${IMG}"
-        else
-            outputc stout "Removing stale or incomplete ${IMG}"
-            umount_kill "${INSTALLDIR}" || true
-            rm -f "${IMG}"
-        fi
-
-        # Umount image; don't fail if its already umounted
-        umount_kill "${INSTALLDIR}" || true
-    fi
-fi
+# TODO: update for root.img with partitions
+#
+#if [ -f "${IMG}" ]; then
+#    if [ -f "${packages_snapshot}" -a "${SNAPSHOT}" == "1" ]; then
+#        # Use 'packages' snapshot
+#        manage_snapshot "${packages_snapshot}"
+#
+#    elif [ -f "${debootstrap_snapshot}" -a "${SNAPSHOT}" == "1" ]; then
+#        # Use 'debootstrap' snapshot
+#        manage_snapshot "${debootstrap_snapshot}"
+#
+#    else
+#        # Use '$IMG' if debootstrap did not fail
+#        mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
+#
+#        # Assume a failed debootstrap installation if .prepared_debootstrap does not exist
+#        if [ -e "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
+#            debug "Reusing existing image ${IMG}"
+#        else
+#            outputc stout "Removing stale or incomplete ${IMG}"
+#            umount_kill "${INSTALLDIR}" || true
+#            rm -f "${IMG}"
+#        fi
+#
+#        # Umount image; don't fail if its already umounted
+#        umount_kill "${INSTALLDIR}" || true
+#    fi
+#fi
 
 # ==============================================================================
 # Execute any template flavor or sub flavor 'post' scripts

@@ -45,6 +45,22 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_qubes" ]; then
     info ' Install Qubes packages listed in packages_qubes.list file(s)'
     #### '----------------------------------------------------------------------
     installPackages packages_qubes.list
+
+    if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
+        #### '------------------------------------------------------------------
+        info ' Install kernel and bootloader'
+        #### '------------------------------------------------------------------
+        aptInstall qubes-kernel-vm-support
+        aptInstall linux-image-amd64
+        aptInstall grub-pc
+        # find the right loop device, _not_ its partition
+        dev=$(df --output=source $INSTALLDIR | tail -n 1)
+        dev=${dev%p?}
+        chroot_cmd mount -t devtmpfs none /dev
+        chroot_cmd grub-install --modules=part_gpt "$dev"
+        chroot_cmd update-grub2
+    fi
+
     uninstallQubesRepo
 
     #### '----------------------------------------------------------------------
