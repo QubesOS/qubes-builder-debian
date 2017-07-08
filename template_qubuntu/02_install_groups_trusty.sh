@@ -12,7 +12,7 @@ deb http://old-releases.ubuntu.com/ubuntu/  utopic main
 EOF
 
 #### '--------------------------------------------------------------------------
-info 'Add universe to sources.list'
+info 'Update sources.list'
 #### '--------------------------------------------------------------------------
 updateQubuntuSourceList
 

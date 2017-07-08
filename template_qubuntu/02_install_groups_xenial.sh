@@ -6,7 +6,7 @@ source "${SCRIPTSDIR}/distribution.sh"
 
 
 #### '--------------------------------------------------------------------------
-info 'Add universe to sources.list'
+info 'Update sources.list'
 #### '--------------------------------------------------------------------------
 updateQubuntuSourceList
 

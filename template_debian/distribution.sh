@@ -294,7 +294,7 @@ function updateDebianSourceList() {
 }
 
 # ==============================================================================
-# Add universe to sources.list
+# Add to sources.list
 # ==============================================================================
 function updateQubuntuSourceList() {
     sed -i "s/${DIST} main$/${DIST} main universe multiverse restricted/g" "${INSTALLDIR}/etc/apt/sources.list"
@@ -303,7 +303,12 @@ function updateQubuntuSourceList() {
         touch "${INSTALLDIR}/etc/apt/sources.list"
         echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
     fi
-    source="deb-src http://archive.canonical.com/ubuntu ${DIST} partner"
+    source="deb http://archive.ubuntu.com/ubuntu ${DIST}-security main universe multiverse restricted "
+    if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
+        touch "${INSTALLDIR}/etc/apt/sources.list"
+        echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
+    fi
+    source="deb http://archive.ubuntu.com/ubuntu ${DIST}-updates main universe multiverse restricted "
     if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
         touch "${INSTALLDIR}/etc/apt/sources.list"
         echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
