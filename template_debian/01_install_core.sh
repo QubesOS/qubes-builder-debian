@@ -22,7 +22,7 @@ buildStep "${0}" "pre"
 bootstrap() {
     for mirror in ${DEBIAN_MIRRORS[@]}; do
         if [ ! -d "${INSTALLDIR}/${TMPDIR}" ]; then
-            mkdir -p "${INSTALLDIR}/${TMPDIR}"
+            mkdir -m 1777 -p "${INSTALLDIR}/${TMPDIR}"
         fi
         rm -rf "${INSTALLDIR}/${TMPDIR}/dummy-repo"
         mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}"
@@ -81,7 +81,7 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
 
     # TMPDIR is set in vars.  /tmp should not be used since it will be cleared
     # if building template with LXC contaniners on a reboot
-    mkdir -p "${INSTALLDIR}/${TMPDIR}"
+    mkdir -m 1777 -p "${INSTALLDIR}/${TMPDIR}"
 
     # Mark section as complete
     touch "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap"
