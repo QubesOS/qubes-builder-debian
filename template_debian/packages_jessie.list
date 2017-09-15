@@ -1,15 +1,9 @@
 ncurses-term
 aptitude
 tasksel
-sudo
 dmsetup
 psmisc
-emacs
-vim-nox
-gnupg
 xterm
 libfile-mimeinfo-perl
 libglib2.0-bin
 haveged
-wireless-tools
-wpasupplicant
