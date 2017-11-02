@@ -177,11 +177,11 @@ endif
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
 ifneq (,$(INCREMENT_DEVEL_VERSIONS))
-	# Break the hardlink - keep modified debian/changelog only inside of chroot
+	# Break the hardlink - keep modified debian/changelog only in build copy
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
 	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 	# Update changelog with -develXX appended to version
-	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in 
+	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in
 	#       builder configuration to use this feature
 	cd $(CHROOT_DIR)/$(DIST_SRC); $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
 
@@ -205,7 +205,11 @@ else
 		-exec touch --no-dereference --reference=$(CHROOT_DEBIAN_DIR)/changelog {} +
 endif
 
+ifeq ($(USE_DIST_BUILD_TOOLS),1)
+include $(DEBIAN_PLUGIN_DIR)/Makefile-pbuilder.debian
+else
 include $(DEBIAN_PLUGIN_DIR)/Makefile-legacy.debian
+endif
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 update-repo:

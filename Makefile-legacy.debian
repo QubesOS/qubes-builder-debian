@@ -1,4 +1,4 @@
-# This file is included from Makefile.debian if package do not define USE_DIST_BUILD_TOOLS
+# This file is included from Makefile.debian if USE_DIST_BUILD_TOOLS is not set
 
 dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
 	@if [ $(VERBOSE) -gt 0 ]; then \

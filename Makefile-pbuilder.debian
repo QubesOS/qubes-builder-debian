@@ -1,0 +1,73 @@
+# This file is included from Makefile.debian if USE_DIST_BUILD_TOOLS is set
+
+dist-prepare-chroot: $(CHROOT_DIR)/.prepared_pbuilder
+	@true
+
+
+$(CHROOT_DIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
+	@mkdir -p $(CHROOT_DIR)
+	@echo "-> Preparing $(DIST) build environment"
+	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
+	if [ -n "$(USE_QUBES_REPO_VERSION)" ]; then \
+		gpg --dearmor < $(DEBIAN_PLUGIN_DIR)keys/qubes-debian-r$(USE_QUBES_REPO_VERSION).asc > $(CHROOT_DIR)/qubes-keyring.gpg; \
+	fi
+	if [ -r "$(CHROOT_DIR)/base.tgz" ]; then \
+		action=update; \
+	else \
+		action=create; \
+	fi; \
+	sudo -E pbuilder $$action --basetgz $(CHROOT_DIR)/base.tgz \
+		--distribution $(DIST) \
+		--configfile $(DEBIAN_PLUGIN_DIR)/pbuilderrc \
+		--othermirror "deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main"
+	@touch $(CHROOT_DIR)/.prepared_pbuilder
+
+dist-prep: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+dist-prep:
+	@rm -f "$(CHROOT_DIR)/$(DIST_SRC)/../$(release_name)"*
+
+dist-build-dep:
+	@true
+
+.PHONY: build-source-package
+build-source-package: debian-prepare-dist-src
+	cd $(CHROOT_DIR)/$(DIST_SRC)/$(PACKAGE)/.. && \
+	dpkg-source -b .
+
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-package:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+dist-package: build-source-package
+endif
+dist-package:
+ifndef PACKAGE
+	$(error "PACKAGE need to be set!")
+endif
+	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
+
+	mkdir -p "$(CHROOT_DIR)/results"
+
+	release_name_full=$$($(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog); \
+	extra_sources="deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main"; \
+	if [ -n "$(USE_QUBES_REPO_VERSION)" ]; then \
+		extra_sources="$$extra_sources|deb [arch=amd64] http://deb.qubes-os.org/r$(USE_QUBES_REPO_VERSION)/vm $(DIST) main"; \
+		if [ "0$(USE_QUBES_REPO_TESTING)" -gt 0 ]; then \
+			extra_sources="$$extra_sources|deb [arch=amd64] http://deb.qubes-os.org/r$(USE_QUBES_REPO_VERSION)/vm $(DIST)-testing main"; \
+		fi; \
+		gpg --dearmor < $(DEBIAN_PLUGIN_DIR)keys/qubes-debian-r$(USE_QUBES_REPO_VERSION).asc > $(CHROOT_DIR)/qubes-keyring.gpg; \
+	fi; \
+	cd $(CHROOT_DIR)/$(DIST_SRC)/$(PACKAGE)/../.. && \
+	sudo -E pbuilder build --basetgz $(CHROOT_DIR)/base.tgz \
+		--override-config \
+		--distribution $(DIST) \
+		--configfile $(DEBIAN_PLUGIN_DIR)/pbuilderrc \
+		--othermirror "$$extra_sources" \
+		$(CHROOT_DIR)/$(DIST_SRC)/$(PACKAGE)/../../$$release_name_full.dsc
+
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-copy-out:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(CHROOT_DEBIAN_DIR)/changelog)
+endif
+dist-copy-out:
+	mkdir -p $(BUILDER_REPO_DIR)/deb
+	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
+	dcmd cp -t $(BUILDER_REPO_DIR)/deb $(CHROOT_DIR)/results/$(release_name)*.changes
+	dcmd mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(CHROOT_DIR)/results/$(release_name)*.changes
