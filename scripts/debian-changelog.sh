@@ -23,6 +23,11 @@
 #   building in a wheezy chroot environment
 # =============================================================================
 
+if ! [ -r version ]; then
+    echo "This package does not have version file, changelog will not be generated" >&2
+    exit 0
+fi
+
 debchange=$(dirname ${0})/debchange
 debian_parser=$(dirname ${0})/debian-parser
 
