@@ -301,9 +301,9 @@ ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
 	@if [ "X$(release_name_dist)" != "X" ]; then \
-		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes" || exit 1; \
+		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null" || exit 1; \
 	else \
-		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes" || exit 1; \
+		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes </dev/null >/dev/null" || exit 1; \
 	fi
 	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
 	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-deb
