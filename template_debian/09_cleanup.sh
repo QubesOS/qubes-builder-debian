@@ -37,6 +37,7 @@ if [ "$DIST" == "jessie" ]; then
     sed -i '/./{H;$!d};x;/dc_other_hostnames/d'  "${INSTALLDIR}/var/cache/debconf/config.dat-old" || true
     sed -i '/./{H;$!d};x;/exim4\/mailname/d'  "${INSTALLDIR}/var/cache/debconf/config.dat-old" || true
 fi
+rm -f  "${INSTALLDIR}/etc/systemd/system/multi-user.target.wants/wpa_supplicant@.service"
 sed -i "s/`hostname`/$DIST/"  "${INSTALLDIR}/etc/hosts" || true
 
 # ==============================================================================
