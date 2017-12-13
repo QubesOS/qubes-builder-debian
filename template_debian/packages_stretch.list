@@ -14,5 +14,4 @@ ltrace
 strace
 haveged
 wireless-tools
-wpasupplicant
 dbus-x11
