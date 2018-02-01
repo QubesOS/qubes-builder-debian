@@ -8,7 +8,7 @@ ifneq (,$(findstring $(DIST),wheezy jessie stretch buster))
     DIST_TAG := $(strip $(subst stretch, deb9, $(DIST_TAG)))
     DIST_TAG := $(strip $(subst buster, deb10, $(DIST_TAG)))
 endif
-ifneq (,$(findstring $(DIST),trusty xenial zesty))
+ifneq (,$(findstring $(DIST),trusty xenial artful))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
     TEMPLATE_ENV_WHITELIST += SYSTEMD_NSPAWN_ENABLE
     DISTRIBUTION := qubuntu
