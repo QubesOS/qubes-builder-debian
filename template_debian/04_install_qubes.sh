@@ -51,7 +51,7 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_qubes" ]; then
         info ' Install kernel and bootloader'
         #### '------------------------------------------------------------------
         aptInstall qubes-kernel-vm-support
-        aptInstall linux-image-amd64
+        aptInstall "${KERNEL_PACKAGE_NAME}"
         aptInstall grub-pc
         # find the right loop device, _not_ its partition
         dev=$(df --output=source $INSTALLDIR | tail -n 1)
