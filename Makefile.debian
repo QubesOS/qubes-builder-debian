@@ -227,7 +227,7 @@ ifneq (,$(INCREMENT_DEVEL_VERSIONS))
 	# Update changelog with -develXX appended to version
 	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in 
 	#       builder configuration to use this feature
-	cd $(CHROOT_DEBIAN_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
+	cd $(CHROOT_DIR)/$(DIST_SRC); $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
 
 	# copy changelog.{dist,$(DIST)} back to original src dir to have continious +devel numbering
 	# if the files are already there, do nothing because they are hardlinks
