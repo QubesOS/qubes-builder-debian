@@ -4,8 +4,6 @@ tasksel
 sudo
 dmsetup
 psmisc
-emacs
-vim-nox
 gnupg
 xterm
 libfile-mimeinfo-perl
