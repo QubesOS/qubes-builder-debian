@@ -7,3 +7,5 @@ evince
 gedit
 gnupg
 sudo
+emacs
+vim-nox
