@@ -277,7 +277,7 @@ function updateDebianSourceList() {
     sed -i "s/${DIST} main$/${DEBIANVERSION} main contrib non-free/g" "${list}"
 
     # Add main deb-src repository
-    source="#deb-src ${mirror} main/${DEBIANVERSION} main contrib non-free"
+    source="#deb-src ${mirror} ${DEBIANVERSION} main contrib non-free"
     if ! grep -r -q "$source" "${list}"*; then
         echo -e "$source\n" >> "${list}"
     fi
