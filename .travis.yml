@@ -18,3 +18,8 @@ env:
  - DISTS_VM=stretch USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1 TEMPLATE_ROOT_WITH_PARTITIONS=1
  - DISTS_VM=stretch+standard USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1 TEMPLATE_ROOT_WITH_PARTITIONS=1
  - DISTS_VM=stretch+minimal+no-recommends USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1 TEMPLATE_ROOT_WITH_PARTITIONS=1
+
+# don't build tags which are meant for code signing only
+branches:
+  except:
+    - /.*_.*/
