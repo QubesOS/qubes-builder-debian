@@ -246,6 +246,8 @@ def getContent(filename):
             content = file_.read()
             if DEBUG:
                 debug(content)
+        content = ''.join(l for l in content.splitlines(True)
+            if not l.startswith('#'))
     except IOError, msg:
         sys.exit(1)
     return content
