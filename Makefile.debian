@@ -104,6 +104,10 @@ ifdef REPO_PROXY
   APT_GET_OPTIONS += -o Acquire::http::Proxy=$(REPO_PROXY)
 endif
 
+ifeq ($(DIST),jessie)
+  EXTRA_BUILD_DEPS_OPTS += -t jessie-backports
+endif
+
 ifdef DEBUG
   $(info ╔══ DEBUG ══════════════════════════════════════════════════════════════════════)
   $(info ║ Repo Variables)
@@ -179,7 +183,7 @@ dist-build-dep:
 	sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) dist-upgrade -y
 
 	# install build dependencies
-	LC_ALL=C sudo chroot $(CHROOT_DIR) mk-build-deps -i -r -t "apt-get --no-install-recommends -y" $(DIST_SRC_DEBIAN_DIR)/control
+	LC_ALL=C sudo chroot $(CHROOT_DIR) mk-build-deps -i -r -t "apt-get $(EXTRA_BUILD_DEPS_OPTS) --no-install-recommends -y" $(DIST_SRC_DEBIAN_DIR)/control
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
 dist-package:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
