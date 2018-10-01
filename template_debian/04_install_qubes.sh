@@ -57,7 +57,7 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_qubes" ]; then
         dev=$(df --output=source $INSTALLDIR | tail -n 1)
         dev=${dev%p?}
         chroot_cmd mount -t devtmpfs none /dev
-        chroot_cmd grub-install --modules=part_gpt "$dev"
+        chroot_cmd grub-install --target=i386-pc --modules=part_gpt "$dev"
         chroot_cmd update-grub2
     fi
 
