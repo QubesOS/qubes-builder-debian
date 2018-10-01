@@ -357,6 +357,61 @@ function updateLocale() {
     chroot_cmd update-locale LANG=en_US.UTF-8
 }
 
+# ==============================================================================
+# Configure default applications
+# ==============================================================================
+function setDefaultApplications() {
+    debug "Setting default applications"
+
+    # fix default for text/plain - make sure it is not a console app (if
+    # possible)
+    text_plain_app=$(chroot_cmd xdg-mime query default text/plain)
+    if grep -q '^Terminal=[tT]' "${INSTALLDIR}/usr/share/applications/$text_plain_app"; then
+        text_plain_apps=
+        # prefer gedit, if installed
+        for app in "${INSTALLDIR}/usr/share/applications/"*gedit*desktop; do
+            if [ -r "$app" ]; then
+                text_plain_apps="$text_plain_apps$(basename "$app");"
+            fi
+        done
+        for app in $(grep -rl '^MimeType=.*text/plain;' \
+                "${INSTALLDIR}/usr/share/applications" \
+                | fgrep -v gedit \
+                | LC_ALL=C sort); do
+            if ! grep -q '^Terminal=[tT]' "$app"; then
+                text_plain_apps="$text_plain_apps$(basename "$app");"
+            fi
+        done
+        if [ -n "$text_plain_apps" ]; then
+            mimeapps_file=/usr/share/applications/mimeapps.list
+            touch "$mimeapps_file"
+            awk -v apps="$text_plain_apps" '
+                /^\[/ {
+                    if (indefault && !added) {
+                        print "text/plain=" apps
+                        added=1
+                    }
+                    indefault=0
+                }
+                /^\[Default Applications\]/ { indefault=1 }
+                /^text\/plain=/ {
+                    if (indefault) { print "text/plain=" apps; added=1 }
+                    else { print }
+                    next
+                }
+                /./ { print }
+                END {
+                    if (!added) {
+                        if (!indefault) { print "[Default Applications]" }
+                        print "text/plain=" apps
+                    }
+                }
+            ' < "$mimeapps_file" > "$mimeapps_file.new" && \
+                mv "$mimeapps_file.new" "$mimeapps_file"
+        fi
+    fi
+}
+
 
 # ==============================================================================
 # ------------------------------------------------------------------------------
