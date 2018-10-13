@@ -108,6 +108,14 @@ ifeq ($(DIST),jessie)
   EXTRA_BUILD_DEPS_OPTS += -t jessie-backports
 endif
 
+EXTRA_REPREPRO_OPTS ?=
+EXTRA_REPREPRO_OPTS += --ignore=surprisingbinary
+ifeq (1,$(INCREMENT_DEVEL_VERSIONS))
+# don't include source packages if INCREMENT_DEVEL_VERSIONS is active, as they
+# will differ and will be rejected
+EXTRA_REPREPRO_OPTS += -T deb
+endif
+
 ifdef DEBUG
   $(info ╔══ DEBUG ══════════════════════════════════════════════════════════════════════)
   $(info ║ Repo Variables)
@@ -296,9 +304,9 @@ ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
 	@if [ -n "$(INCREMENT_DEVEL_VERSIONS)" -a -n "$(release_name_dist)" ]; then \
-		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null" || exit 1; \
+		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro $(EXTRA_REPREPRO_OPTS) -b /tmp/qubes-apt-repo include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null" || exit 1; \
 	else \
-		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo -T deb include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes </dev/null >/dev/null" || exit 1; \
+		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro $(EXTRA_REPREPRO_OPTS) -b /tmp/qubes-apt-repo include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes </dev/null >/dev/null" || exit 1; \
 	fi
 	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
 	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-deb
