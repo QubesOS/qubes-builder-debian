@@ -26,7 +26,17 @@ bootstrap() {
         fi
         rm -rf "${INSTALLDIR}/${TMPDIR}/dummy-repo"
         mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}"
+        mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/main/binary-amd64"
         echo ${mirror} > "${INSTALLDIR}/${TMPDIR}/.mirror"
+
+        mirror_no_proto=${mirror#*://}
+        # depending on debootstrap version, Release files can be stored under
+        # different names; this function needs _some_ correctly signed file for
+        # dummy repository
+        release_location_candidates=( \
+            "${INSTALLDIR}/var/lib/apt/lists/${mirror_no_proto//\//_}_dists_${DIST}_Release" \
+            "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST}_Release" \
+        )
 
         # Download packages first, and log hash of them _before_ installing
         # them. Needs to copy Release{,.gpg} to a dummy _local_ repo, because
@@ -40,16 +50,24 @@ bootstrap() {
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "${mirror}" && \
         sha256sum "${INSTALLDIR}/var/cache/apt/archives"/*.deb && \
-        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST}_Release" \
-            "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release" && \
-        cp "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST}_Release.gpg" \
-            "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg" && \
+        for release_location in "${release_location_candidates[@]}"; do
+            if [ -r "${release_location}" ]; then
+                cp "${release_location}" \
+                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release"
+                cp "${release_location}.gpg" \
+                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg"
+                cp "${release_location%_Release}_main_binary-amd64_Packages" \
+                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/main/binary-amd64/Packages"
+                break
+            fi
+        done && \
         COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$eatmydata_maybe" \
             --components=main \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "file://${INSTALLDIR}/${TMPDIR}/dummy-repo" && \
+        echo "deb ${mirror} ${DIST} main" > ${INSTALLDIR}/etc/apt/sources.list && \
         return 0
     done
     error "Debootstrap failed!"
