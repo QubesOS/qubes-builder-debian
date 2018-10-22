@@ -25,6 +25,7 @@ DEBIANVERSION=${DIST}
 # Location to grab Debian packages
 # ------------------------------------------------------------------------------
 DEFAULT_DEBIAN_MIRRORS=(
+    'https://deb.debian.org/debian'
     'http://http.debian.net/debian'
     'http://ftp.us.debian.org/debian'
     'http://ftp.ca.debian.org/debian'
@@ -54,6 +55,7 @@ fi
 if [ -n "$REPO_PROXY" ]; then
     APT_GET_OPTIONS+=" -o Acquire::http::Proxy=${REPO_PROXY}"
     DEBOOTSTRAP_PREFIX+=" env http_proxy=${REPO_PROXY}"
+    DEBOOTSTRAP_PREFIX+=" env https_proxy=${REPO_PROXY}"
 fi
 
 containsFlavor 'no-recommends' && {

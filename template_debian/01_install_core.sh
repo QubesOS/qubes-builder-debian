@@ -38,13 +38,14 @@ bootstrap() {
             "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST}_Release" \
         )
 
+        apt_https_pkgs="apt-transport-https,ca-certificates"
         # Download packages first, and log hash of them _before_ installing
         # them. Needs to copy Release{,.gpg} to a dummy _local_ repo, because
         # debootstrap insists on downloading it each time but we want to be sure to use
         # packages downloaded earlier (and logged)
         COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
-            --include="ncurses-term,locales,tasksel,$eatmydata_maybe" \
+            --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main \
             --download-only \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
@@ -63,7 +64,7 @@ bootstrap() {
         done && \
         COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
-            --include="ncurses-term,locales,tasksel,$eatmydata_maybe" \
+            --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "file://${INSTALLDIR}/${TMPDIR}/dummy-repo" && \
