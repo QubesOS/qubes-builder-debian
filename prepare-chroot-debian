@@ -103,6 +103,9 @@ else
         chroot $DIR apt-get $APT_GET_OPTIONS -y install eatmydata
     fi
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y upgrade
+    # install it on build env update too
+    chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install \
+        apt-transport-https ca-certificates
 fi
 
 # ------------------------------------------------------------------------------
@@ -117,14 +120,29 @@ fi
 # ------------------------------------------------------------------------------
 chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 
+# ------------------------------------------------------------------------------
+# Add repositories
+# ------------------------------------------------------------------------------
+
+add_repo() {
+    local repo="$1"
+    if ! fgrep -r -q "$repo" "${DIR}/etc/apt/sources.list"*; then
+        touch "${DIR}/etc/apt/sources.list"
+        echo "$repo" >> "${DIR}/etc/apt/sources.list"
+        # remove old http line, if was there
+        if [[ "${repo}" = *https://* ]] && \
+                fgrep -q "${repo/https/http}" "${DIR}/etc/apt/sources.list"; then
+            fgrep -v "${repo/https/http}" "${DIR}/etc/apt/sources.list" \
+                > "${DIR}/etc/apt/sources.list.new"
+            mv "${DIR}/etc/apt/sources.list.new" "${DIR}/etc/apt/sources.list"
+        fi
+    fi
+}
+
 if [ "$DIST" == "wheezy" ]; then
     # Looks like a SID only package is being used to build packages
     # there is a backport available for wheezy
-    source="deb https://deb.debian.org/debian wheezy-backports main"
-    if ! grep -r -q "$source" "${DIR}/etc/apt/sources.list"*; then
-        touch "${DIR}/etc/apt/sources.list"
-        echo "$source" >> "${DIR}/etc/apt/sources.list"
-    fi
+    add_repo "deb https://deb.debian.org/debian wheezy-backports main"
     # wheezy is not affected by CVE-2016-1252
     chroot $DIR apt-get $APT_GET_OPTIONS update
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -t wheezy-backports install -y dh-systemd config-package-dev
@@ -132,34 +150,18 @@ fi
 
 if [ "$DIST" == "jessie" ]; then
     # enable jessie-backports for various python3-* packages
-    source="deb https://deb.debian.org/debian jessie-backports main"
-    if ! grep -r -q "$source" "${DIR}/etc/apt/sources.list"*; then
-        touch "${DIR}/etc/apt/sources.list"
-        echo "$source" >> "${DIR}/etc/apt/sources.list"
-    fi
+    add_repo "deb https://deb.debian.org/debian jessie-backports main"
 fi
 
 # ------------------------------------------------------------------------------
 # Install Debian source repo
 # ------------------------------------------------------------------------------
-source="deb-src https://deb.debian.org/debian ${DEBIANVERSION} main"
-if ! grep -r -q "$source" "${DIR}/etc/apt/sources.list"*; then
-    touch "${DIR}/etc/apt/sources.list"
-    echo "$source" >> "${DIR}/etc/apt/sources.list"
-fi
+add_repo "deb-src https://deb.debian.org/debian ${DEBIANVERSION} main"
 
 if [ -n "$USE_QUBES_REPO_VERSION" ]; then
-    source="deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm $DIST main"
-    if ! fgrep -r -q "$source" "${DIR}/etc/apt/sources.list"*; then
-        touch "${DIR}/etc/apt/sources.list"
-        echo "$source" >> "${DIR}/etc/apt/sources.list"
-    fi
+    add_repo "deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm $DIST main"
     if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
-        source="deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST}-testing main"
-        if ! fgrep -r -q "$source" "${DIR}/etc/apt/sources.list"*; then
-            touch "${DIR}/etc/apt/sources.list"
-            echo "$source" >> "${DIR}/etc/apt/sources.list"
-        fi
+        add_repo "deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST}-testing main"
     fi
     chroot $DIR apt-key add - < ${DEBIAN_PLUGIN_DIR}keys/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc
 fi
