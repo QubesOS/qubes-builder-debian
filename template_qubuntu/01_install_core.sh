@@ -27,6 +27,7 @@ bootstrap() {
         rm -rf "${INSTALLDIR}/${TMPDIR}/dummy-repo"
         mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}"
         mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/main/binary-amd64"
+        mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/universe/binary-amd64"
         echo ${mirror} > "${INSTALLDIR}/${TMPDIR}/.mirror"
 
         mirror_no_proto=${mirror#*://}
@@ -46,7 +47,7 @@ bootstrap() {
         COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
-            --components=main \
+            --components=main,universe \
             --download-only \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "${mirror}" && \
@@ -59,16 +60,18 @@ bootstrap() {
                     "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg"
                 cp "${release_location%_Release}_main_binary-amd64_Packages" \
                     "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/main/binary-amd64/Packages"
+                cp "${release_location%_Release}_universe_binary-amd64_Packages" \
+                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/universe/binary-amd64/Packages"
                 break
             fi
         done && \
         COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
-            --components=main \
+            --components=main,universe \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "file://${INSTALLDIR}/${TMPDIR}/dummy-repo" && \
-        echo "deb ${mirror} ${DIST} main" > ${INSTALLDIR}/etc/apt/sources.list && \
+        echo "deb ${mirror} ${DIST} main universe" > ${INSTALLDIR}/etc/apt/sources.list && \
         return 0
     done
     error "Debootstrap failed!"
