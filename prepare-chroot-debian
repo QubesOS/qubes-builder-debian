@@ -148,11 +148,6 @@ if [ "$DIST" == "wheezy" ]; then
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -t wheezy-backports install -y dh-systemd config-package-dev
 fi
 
-if [ "$DIST" == "jessie" ]; then
-    # enable jessie-backports for various python3-* packages
-    add_repo "deb https://deb.debian.org/debian jessie-backports main"
-fi
-
 # ------------------------------------------------------------------------------
 # Install Debian source repo
 # ------------------------------------------------------------------------------
