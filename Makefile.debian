@@ -50,7 +50,9 @@ PACKAGE_LIST = $(DEBIAN_BUILD_DIRS)
 DIST_BUILD_DIR = /home/user
 
 ifneq (1,$(NO_ARCHIVE))
-  GIT_TARBALL_NAME ?= ../$(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(firstword $(DEBIAN_BUILD_DIRS))/changelog 2>/dev/null).orig.tar.gz
+  ifeq ($(shell cat $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/source/format 2>/dev/null),3.0 (quilt))
+    GIT_TARBALL_NAME ?= $(DEBIAN_BUILD_DIRS)/../../$(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog 2>/dev/null).orig.tar.xz
+  endif
 endif
 
 ### Variables determined by package's Makefile.builder
@@ -216,21 +218,6 @@ endif
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/rpm/*
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
-	# Create orig.tar.xz if needed
-	if [ "$(shell cat $(CHROOT_DEBIAN_DIR)/source/format)" = "3.0 (quilt)" ]; then \
-		cd $(CHROOT_DIR)/$(DIST_SRC); \
-		if ! ls $(CHROOT_DIR)/$(DIST_SRC)/../$(release_name).orig.* 2>/dev/null >&1; then \
-			SOURCE_DATE_EPOCH=$(shell $(DEBIAN_PARSER) changelog \
-				--source-date-epoch $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog); \
-			find . -path ./debian -prune -o -print0 |\
-				grep -zv '^\./\.git\|~$$' |\
-				LC_ALL=C sort -z |\
-				tar --no-recursion --null -T - \
-				--owner=0 --group=0 --numeric-owner \
-			    --mtime="@$${SOURCE_DATE_EPOCH}" -cJf ../$(release_name).orig.tar.xz; \
-		fi; \
-	fi
-
 ifneq (,$(INCREMENT_DEVEL_VERSIONS))
 	# Break the hardlink - keep modified debian/changelog only inside of chroot
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
@@ -256,6 +243,8 @@ else
 	cd $(CHROOT_DIR)/$(DIST_SRC)/$(PACKAGE)/..; export LC_ALL=C DEBFULLNAME=Builder DEBEMAIL=user@localhost; \
 		debchange -t -l+$(DIST_TAG)u "Build for $(DIST)"; debchange -t --force-distribution -r -D $(DIST) $(DIST)
 	$(DEBIAN_PLUGIN_DIR)/scripts/clamp-changelog-entry-date $(CHROOT_DEBIAN_DIR)/changelog
+	find $(CHROOT_DIR)/$(DIST_SRC) \! -newer $(CHROOT_DEBIAN_DIR)/changelog \
+		-exec touch --no-dereference --reference=$(CHROOT_DEBIAN_DIR)/changelog {} +
 endif
 
 	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -uc -us'
