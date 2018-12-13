@@ -14,6 +14,10 @@
 #    package root directory differs from what is reported in changelog a 
 #    release is created, updating the changelog with commits since previous
 #    version and bumping the changelog version
+#
+# Addtionally, if the script is called with --verify option, it will only check
+# if the debian/changelog entry matches version/rel file and set appropriate
+# exit code.
 # -----------------------------------------------------------------------------
 # NOTES:
 #
@@ -63,6 +67,16 @@ fi
 if [ -z "$deb_revision" ]; then
     revision=""
 fi
+
+if [ "x$1" = "x--verify" ]; then
+    if [ "${deb_version}-${deb_revision}" = "${version}-${revision}" ]; then
+        exit 0
+    else
+        echo "Version mismatch: ${deb_version}-${deb_revision} in debian/changelog but ${version}-${revision} in version+rel" >&2
+        exit 1
+    fi
+fi
+
 
 # =============================================================================
 #                            R E L E A S E   M O D E 

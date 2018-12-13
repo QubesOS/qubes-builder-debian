@@ -231,7 +231,6 @@ endif
 		fi; \
 	fi
 
-
 ifneq (,$(INCREMENT_DEVEL_VERSIONS))
 	# Break the hardlink - keep modified debian/changelog only inside of chroot
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
@@ -245,20 +244,21 @@ ifneq (,$(INCREMENT_DEVEL_VERSIONS))
 	# if the files are already there, do nothing because they are hardlinks
 	cp -np $(CHROOT_DEBIAN_DIR)/changelog.dist $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ 2>/dev/null || true
 	cp -np $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/ 2>/dev/null || true
-
-	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -uc -us'
 else
-	# Only used to update changelog to new version since changelog is 
-	# also called below
-	cd $(CHROOT_DEBIAN_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
+	# break the release build if changelog does not match version file
+	cd $(CHROOT_DEBIAN_DIR)/..; $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh --verify
 
 	# Break the hardlink
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
 	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 
 	echo "Building package in $(DIST_SRC)"
-	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; debchange -t -l+$(DIST_TAG)u "Build for $(DIST)"; debchange -t --force-distribution -r -D $(DIST) $(DIST); dpkg-buildpackage -sa -uc -us'
+	cd $(CHROOT_DIR)/$(DIST_SRC)/$(PACKAGE)/..; export LC_ALL=C DEBFULLNAME=Builder DEBEMAIL=user@localhost; \
+		debchange -t -l+$(DIST_TAG)u "Build for $(DIST)"; debchange -t --force-distribution -r -D $(DIST) $(DIST)
+	$(DEBIAN_PLUGIN_DIR)/scripts/clamp-changelog-entry-date $(CHROOT_DEBIAN_DIR)/changelog
 endif
+
+	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -uc -us'
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
 dist-copy-out:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(CHROOT_DEBIAN_DIR)/changelog)

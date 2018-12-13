@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Clamp the topmost changelog entry date ("Build for ...") to the previous one
+# (actual meaningful entry)
+
+CHANGELOG_PATH="$1"
+
+if [ ! -r "$CHANGELOG_PATH" ]; then
+    echo "Changelog file '$CHANGELOG_PATH' inaccessible!" >&2
+    exit 1
+fi
+
+# get previous date
+PREVIOUS_DATE=$(grep '^ --' $CHANGELOG_PATH |\
+    head -n 2 | tail -n 1 | grep -o '  .*')
+
+# replace topmost date
+sed -e "0,/^ --/s/^\( --.*\)\(  .*\)/\1$PREVIOUS_DATE/" -i $CHANGELOG_PATH
+touch --date="$PREVIOUS_DATE" "$CHANGELOG_PATH"
