@@ -24,7 +24,7 @@ BUILDDIR=/build
 # Debian buildds too.  You can set it to $BUILDDIR to get a working HOME, if
 # you need to.
 BUILD_HOME=/nonexistent
-MIRRORSITE=http://httpredir.debian.org/debian
+MIRRORSITE=http://deb.debian.org/debian
 #OTHERMIRROR="deb http://www.home.com/updates/ ./"
 #export http_proxy=http://your-proxy:8080/
 USEPROC=yes
@@ -98,6 +98,10 @@ DEBBUILDOPTS="-sa"
 
 #APT configuration files directory
 APTCONFDIR=""
+
+export DEB_VENDOR=Qubes
+
+unset MAKEFLAGS
 
 # the username and ID used by pbuilder, inside chroot. Needs fakeroot, really
 BUILDUSERNAME=pbuilder

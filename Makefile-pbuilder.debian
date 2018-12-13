@@ -3,7 +3,7 @@
 dist-prepare-chroot: $(CHROOT_DIR)/.prepared_pbuilder
 	@true
 
-
+# TODO: avoid loading user ~/.pbuilderrc
 $(CHROOT_DIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
 	@mkdir -p $(CHROOT_DIR)
 	@echo "-> Preparing $(DIST) build environment"
@@ -19,7 +19,8 @@ $(CHROOT_DIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
 	sudo -E pbuilder $$action --basetgz $(CHROOT_DIR)/base.tgz \
 		--distribution $(DIST) \
 		--configfile $(DEBIAN_PLUGIN_DIR)/pbuilderrc \
-		--othermirror "deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main"
+		--othermirror "deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main" || \
+		{ rm -f "$(CHROOT_DIR)/base.tgz"; exit 1; }
 	@touch $(CHROOT_DIR)/.prepared_pbuilder
 
 dist-prep: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
@@ -53,7 +54,6 @@ endif
 		if [ "0$(USE_QUBES_REPO_TESTING)" -gt 0 ]; then \
 			extra_sources="$$extra_sources|deb [arch=amd64] http://deb.qubes-os.org/r$(USE_QUBES_REPO_VERSION)/vm $(DIST)-testing main"; \
 		fi; \
-		gpg --dearmor < $(DEBIAN_PLUGIN_DIR)keys/qubes-debian-r$(USE_QUBES_REPO_VERSION).asc > $(CHROOT_DIR)/qubes-keyring.gpg; \
 	fi; \
 	cd $(CHROOT_DIR)/$(DIST_SRC)/$(PACKAGE)/../.. && \
 	sudo -E pbuilder build --basetgz $(CHROOT_DIR)/base.tgz \
