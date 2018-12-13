@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial
 install: git clone https://github.com/"${TRAVIS_REPO_SLUG%%/*}"/qubes-builder ~/qubes-builder
 script: ~/qubes-builder/scripts/travis-build linux-template-builder
 after_success:
@@ -18,6 +18,21 @@ env:
  - DISTS_VM=stretch USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1 TEMPLATE_ROOT_WITH_PARTITIONS=1
  - DISTS_VM=stretch+standard USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1 TEMPLATE_ROOT_WITH_PARTITIONS=1
  - DISTS_VM=stretch+minimal+no-recommends USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1 TEMPLATE_ROOT_WITH_PARTITIONS=1
+
+jobs:
+  include:
+    # example "3.0 (quilt)" package, without upstream tarball
+    - script: ~/qubes-builder/scripts/travis-build core-vchan-xen
+      env: DISTS_VM=stretch USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1
+    # example "3.0 (native)" package
+    - script: ~/qubes-builder/scripts/travis-build linux-utils
+      env: DISTS_VM=stretch USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1
+    # example "3.0 (quilt)" package, with upstream tarball
+    - script: ~/qubes-builder/scripts/travis-build python-u2flib-host
+      env: DISTS_VM=stretch USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1
+    # example ubuntu build
+    - script: ~/qubes-builder/scripts/travis-build app-shutdown-idle
+      env: DISTS_VM=xenial
 
 # don't build tags which are meant for code signing only
 branches:
