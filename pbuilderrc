@@ -13,6 +13,21 @@ LOGLEVEL=I
 # no   => never use colors
 USECOLORS=auto
 
+case ${DISTRIBUTION} in
+    wheezy|jessie|stretch|buster|sid|experimental)
+        DIST_VENDOR=debian
+        MIRRORSITE=http://deb.debian.org/debian
+        ;;
+    trusty|xenial|bionic)
+        DIST_VENDOR=qubuntu
+        MIRRORSITE=http://archive.ubuntu.com/ubuntu
+        ;;
+    *)
+        echo "Unknown distribution: ${DISTRIBUTION}" >&2
+        exit 1
+esac
+
+
 BASETGZ=/var/cache/pbuilder/base.tgz
 #EXTRAPACKAGES=""
 #export DEBIAN_BUILDARCH=athlon
@@ -24,7 +39,6 @@ BUILDDIR=/build
 # Debian buildds too.  You can set it to $BUILDDIR to get a working HOME, if
 # you need to.
 BUILD_HOME=/nonexistent
-MIRRORSITE=http://deb.debian.org/debian
 #OTHERMIRROR="deb http://www.home.com/updates/ ./"
 #export http_proxy=http://your-proxy:8080/
 USEPROC=yes
