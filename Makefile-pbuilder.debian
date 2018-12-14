@@ -16,7 +16,7 @@ $(CHROOT_DIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
 	else \
 		action=create; \
 	fi; \
-	sudo -E pbuilder $$action --basetgz $(CHROOT_DIR)/base.tgz \
+	sudo -E pbuilder $$action \
 		--distribution $(DIST) \
 		--configfile $(DEBIAN_PLUGIN_DIR)/pbuilderrc \
 		--othermirror "deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main" || \
@@ -56,7 +56,7 @@ endif
 		fi; \
 	fi; \
 	cd $(CHROOT_DIR)/$(DIST_SRC)/$(PACKAGE)/../.. && \
-	sudo -E pbuilder build --basetgz $(CHROOT_DIR)/base.tgz \
+	sudo -E pbuilder build \
 		--override-config \
 		--distribution $(DIST) \
 		--configfile $(DEBIAN_PLUGIN_DIR)/pbuilderrc \

@@ -28,7 +28,7 @@ case ${DISTRIBUTION} in
 esac
 
 
-BASETGZ=/var/cache/pbuilder/base.tgz
+BASETGZ="${CHROOT_DIR}/base.tgz"
 #EXTRAPACKAGES=""
 #export DEBIAN_BUILDARCH=athlon
 BUILDPLACE=$CHROOT_DIR/build
