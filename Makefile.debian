@@ -49,7 +49,9 @@
 PACKAGE_LIST = $(DEBIAN_BUILD_DIRS)
 DIST_BUILD_DIR = /home/user
 
-GIT_TARBALL_NAME ?= ../$(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(firstword $(DEBIAN_BUILD_DIRS))/changelog 2>/dev/null).orig.tar.gz
+ifneq (1,$(NO_ARCHIVE))
+  GIT_TARBALL_NAME ?= ../$(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(firstword $(DEBIAN_BUILD_DIRS))/changelog 2>/dev/null).orig.tar.gz
+endif
 
 ### Variables determined by package's Makefile.builder
 DIST_SRC_DEBIAN_DIR = $(DIST_SRC)/$(DEBIAN_BUILD_DIRS)
