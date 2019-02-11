@@ -118,7 +118,8 @@ fi
 # ------------------------------------------------------------------------------
 # Install all build dependencies specified
 # ------------------------------------------------------------------------------
-chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
+DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
+    chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -y install $BUILDPACKAGES
 
 # ------------------------------------------------------------------------------
 # Add repositories
