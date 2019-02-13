@@ -278,9 +278,9 @@ update-repo:
 else
 update-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
-update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
-update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog.$(DIST) 2>&-)
-update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog)
+update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.$(DIST) 2>&-)
+update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.$(DIST) 2>&-)
+update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 
 update-repo-prepare:
 	@mkdir -p $(UPDATE_REPO)/conf
