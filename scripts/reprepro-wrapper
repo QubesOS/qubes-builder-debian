@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+# which release to use for reprepro
+reprepro_debian_release=buster
+reprepro_args=()
+basedir=
+sourcedir=
+
+CHROOT_DIR=chroot-vm-$reprepro_debian_release
+export LC_ALL=C
+
+while [ -n "$1" ]; do
+    case "$1" in
+        -b)
+            basedir="$2"
+            reprepro_args+=( "-b" "/tmp/qubes-apt-repo" )
+            shift
+            ;;
+        ${BUILDER_REPO_DIR}/*)
+            sourcedir="$BUILDER_REPO_DIR"
+            reprepro_args+=( "/tmp/qubes-deb/${1#${BUILDER_REPO_DIR}}" )
+            ;;
+        *)
+            reprepro_args+=( "$1" )
+            ;;
+    esac
+    shift
+done
+
+# require basedir
+if [ -z "$basedir" ]; then
+    echo "Missing -b option" >&2
+    exit 1
+fi
+
+if ! [ -r "${CHROOT_DIR}/home/user/.prepared_base" ]; then
+	echo "-> Preparing $reprepro_debian_release reprepro environment" >&2
+	sudo -E "$(dirname "$0")/../prepare-chroot-debian" \
+        "$CHROOT_DIR" $reprepro_debian_release
+    touch "${CHROOT_DIR}/home/user/.prepared_base"
+fi
+
+if ! [ -r "${CHROOT_DIR}/home/user/.reprepro_installed" ]; then
+    sudo chroot "$CHROOT_DIR" apt-get install -y reprepro
+    touch "${CHROOT_DIR}/home/user/.reprepro_installed"
+fi
+
+sudo umount "${CHROOT_DIR}/tmp/qubes-apt-repo" "${CHROOT_DIR}/tmp/qubes-deb" 2>/dev/null || :
+
+if [ -n "$basedir" ]; then
+    mkdir -p "${CHROOT_DIR}/tmp/qubes-apt-repo"
+    sudo mount --bind "$basedir" "${CHROOT_DIR}/tmp/qubes-apt-repo"
+fi
+
+if [ -n "$sourcedir" ]; then
+    mkdir -p "${CHROOT_DIR}/tmp/qubes-deb"
+    sudo mount --bind "$sourcedir" "${CHROOT_DIR}/tmp/qubes-deb"
+fi
+
+retcode=0
+sudo chroot "$CHROOT_DIR" runuser -u user -- reprepro "${reprepro_args[@]}" || retcode=$?
+
+sudo umount "${CHROOT_DIR}/tmp/qubes-apt-repo" "${CHROOT_DIR}/tmp/qubes-deb" 2>/dev/null || :
+exit $retcode

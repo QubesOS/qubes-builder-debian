@@ -115,6 +115,7 @@ ifneq (,$(GNUPG))
   DEBSIGN_ARGS += -p$(GNUPG)
 endif
 
+REPREPRO := $(firstword $(wildcard /usr/bin/reprepro $(DEBIAN_PLUGIN_DIR)/scripts/reprepro-wrapper))
 
 EXTRA_REPREPRO_OPTS ?=
 EXTRA_REPREPRO_OPTS += --ignore=surprisingbinary
@@ -291,20 +292,6 @@ update-repo-prepare:
 	if [ $$? -ne 0 ]; then \
 		echo "$$aptdistributions" >> $(UPDATE_REPO)/conf/distributions; \
 	fi
-	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo $(CHROOT_REPO_DIR)/tmp/qubes-deb 2>/dev/null || true
-
-	@# Softlink to the first distribution called; it will be used to create and store repo
-	@if ! [ -L $(CHROOT_REPO_DIR) ]; then \
-	    ln -sf chroot-${DIST} ${CHROOT_REPO_DIR}; \
-	fi
-	@if ! [ -d $(CHROOT_REPO_DIR)/tmp/qubes-deb/deb ]; then \
-		mkdir -p $(CHROOT_REPO_DIR)/tmp/qubes-deb ;\
-		sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_REPO_DIR)/tmp/qubes-deb ;\
-	fi
-	@if ! [ -d $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo/dists ]; then \
-		mkdir -p $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
-		sudo mount --bind $(UPDATE_REPO) $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
-	fi
 
 update-repo: update-repo-prepare update-repo-do
 update-repo-do:
@@ -312,12 +299,10 @@ ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
 	@if [ -n "$(INCREMENT_DEVEL_VERSIONS)" -a -n "$(release_name_dist)" ]; then \
-		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro $(EXTRA_REPREPRO_OPTS) -b /tmp/qubes-apt-repo include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null" || exit 1; \
+		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null || exit 1; \
 	else \
-		sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro $(EXTRA_REPREPRO_OPTS) -b /tmp/qubes-apt-repo include $(DEBIANVERSION)$(REPO_SUFFIX) /tmp/qubes-deb/deb/$(release_name_full)_amd64.changes </dev/null >/dev/null" || exit 1; \
+		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_full)_amd64.changes </dev/null >/dev/null || exit 1; \
 	fi
-	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
-	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-deb
 ifdef SNAPSHOT_FILE
 	@if [ -n "$(INCREMENT_DEVEL_VERSIONS)" -a -n "$(package_ver_dist)" ]; then \
 		echo '$$Source (== $(source_name)), Version (== $(package_ver_dist))' > $(SNAPSHOT_FILE); \
@@ -330,9 +315,7 @@ endif
 update-repo-from-snapshot: pkg_filter = $(shell cat $(SNAPSHOT_FILE))
 update-repo-from-snapshot: update-repo-prepare update-repo-from-snapshot-do
 update-repo-from-snapshot-do:
-	@sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro --ignore=surprisingbinary -b /tmp/qubes-apt-repo copyfilter $(DIST)$(REPO_SUFFIX) $(DIST)$(SNAPSHOT_REPO_SUFFIX) '$(subst $$,\$$,$(pkg_filter))'"
-	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
-	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-deb
+	$(REPREPRO) --ignore=surprisingbinary -b $(UPDATE_REPO) copyfilter $(DIST)$(REPO_SUFFIX) $(DIST)$(SNAPSHOT_REPO_SUFFIX) '$(subst $$,\$$,$(pkg_filter))'
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 check-repo:
@@ -344,19 +327,7 @@ check-repo:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
-	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo $(CHROOT_REPO_DIR)/tmp/qubes-deb 2>/dev/null || true
-
-	@# Softlink to the first distribution called; it will be used to create and store repo
-	@if ! [ -L $(CHROOT_REPO_DIR) ]; then \
-	    ln -sf chroot-${DIST} ${CHROOT_REPO_DIR}; \
-	fi
-	@if ! [ -d $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo/dists ]; then \
-		mkdir -p $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
-		sudo mount --bind $(UPDATE_REPO) $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo ;\
-	fi
-
-	sudo $(CHROOT_ENV) chroot $(CHROOT_REPO_DIR) su $(RUN_AS_USER) -c "reprepro -b /tmp/qubes-apt-repo -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) '\$$Source (== $$source_name), Version (== $$package_ver+$(DIST_TAG)u1)'" | grep -q " "
-	@sudo umount $(CHROOT_REPO_DIR)/tmp/qubes-apt-repo
+	$(REPREPRO) -b $(UPDATE_REPO) -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) '\$$Source (== $$source_name), Version (== $$package_ver+$(DIST_TAG)u1)' | grep -q " "
 endif
 
 ifeq (,$(PACKAGE_LIST))
