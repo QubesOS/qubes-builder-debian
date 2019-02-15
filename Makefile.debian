@@ -290,7 +290,7 @@ endif
 	@if [ -n "$(INCREMENT_DEVEL_VERSIONS)" -a -n "$(release_name_dist)" ]; then \
 		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null || exit 1; \
 	else \
-		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_full)_amd64.changes </dev/null >/dev/null || exit 1; \
+		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_full)+$(DIST_TAG)u1_amd64.changes </dev/null >/dev/null || exit 1; \
 	fi
 ifdef SNAPSHOT_FILE
 	@if [ -n "$(INCREMENT_DEVEL_VERSIONS)" -a -n "$(package_ver_dist)" ]; then \
