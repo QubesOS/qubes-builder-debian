@@ -316,7 +316,7 @@ check-repo:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
-	$(REPREPRO) -b $(UPDATE_REPO) -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) '\$$Source (== $$source_name), Version (== $$package_ver+$(DIST_TAG)u1)' | grep -q " "
+	$(REPREPRO) -b $(UPDATE_REPO) -T deb listfilter $(DEBIANVERSION)$(REPO_SUFFIX) '$$Source (== $(source_name)), Version (== $(package_ver)+$(DIST_TAG)u1)' | grep -q " "
 endif
 
 ifeq (,$(PACKAGE_LIST))
