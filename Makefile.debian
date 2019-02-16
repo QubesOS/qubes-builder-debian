@@ -220,7 +220,11 @@ endif
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
 ifeq (1,$(INCREMENT_DEVEL_VERSIONS))
-	# Break the hardlink - keep modified debian/changelog only inside of chroot
+	# hardlink changelog.{dist,$(DIST)} into build environment, since git clean
+	# (called when creating orig.tar.xz) might remove them
+	ln $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.dist $(CHROOT_DEBIAN_DIR)/ 2>/dev/null || true
+	ln $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.$(DIST) $(CHROOT_DEBIAN_DIR)/ 2>/dev/null || true
+	# Break the hardlink - keep modified debian/changelog only in build copy
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
 	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 	# Update changelog with -develXX appended to version
