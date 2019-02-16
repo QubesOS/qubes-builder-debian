@@ -101,6 +101,7 @@ Codename: $(DIST)
 Architectures: amd64 source
 Components: main
 Description: Apt repository with qubes domU support tools for $(DISTRIBUTION_CAP) $(DIST)
+Tracking: all includebuildinfos
 endef
 export aptdistributions
 
