@@ -11,7 +11,7 @@ fi
 # $2: distribution [trusty ]
 # ------------------------------------------------------------------------------
 DIR=$1
-DISTRO=$2
+DIST=$2
 
 set -e
 
@@ -42,7 +42,7 @@ if ! [ -d $DIR/home/user ]; then
     COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
                 --include=ncurses-term,ubuntu-keyring,$eatmydata_maybe \
                 --keyring=${DEBIAN_PLUGIN_DIR}/keys/$DIST-qubuntu-archive-keyring.gpg \
-                $DEBIANVERSION $DIR http://archive.ubuntu.com/ubuntu \
+                $DIST $DIR http://archive.ubuntu.com/ubuntu \
                 || { echo "Error in debootstrap"; exit 1; }
 
     # --------------------------------------------------------------------------
@@ -127,6 +127,6 @@ chroot $DIR apt-get $APT_GET_OPTIONS install -y libpulse-dev
 # Update qubuntu apt sources list to use local qubes repo
 # ------------------------------------------------------------------------------
 cat > $DIR/etc/apt/sources.list.d/qubes-builder.list <<EOF
-deb [trusted=yes] file:/tmp/qubes-deb $DEBIANVERSION main
+deb [trusted=yes] file:/tmp/qubes-deb $DIST main
 EOF
 

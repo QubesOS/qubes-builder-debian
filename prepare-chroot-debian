@@ -16,7 +16,7 @@ fi
 # $2: distribution [wheezy, jessie]
 # ------------------------------------------------------------------------------
 DIR=$1
-DISTRO=$2
+DIST=$2
 
 set -e
 
@@ -53,7 +53,7 @@ if ! [ -d $DIR/home/user ]; then
     COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
                 --include=ncurses-term,debian-keyring,$apt_https_pkgs,$eatmydata_maybe \
                 --keyring=${DEBIAN_PLUGIN_DIR}keys/$DIST-debian-archive-keyring.gpg \
-                $DEBIANVERSION $DIR https://deb.debian.org/debian \
+                $DIST $DIR https://deb.debian.org/debian \
                 || { echo "Error in debootstrap"; exit 1; }
 
     # --------------------------------------------------------------------------
@@ -152,7 +152,7 @@ fi
 # ------------------------------------------------------------------------------
 # Install Debian source repo
 # ------------------------------------------------------------------------------
-add_repo "deb-src https://deb.debian.org/debian ${DEBIANVERSION} main"
+add_repo "deb-src https://deb.debian.org/debian ${DIST} main"
 
 if [ -n "$USE_QUBES_REPO_VERSION" ]; then
     add_repo "deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm $DIST main"
@@ -174,6 +174,6 @@ wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 # Update debian apt sources list to use local qubes repo
 # ------------------------------------------------------------------------------
 cat > $DIR/etc/apt/sources.list.d/qubes-builder.list <<EOF
-deb [trusted=yes] file:/tmp/qubes-deb $DEBIANVERSION main
+deb [trusted=yes] file:/tmp/qubes-deb $DIST main
 EOF
 
