@@ -1,17 +1,25 @@
 # This file is included from Makefile.debian if USE_DIST_BUILD_TOOLS is set
 
-dist-prepare-chroot: $(CHROOT_DIR)/.prepared_pbuilder
+PBUILDER_BASEDIR = $(CHROOT_DIR)/pbuilder
+
+dist-prepare-chroot: $(PBUILDER_BASEDIR)/.prepared_pbuilder
 	@true
 
 # TODO: avoid loading user ~/.pbuilderrc
-$(CHROOT_DIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
+$(PBUILDER_BASEDIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
 	@mkdir -p $(CHROOT_DIR)
+	@if [ $$(stat -c %u $(CHROOT_DIR)) -eq 0 ]; then \
+		sudo mkdir -p $(PBUILDER_BASEDIR); \
+		sudo chown $$UID $(PBUILDER_BASEDIR); \
+	else \
+		mkdir -p $(PBUILDER_BASEDIR); \
+	fi
 	@echo "-> Preparing $(DIST) build environment"
 	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
 	if [ -n "$(USE_QUBES_REPO_VERSION)" ]; then \
-		gpg --dearmor < $(DEBIAN_PLUGIN_DIR)keys/qubes-debian-r$(USE_QUBES_REPO_VERSION).asc > $(CHROOT_DIR)/qubes-keyring.gpg; \
+		gpg --dearmor < $(DEBIAN_PLUGIN_DIR)keys/qubes-debian-r$(USE_QUBES_REPO_VERSION).asc > $(PBUILDER_BASEDIR)/qubes-keyring.gpg; \
 	fi
-	if [ -r "$(CHROOT_DIR)/base.tgz" ]; then \
+	if [ -r "$(PBUILDER_BASEDIR)/base.tgz" ]; then \
 		action=update; \
 	else \
 		action=create; \
@@ -20,8 +28,8 @@ $(CHROOT_DIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
 		--distribution $(DIST) \
 		--configfile $(DEBIAN_PLUGIN_DIR)/pbuilderrc \
 		--othermirror "deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main" || \
-		{ rm -f "$(CHROOT_DIR)/base.tgz"; exit 1; }
-	@touch $(CHROOT_DIR)/.prepared_pbuilder
+		{ rm -f "$(PBUILDER_BASEDIR)/base.tgz"; exit 1; }
+	@touch $(PBUILDER_BASEDIR)/.prepared_pbuilder
 
 dist-prep: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 dist-prep:
@@ -45,7 +53,7 @@ ifndef PACKAGE
 endif
 	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
 
-	mkdir -p "$(CHROOT_DIR)/results"
+	mkdir -p "$(PBUILDER_BASEDIR)/results"
 
 	release_name_full=$$($(DEBIAN_PARSER) changelog --package-release-name-full $(CHROOT_DEBIAN_DIR)/changelog); \
 	extra_sources="deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main"; \
@@ -69,5 +77,5 @@ endif
 dist-copy-out:
 	mkdir -p $(BUILDER_REPO_DIR)/deb
 	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
-	dcmd cp -t $(BUILDER_REPO_DIR)/deb $(CHROOT_DIR)/results/$(release_name)*.changes
-	dcmd mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(CHROOT_DIR)/results/$(release_name)*.changes
+	dcmd cp -t $(BUILDER_REPO_DIR)/deb $(PBUILDER_BASEDIR)/results/$(release_name)*.changes
+	dcmd mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(PBUILDER_BASEDIR)/results/$(release_name)*.changes
