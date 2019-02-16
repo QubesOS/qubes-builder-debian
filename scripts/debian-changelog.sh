@@ -37,7 +37,7 @@ debian_parser=$(dirname ${0})/debian-parser
 
 previous_changelog=debian/changelog
 # Create seperate changelogs for each dist
-if [ -n "${INCREMENT_DEVEL_VERSIONS}" ]; then
+if [ "0${INCREMENT_DEVEL_VERSIONS}" -eq 1 ]; then
     previous_changelog=debian/changelog.dist
     if [ ! -e debian/changelog.dist ]; then
         cp -p debian/changelog debian/changelog.dist
@@ -145,8 +145,8 @@ fi
 #                          UNRELEASED change it to the distribution $DIST 
 #                          (wheezy) 
 
-#if [ -n "${INCREMENT_DEVEL_VERSIONS}" ] && [[ "${deb_version}" == $(cat version)?(devel*) ]]; then
-if [ -n "${INCREMENT_DEVEL_VERSIONS}" ]; then
+#if [ "0${INCREMENT_DEVEL_VERSIONS}" -eq 1 ] && [[ "${deb_version}" == $(cat version)?(devel*) ]]; then
+if [ "0${INCREMENT_DEVEL_VERSIONS}" -eq 1 ]; then
     export DEBFULLNAME=$(git config user.name)
     export DEBEMAIL=$(git config user.email)
     ${debchange} --nomultimaint-merge --multimaint -l+${DIST_TAG}u1+devel -- 'Test build'

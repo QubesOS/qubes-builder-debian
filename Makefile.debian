@@ -218,12 +218,12 @@ endif
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/rpm/*
 	rm -rf $(CHROOT_DIR)/$(DIST_SRC)/pkgs/*
 
-ifneq (,$(INCREMENT_DEVEL_VERSIONS))
+ifeq (1,$(INCREMENT_DEVEL_VERSIONS))
 	# Break the hardlink - keep modified debian/changelog only inside of chroot
 	cp $(CHROOT_DEBIAN_DIR)/changelog $(CHROOT_DEBIAN_DIR)/changelog.copy
 	mv $(CHROOT_DEBIAN_DIR)/changelog.copy $(CHROOT_DEBIAN_DIR)/changelog
 	# Update changelog with -develXX appended to version
-	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to any value in 
+	# Note: INCREMENT_DEVEL_VERSIONS needs to be set to 1 in
 	#       builder configuration to use this feature
 	cd $(CHROOT_DIR)/$(DIST_SRC); $(DEBIAN_PLUGIN_DIR)/scripts/debian-changelog.sh
 
@@ -287,13 +287,13 @@ update-repo-do:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
-	@if [ -n "$(INCREMENT_DEVEL_VERSIONS)" -a -n "$(release_name_dist)" ]; then \
+	@if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(release_name_dist)" ]; then \
 		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null || exit 1; \
 	else \
 		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_full)+$(DIST_TAG)u1_amd64.changes </dev/null >/dev/null || exit 1; \
 	fi
 ifdef SNAPSHOT_FILE
-	@if [ -n "$(INCREMENT_DEVEL_VERSIONS)" -a -n "$(package_ver_dist)" ]; then \
+	@if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(package_ver_dist)" ]; then \
 		echo '$$Source (== $(source_name)), Version (== $(package_ver_dist))' > $(SNAPSHOT_FILE); \
 	else \
 		echo '$$Source (== $(source_name)), Version (== $(package_ver)+$(DIST_TAG)u1)' > $(SNAPSHOT_FILE); \
