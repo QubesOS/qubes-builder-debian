@@ -7,6 +7,7 @@ set -e
 REPO_DIR=$BUILDER_REPO_DIR
 DIST=$1
 
+mkdir -p $REPO_DIR
 cd $REPO_DIR
 mkdir -p dists/$DIST/main/binary-amd64
 dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages

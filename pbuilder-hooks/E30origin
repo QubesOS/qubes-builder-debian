@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cat >/etc/dpkg/origins/qubes <<EOF
+Vendor: Qubes
+Vendor-URL: https://www.qubes-org.org/
+Bugs: https://github.com/QubesOS/qubes-issues
+EOF

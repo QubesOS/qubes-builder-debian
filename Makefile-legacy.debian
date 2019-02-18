@@ -1,0 +1,63 @@
+# This file is included from Makefile.debian if USE_DIST_BUILD_TOOLS is not set
+
+dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
+	@if [ $(VERBOSE) -gt 0 ]; then \
+		echo "-> dist-prepare-chroot for $(DIST)"; \
+		echo "-> sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_DIR)/tmp/qubes-deb;"; \
+	fi
+	@if [ ! -r $(CHROOT_DIR)/proc/cpuinfo ]; then\
+		sudo mount -t proc proc $(CHROOT_DIR)/proc;\
+	fi
+	@if ! [ -d $(CHROOT_DIR)/tmp/qubes-deb/deb ]; then\
+		mkdir -p $(CHROOT_DIR)/tmp/qubes-deb;\
+		sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_DIR)/tmp/qubes-deb;\
+	fi
+
+$(CHROOT_DIR)/home/user/.prepared_base: $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION)
+	# Make sure repo directory exists
+	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
+	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
+	fi
+	@echo "-> Preparing $(DIST) build environment"
+	@sudo -E $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION) $(CHROOT_DIR) $(DIST)
+	@touch $(CHROOT_DIR)/home/user/.prepared_base
+
+dist-prep: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+dist-prep:
+	@rm -f "$(CHROOT_DIR)/$(DIST_SRC)/../$(release_name)"*
+
+dist-build-dep: 
+	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
+	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
+	fi
+	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)
+	sudo chroot $(CHROOT_DIR) apt-get ${APT_GET_OPTIONS} update
+
+	# check for CVE-2016-1252 - directly after debootstrap, still vulnerable
+	# apt is installed
+	wc -L "$(CHROOT_DIR)/var/lib/apt/lists/"*InRelease | awk '$$1 > 1024 {print; exit 1}'
+
+	# update the base system inside
+	sudo chroot $(CHROOT_DIR) apt-get $(APT_GET_OPTIONS) dist-upgrade -y
+
+	# install build dependencies
+	LC_ALL=C sudo chroot $(CHROOT_DIR) mk-build-deps -i -r -t "apt-get --no-install-recommends -y" $(DIST_SRC_DEBIAN_DIR)/control
+
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-package:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+endif
+dist-package: debian-prepare-dist-src
+	sudo $(CHROOT_ENV) chroot $(CHROOT_DIR) su $(RUN_AS_USER) -c 'cd $(DIST_SRC_DEBIAN_DIR)/..; export LC_ALL=C; dpkg-buildpackage -sa -uc -us'
+
+ifneq (,$(DEBIAN_BUILD_DIRS))
+dist-copy-out:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(CHROOT_DEBIAN_DIR)/changelog)
+endif
+dist-copy-out:
+	mkdir -p $(BUILDER_REPO_DIR)/deb
+	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
+	cd $(CHROOT_DEBIAN_DIR)/../..; \
+		cp -t $(BUILDER_REPO_DIR)/deb `$(listfiles) $(release_name)*.changes`
+	cp -t $(BUILDER_REPO_DIR)/deb/ $(CHROOT_DEBIAN_DIR)/../../$(release_name)*.changes
+	cd $(CHROOT_DEBIAN_DIR)/../..; \
+		mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR)  `$(listfiles) $(release_name)*.changes`
+	mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(CHROOT_DEBIAN_DIR)/../../$(release_name)*.changes
