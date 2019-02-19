@@ -56,13 +56,13 @@ deb_epoc=$($debian_parser changelog --package-version-epoc $previous_changelog)
 # drop dist-specific suffix for version comparision
 deb_revision=${deb_revision%+deb*}
 
-version="$(cat version)"
+version="$(cat version|sed 's/-rc/~rc/')"
 # only two components supports non-default revisions: linux-kernel and vmm-xen
 revision="$(cat rel 2>/dev/null)"
-previous_tag="v${deb_version}-${deb_revision}"
+previous_tag="v${deb_version/\~/-}-${deb_revision}"
 if [ -z "$revision" ]; then
     revision="1"
-    previous_tag="v${deb_version}"
+    previous_tag="v${deb_version/\~/-}"
 fi
 if [ -z "$deb_revision" ]; then
     revision=""
@@ -95,9 +95,9 @@ if [ "${deb_version}-${deb_revision}" != "${version}-${revision}" ]; then
     # if they exist
     # -----------------------------------------------------------------------------
     if [ "X${deb_revision}" == "X" ]; then
-        new_version="$(cat version)"
+        new_version="${version}"
     else
-        new_version="$(cat version)-${revision}"
+        new_version="${version}-${revision}"
         if [ "X${deb_epoc}" != "X" ]; then
             new_version="${deb_epoc}:${new_version}"
         fi
