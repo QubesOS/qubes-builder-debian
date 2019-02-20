@@ -121,7 +121,7 @@ endif
 REPREPRO := $(firstword $(wildcard /usr/bin/reprepro $(DEBIAN_PLUGIN_DIR)/scripts/reprepro-wrapper))
 
 EXTRA_REPREPRO_OPTS ?=
-EXTRA_REPREPRO_OPTS += --ignore=surprisingbinary
+EXTRA_REPREPRO_OPTS += --ignore=surprisingbinary --ignore=surprisingarch
 ifeq (1,$(INCREMENT_DEVEL_VERSIONS))
 # don't include source packages if INCREMENT_DEVEL_VERSIONS is active, as they
 # will differ and will be rejected
