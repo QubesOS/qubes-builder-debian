@@ -36,7 +36,7 @@ if [ -z "$basedir" ]; then
 fi
 
 if ! [ -r "${CHROOT_DIR}/home/user/.prepared_base" ]; then
-	echo "-> Preparing $reprepro_debian_release reprepro environment" >&2
+	echo "-> Preparing $reprepro_debian_release reprepro environment (install reprepro on the host to avoid this)" >&2
 	sudo -E "$(dirname "$0")/../prepare-chroot-debian" \
         "$CHROOT_DIR" $reprepro_debian_release
     touch "${CHROOT_DIR}/home/user/.prepared_base"
