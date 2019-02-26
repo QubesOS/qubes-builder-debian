@@ -26,7 +26,7 @@ DEBIANVERSION=${DIST}
 # ------------------------------------------------------------------------------
 DEFAULT_DEBIAN_MIRRORS=(
     'https://deb.debian.org/debian'
-    'http://http.debian.net/debian'
+    'http://deb.debian.org/debian'
     'http://ftp.us.debian.org/debian'
     'http://ftp.ca.debian.org/debian'
 )
