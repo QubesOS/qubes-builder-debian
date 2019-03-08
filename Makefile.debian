@@ -128,7 +128,7 @@ ifeq (1,$(INCREMENT_DEVEL_VERSIONS))
 EXTRA_REPREPRO_OPTS += -T deb
 endif
 
-ifdef DEBUG
+ifeq ($(DEBUG),1)
   $(info ╔══ DEBUG ══════════════════════════════════════════════════════════════════════)
   $(info ║ Repo Variables)
   $(info ╠───────────────────────────────────────────────────────────────────────────────)
