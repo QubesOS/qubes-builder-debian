@@ -258,7 +258,7 @@ endif
 update-repo-from-snapshot: pkg_filter = $(shell cat $(SNAPSHOT_FILE))
 update-repo-from-snapshot: update-repo-prepare update-repo-from-snapshot-do
 update-repo-from-snapshot-do:
-	$(REPREPRO) --ignore=surprisingbinary -b $(UPDATE_REPO) copyfilter $(DIST)$(REPO_SUFFIX) $(DIST)$(SNAPSHOT_REPO_SUFFIX) '$(subst $$,\$$,$(pkg_filter))'
+	$(REPREPRO) --ignore=surprisingbinary -b $(UPDATE_REPO) copyfilter $(DIST)$(REPO_SUFFIX) $(DIST)$(SNAPSHOT_REPO_SUFFIX) '$(pkg_filter)'
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 check-repo:
