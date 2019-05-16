@@ -14,4 +14,3 @@ haveged
 wireless-tools
 wpasupplicant
 dbus-x11
-python-concurrent.futures
