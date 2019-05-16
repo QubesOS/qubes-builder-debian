@@ -55,8 +55,15 @@ bootstrap() {
             if [ -r "${release_location}" ]; then
                 cp "${release_location}" \
                     "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release"
-                cp "${release_location}.gpg" \
-                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg"
+                inrelease_location="${release_location%Release}InRelease"
+                if [ -r "$inrelease_location" ]; then
+                    cp "${inrelease_location}" \
+                        "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/InRelease"
+                fi
+                if [ -r "${release_location}.gpg" ]; then
+                    cp "${release_location}.gpg" \
+                        "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg"
+                fi
                 cp "${release_location%_Release}_main_binary-amd64_Packages" \
                     "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/main/binary-amd64/Packages"
                 break
