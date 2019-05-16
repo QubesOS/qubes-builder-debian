@@ -1,6 +1,6 @@
 locales
-iceweasel
-icedove
+firefox-esr
+thunderbird
 keepassx
 git
 gnome-terminal
