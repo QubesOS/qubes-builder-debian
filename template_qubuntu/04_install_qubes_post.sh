@@ -12,3 +12,5 @@ debug ' Ubuntu post Qubes...'
 info ' Cleaning up  any left over files from installation'
 #### '-------------------------------------------------------------------------
 rm -rf "${INSTALLDIR}"/etc/apt/sources.list.d/qubes-r?.list
+
+chroot_cmd sed -i '/\[main\]/ a dns=default' /etc/NetworkManager/NetworkManager.conf

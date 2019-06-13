@@ -12,3 +12,6 @@ updateQubuntuSourceList
 
 aptUpdate
 
+chroot_cmd systemctl disable systemd-resolved
+chroot_cmd systemctl mask systemd-resolved
+
