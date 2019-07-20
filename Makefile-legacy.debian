@@ -1,6 +1,10 @@
 # This file is included from Makefile.debian if USE_DIST_BUILD_TOOLS is not set
 
 dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
+	# Make sure repo directory exists
+	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
+	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
+	fi
 	@if [ $(VERBOSE) -gt 0 ]; then \
 		echo "-> dist-prepare-chroot for $(DIST)"; \
 		echo "-> sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_DIR)/tmp/qubes-deb;"; \
@@ -14,10 +18,6 @@ dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
 	fi
 
 $(CHROOT_DIR)/home/user/.prepared_base: $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION)
-	# Make sure repo directory exists
-	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
-	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
-	fi
 	@echo "-> Preparing $(DIST) build environment"
 	@sudo -E $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION) $(CHROOT_DIR) $(DIST)
 	@touch $(CHROOT_DIR)/home/user/.prepared_base
