@@ -58,6 +58,8 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_qubes" ]; then
         dev=${dev%p?}
         chroot_cmd mount -t devtmpfs none /dev
         chroot_cmd grub-install --target=i386-pc --modules=part_gpt "$dev"
+        echo "grub-pc grub-pc/install_devices multiselect /dev/xvda" |\
+            chroot_cmd debconf-set-selections
         chroot_cmd update-grub2
     fi
 
