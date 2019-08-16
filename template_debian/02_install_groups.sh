@@ -72,6 +72,8 @@ aptDistUpgrade
 #### '----------------------------------------------------------------------
 info ' Cleanup'
 #### '----------------------------------------------------------------------
+maskService
+
 touch "${INSTALLDIR}/${TMPDIR}/.prepared_groups"
 trap - ERR EXIT
 trap
