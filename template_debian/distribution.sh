@@ -414,6 +414,22 @@ function setDefaultApplications() {
 
 
 # ==============================================================================
+# Mask unwanted services
+# ==============================================================================
+function maskService() {
+    masking=(
+    apt-daily.timer
+    apt-daily-upgrade.timer
+    avahi-daemon.socket
+    cups-browsed.service
+    )
+    for i in "${masking[@]}"
+    do
+        chroot_cmd systemctl mask $i
+    done
+}
+
+# ==============================================================================
 # ------------------------------------------------------------------------------
 #           Q U B E S   S P E C I F I C   F U N C T I O N S
 # ------------------------------------------------------------------------------
