@@ -1,4 +1,4 @@
-ifneq (,$(findstring $(DIST),wheezy jessie stretch buster))
+ifneq (,$(findstring $(DIST),wheezy jessie stretch buster bullseye))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
     DISTRIBUTION := debian
     BUILDER_MAKEFILE = $(DEBIAN_PLUGIN_DIR)Makefile.debian
@@ -7,6 +7,7 @@ ifneq (,$(findstring $(DIST),wheezy jessie stretch buster))
     DIST_TAG := $(strip $(subst jessie, deb8, $(DIST_TAG)))
     DIST_TAG := $(strip $(subst stretch, deb9, $(DIST_TAG)))
     DIST_TAG := $(strip $(subst buster, deb10, $(DIST_TAG)))
+    DIST_TAG := $(strip $(subst bullseye, deb11, $(DIST_TAG)))
 endif
 ifneq (,$(findstring $(DIST),trusty xenial bionic))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
