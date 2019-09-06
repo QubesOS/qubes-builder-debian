@@ -283,11 +283,16 @@ function updateDebianSourceList() {
     fi
 
     # Add Debian security repositories
-    source="deb https://deb.debian.org/debian-security ${DEBIANVERSION}/updates main contrib non-free"
+    if [ "${DEBIANVERSION}" != "bullseye" ]; then
+        security_suffix="/updates"
+    else
+        security_suffix="-security"
+    fi
+    source="deb https://deb.debian.org/debian-security ${DEBIANVERSION}${security_suffix} main contrib non-free"
     if ! grep -r -q "$source" "${list}"*; then
         echo -e "$source" >> "${list}"
     fi
-    source="#deb-src https://deb.debian.org/debian-security ${DEBIANVERSION}/updates main contrib non-free"
+    source="#deb-src https://deb.debian.org/debian-security ${DEBIANVERSION}${security_suffix} main contrib non-free"
     if ! grep -r -q "$source" "${list}"*; then
         echo -e "$source\n" >> "${list}"
     fi
