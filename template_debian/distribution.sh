@@ -388,7 +388,7 @@ function setDefaultApplications() {
             fi
         done
         if [ -n "$text_plain_apps" ]; then
-            mimeapps_file=/usr/share/applications/mimeapps.list
+            mimeapps_file="${INSTALLDIR}/usr/share/applications/mimeapps.list"
             touch "$mimeapps_file"
             awk -v apps="$text_plain_apps" '
                 /^\[/ {
