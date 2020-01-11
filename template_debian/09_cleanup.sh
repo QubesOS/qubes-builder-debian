@@ -20,6 +20,8 @@ buildStep "${0}" "pre"
 #### '-------------------------------------------------------------------------
 info ' Cleaning up  any left over files from installation'
 #### '-------------------------------------------------------------------------
+chroot_cmd apt-get remove -y 'cryptsetup-initramfs' 'linux-image-*' 'linux-headers-*' 'linux-kbuild-*'
+chroot_cmd apt-get autoremove -y
 rm -rf "${INSTALLDIR}/var/cache/apt/archives"
 rm -rf "${INSTALLDIR}/var/cache/apt/pkgcache.bin"
 rm -rf "${INSTALLDIR}/var/cache/apt/srcpkgcache.bin"
