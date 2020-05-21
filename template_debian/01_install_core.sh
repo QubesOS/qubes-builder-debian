@@ -90,13 +90,6 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
     bootstrap || exit 1
 
     #### '----------------------------------------------------------------------
-    info ' Apply DSA-4371 fix'
-    #### '----------------------------------------------------------------------
-    cp ${SCRIPTSDIR}/../scripts/dsa-4371-update "${INSTALLDIR}"
-    chroot_cmd /dsa-4371-update || exit 1
-    rm -f "${INSTALLDIR}/dsa-4371-update"
-
-    #### '----------------------------------------------------------------------
     info ' Download APT metadata'
     #### '----------------------------------------------------------------------
     chroot_cmd apt-get update || exit 1
