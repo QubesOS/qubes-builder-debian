@@ -52,12 +52,11 @@ main() {
 
     codename="$(cat /etc/debian_version)"
     case "$codename" in
-        */sid|10.*)
+        */sid|11.*)
             # We will treat testing as sid here. This hopefully won't break
             # anything ...
             codename="sid"
-            pkg="libapt-pkg5.0"
-            fixed_version="1.8.0~alpha3.1"
+            pkg="libapt-pkg6.0"
             ;;
         8.*)
             codename="jessie"
@@ -69,11 +68,16 @@ main() {
             pkg="libapt-pkg5.0"
             fixed_version="1.4.9"
             ;;
+        10.*)
+            codename="buster"
+            pkg="libapt-pkg5.0"
+            fixed_version="1.8.0~alpha3.1"
+            ;;
         *)
             error 'Error: Could not determine Debian release!'
     esac
 
-    if check_apt_version "$pkg" "$fixed_version"; then
+    if [ "$pkg" = "libapt-pkg6.0" ] || check_apt_version "$pkg" "$fixed_version"; then
         exit_ok 'changed=no' 'Nothing to do, apt already fixed.'
     fi
 
