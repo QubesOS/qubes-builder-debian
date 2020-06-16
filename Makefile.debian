@@ -278,7 +278,15 @@ sign:
 	@true
 else
 sign: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
+sign: release_name_full_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.$(DIST))
 sign:
-	debsign $(DEBSIGN_ARGS) --no-re-sign \
-		$(BUILDER_REPO_DIR)/deb/$(release_name_full)+$(DIST_TAG)u1_amd64.changes
+	@if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(release_name_full_dist)" ]; then \
+		debsign $(DEBSIGN_ARGS) --no-re-sign \
+			$(BUILDER_REPO_DIR)/deb/$(release_name_full_dist)_amd64.changes; \
+	else \
+		debsign $(DEBSIGN_ARGS) --no-re-sign \
+			$(BUILDER_REPO_DIR)/deb/$(release_name_full)+$(DIST_TAG)u1_amd64.changes; \
+	fi
+		
+
 endif
