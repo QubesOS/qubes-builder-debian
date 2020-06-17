@@ -1,9 +1,2 @@
-xdg-user-dirs
-gnome-themes-standard
-xsettingsd
+qubes-vm-dependencies
 qubes-vm-recommended
-firmware-linux
-cryptsetup
-lvm2
-apt-transport-https
-exfat-fuse
