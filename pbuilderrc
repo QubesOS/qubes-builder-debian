@@ -18,7 +18,7 @@ case ${DISTRIBUTION} in
         DIST_VENDOR=debian
         MIRRORSITE=http://deb.debian.org/debian
         ;;
-    trusty|xenial|bionic)
+    trusty|xenial|bionic|focal)
         DIST_VENDOR=qubuntu
         MIRRORSITE=http://archive.ubuntu.com/ubuntu
         ;;
