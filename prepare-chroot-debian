@@ -49,12 +49,22 @@ if ! [ -d $DIR/home/user ]; then
     # --------------------------------------------------------------------------
     mkdir -p $DIR
     echo "-> Installing debian build chroot..."
+    retry=0
     apt_https_pkgs="apt-transport-https,ca-certificates"
-    COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
+    while ! COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
                 --include=ncurses-term,debian-keyring,$apt_https_pkgs,$eatmydata_maybe \
                 --keyring=${DEBIAN_PLUGIN_DIR}keys/$DIST-debian-archive-keyring.gpg \
-                $DIST $DIR https://deb.debian.org/debian \
-                || { echo "Error in debootstrap"; exit 1; }
+                $DIST $DIR https://deb.debian.org/debian
+    do
+        if [ $retry -le 3 ]; then
+            echo "Error in debootstrap. Sleeping 5 min before retrying..."
+            retry=$((retry + 1))
+            sleep 300
+        else
+            echo "Error in debootstrap. Aborting due to too much retries."
+            exit 1
+        fi
+    done
 
     # --------------------------------------------------------------------------
     # Set up a temporary policy-rc.d to prevent apt from starting services

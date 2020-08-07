@@ -78,7 +78,6 @@ bootstrap() {
         echo "deb ${mirror} ${DIST} main" > ${INSTALLDIR}/etc/apt/sources.list && \
         return 0
     done
-    error "Debootstrap failed!"
     exit 1;
 }
 
@@ -87,7 +86,18 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
     #### "------------------------------------------------------------------
     info " $(templateName): Installing base '${DISTRIBUTION}-${DIST}' system"
     #### "------------------------------------------------------------------
-    bootstrap || exit 1
+    retry=0
+    while ! bootstrap
+    do
+        if [ $retry -le 3 ]; then
+            echo "Error in debootstrap. Sleeping 5 min before retrying..."
+            retry=$((retry + 1))
+            sleep 300
+        else
+            echo "Error in debootstrap. Aborting due to too much retries."
+            exit 1
+        fi
+    done
 
     #### '----------------------------------------------------------------------
     info ' Download APT metadata'
