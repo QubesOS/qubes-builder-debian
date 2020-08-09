@@ -78,7 +78,7 @@ bootstrap() {
         echo "deb ${mirror} ${DIST} main" > ${INSTALLDIR}/etc/apt/sources.list && \
         return 0
     done
-    exit 1;
+    return 1
 }
 
 
@@ -90,9 +90,9 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
     while ! bootstrap
     do
         if [ $retry -le 3 ]; then
-            echo "Error in debootstrap. Sleeping 5 min before retrying..."
+            echo "Error in debootstrap. Sleeping 60 sec before retrying..."
             retry=$((retry + 1))
-            sleep 300
+            sleep 60
         else
             echo "Error in debootstrap. Aborting due to too much retries."
             exit 1
