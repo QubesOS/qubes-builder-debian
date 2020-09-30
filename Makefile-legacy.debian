@@ -16,6 +16,11 @@ dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
 		mkdir -p $(CHROOT_DIR)/tmp/qubes-deb;\
 		sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_DIR)/tmp/qubes-deb;\
 	fi
+	@if [ "$(shell stat -f -c '%T' ${CHROOT_DIR}/dev/shm 2>/dev/null)" != tmpfs ]; then\
+		sudo mkdir -p "$(CHROOT_DIR)/dev/shm";\
+		sudo mount -t tmpfs shm "$(CHROOT_DIR)/dev/shm";\
+		sudo chmod 1777 "$(CHROOT_DIR)/dev/shm";\
+	fi
 
 $(CHROOT_DIR)/home/user/.prepared_base: $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION)
 	@echo "-> Preparing $(DIST) build environment"
