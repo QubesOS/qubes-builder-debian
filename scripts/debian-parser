@@ -177,7 +177,7 @@ def main(argv):
         pprint(args)
 
     # Remove any null variables argparse set
-    for key, value in args.items():
+    for key, value in list(args.items()):
         if not value:
             args.pop(key,  None)
 
@@ -248,7 +248,7 @@ def getContent(filename):
                 debug(content)
         content = ''.join(l for l in content.splitlines(True)
             if not l.startswith('#'))
-    except IOError, msg:
+    except IOError as msg:
         sys.exit(1)
     return content
 
@@ -351,7 +351,7 @@ def parseChangelog(filename, **args):
 
     # Clear out values from changelog that were not selected so we return only requested
     # changelog
-    for key, value in changelog.items():
+    for key, value in list(changelog.items()):
         if key not in args.keys():
             changelog.pop(key,  None)
 
