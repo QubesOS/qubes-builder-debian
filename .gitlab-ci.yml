@@ -1,8 +1,13 @@
 include:
   - project: 'QubesOS/qubes-continuous-integration'
+    ref: master
     file: '/r4.1/gitlab-base.yml'
   - project: 'QubesOS/qubes-continuous-integration'
-    file: '/r4.1/gitlab-vm-debian-build.yml'
+    ref: master
+    file: '/r4.1/gitlab-vm-debian-chroot.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    ref: master
+    file: '/r4.1/gitlab-vm-debian-build-template.yml'
 
 default:
   tags:
@@ -26,6 +31,7 @@ tests:vm-buster:no-upstream-tarball:
   stage: tests
   needs:
     - prep:sources
+    - chroot:vm-buster
   tags:
     - docker-runner
     - short-living-job
@@ -41,6 +47,7 @@ tests:vm-buster:native-package:
   stage: tests
   needs:
     - prep:sources
+    - chroot:vm-buster
   tags:
     - docker-runner
     - short-living-job
@@ -56,6 +63,7 @@ tests:vm-buster:upstream-tarball:
   stage: tests
   needs:
     - prep:sources
+    - chroot:vm-buster
   tags:
     - docker-runner
     - short-living-job
@@ -66,15 +74,16 @@ tests:vm-buster:upstream-tarball:
     USE_DIST_BUILD_TOOL: 1
     COMPONENTS: python-u2flib-host
 
-tests:vm-xenial:package:
+tests:vm-bionic:package:
   extends: .components_build
   stage: tests
   needs:
     - prep:sources
+    - chroot:vm-bionic
   tags:
     - docker-runner
     - short-living-job
   variables:
-    DISTS_VM: xenial
+    DISTS_VM: bionic
     USE_DIST_BUILD_TOOL: 1
     COMPONENTS: app-shutdown-idle
