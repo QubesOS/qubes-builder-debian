@@ -41,6 +41,8 @@ info ' Install standard Debian packages'
 #### '----------------------------------------------------------------------
 containsFlavor "minimal" || {
     packages="$(chroot_cmd tasksel --new-install --task-packages standard)"
+    # media-types : Breaks: mime-support (<= 3.64) but 3.64 is to be installed
+    packages="${packages//media-types/}"
     if [ -n "$eatmydata_maybe" ]; then
         eatmydata_maybe= aptInstall $eatmydata_maybe
     fi
