@@ -57,10 +57,12 @@ if ! [ -d $DIR/home/user ]; then
                 $DIST $DIR https://deb.debian.org/debian
     do
         if [ $retry -le 3 ]; then
+            cat "$DIR/debootstrap/debootstrap.log"
             echo "Error in debootstrap. Sleeping 60 sec before retrying..."
             retry=$((retry + 1))
             sleep 60
         else
+            cat "$DIR/debootstrap/debootstrap.log"
             echo "Error in debootstrap. Aborting due to too much retries."
             exit 1
         fi
