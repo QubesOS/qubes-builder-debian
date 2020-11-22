@@ -39,11 +39,24 @@ if ! [ -d $DIR/home/user ]; then
     INITIAL=1
     mkdir -p $DIR
     echo "-> Installing qubuntu build chroot..."
-    COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
+    retry=0
+    apt_https_pkgs="apt-transport-https,ca-certificates"
+    while ! COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
                 --include=ncurses-term,ubuntu-keyring,$eatmydata_maybe \
                 --keyring=${DEBIAN_PLUGIN_DIR}/keys/$DIST-qubuntu-archive-keyring.gpg \
-                $DIST $DIR http://archive.ubuntu.com/ubuntu \
-                || { echo "Error in debootstrap"; exit 1; }
+                $DIST $DIR http://archive.ubuntu.com/ubuntu
+    do
+        if [ $retry -le 3 ]; then
+            cat "$DIR/debootstrap/debootstrap.log"
+            echo "Error in debootstrap. Sleeping 60 sec before retrying..."
+            retry=$((retry + 1))
+            sleep 60
+        else
+            cat "$DIR/debootstrap/debootstrap.log"
+            echo "Error in debootstrap. Aborting due to too much retries."
+            exit 1
+        fi
+    done
 
     # --------------------------------------------------------------------------
     # Set up a temporary policy-rc.d to prevent apt from starting services
