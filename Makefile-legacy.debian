@@ -21,6 +21,7 @@ dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
 		sudo mount -t tmpfs shm "$(CHROOT_DIR)/dev/shm";\
 		sudo chmod 1777 "$(CHROOT_DIR)/dev/shm";\
 	fi
+	@sudo cp -f /etc/resolv.conf $(CHROOT_DIR)/etc/resolv.conf
 
 $(CHROOT_DIR)/home/user/.prepared_base: $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION)
 	@echo "-> Preparing $(DIST) build environment"
