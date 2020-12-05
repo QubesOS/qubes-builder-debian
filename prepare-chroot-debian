@@ -152,6 +152,12 @@ add_repo() {
     fi
 }
 
+del_repo() {
+    local repo="$1"
+    fgrep -v "$repo" "${DIR}/etc/apt/sources.list" > "${DIR}/etc/apt/sources.list.new"
+    mv "${DIR}/etc/apt/sources.list.new" "${DIR}/etc/apt/sources.list"
+}
+
 if [ "$DIST" == "wheezy" ]; then
     # Looks like a SID only package is being used to build packages
     # there is a backport available for wheezy
@@ -165,6 +171,8 @@ fi
 # Install Debian source repo
 # ------------------------------------------------------------------------------
 add_repo "deb-src https://deb.debian.org/debian ${DIST} main"
+
+del_repo "//deb.qubes-os.org/"
 
 if [ -n "$USE_QUBES_REPO_VERSION" ]; then
     add_repo "deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm $DIST main"
