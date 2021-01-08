@@ -106,6 +106,9 @@ else
     # --------------------------------------------------------------------------
     rm -f $DIR/etc/apt/sources.list.d/qubes-builder.list
 
+    # update resolv.conf before calling apt-get
+    cp -f /etc/resolv.conf "${DIR}/etc/resolv.conf"
+
     # update chroot
     chroot $DIR apt-get $APT_GET_OPTIONS update
     # check for CVE-2016-1252 - directly after debootstrap, still vulnerable
