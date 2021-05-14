@@ -180,3 +180,8 @@ CCACHEDIR=""
 #EXTRAPACKAGES=ccache
 #BINDMOUNTS="${BINDMOUNTS} ${CCACHE_DIR}"
 BINDMOUNTS="${BUILDER_REPO_DIR}:/tmp/qubes-deb"
+
+# qubes-builder is the thing building building the final packages, it doesn't
+# need to send *_source.changes to be actually built; and two .changes files
+# messes things up
+SOURCE_ONLY_CHANGES=no
