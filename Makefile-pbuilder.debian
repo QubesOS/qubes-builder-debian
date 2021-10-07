@@ -77,5 +77,7 @@ endif
 dist-copy-out:
 	mkdir -p $(BUILDER_REPO_DIR)/deb
 	mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR)
+	# ignore separate _source.changes, it's already included in the main binary pkg
+	rm -f $(PBUILDER_BASEDIR)/results/$(release_name)*_source.changes
 	dcmd cp -t $(BUILDER_REPO_DIR)/deb $(PBUILDER_BASEDIR)/results/$(release_name)*.changes
 	dcmd mv -t $(PWD)/$(ORIG_SRC)/$(OUTPUT_DIR) $(PBUILDER_BASEDIR)/results/$(release_name)*.changes
