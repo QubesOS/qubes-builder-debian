@@ -170,6 +170,14 @@ if [ "$DIST" == "wheezy" ]; then
     chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS -t wheezy-backports install -y dh-systemd config-package-dev
 fi
 
+if [ "$DIST" == "stretch" ]; then
+    # add stretch-security early, because before updating gnutls from there,
+    # https://deb.qubes-os.org won't work (bugs.debian.org/961889)
+    add_repo "deb https://deb.debian.org/debian-security stretch/updates main"
+    chroot $DIR apt-get $APT_GET_OPTIONS update
+    chroot $DIR $eatmydata_maybe apt-get $APT_GET_OPTIONS upgrade -y
+fi
+
 # ------------------------------------------------------------------------------
 # Install Debian source repo
 # ------------------------------------------------------------------------------
