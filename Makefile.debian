@@ -218,7 +218,7 @@ endif
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 update-repo:
-	@true
+	${Q}true
 else
 update-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
@@ -227,11 +227,11 @@ update-repo: release_name_dist = $(shell $(DEBIAN_PARSER) changelog --package-re
 update-repo: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 
 update-repo-prepare:
-	@mkdir -p $(UPDATE_REPO)/conf
-	@if [ ! -e $(UPDATE_REPO)/conf/distributions ]; then \
+	${Q}mkdir -p $(UPDATE_REPO)/conf
+	${Q}if [ ! -e $(UPDATE_REPO)/conf/distributions ]; then \
 		touch $(UPDATE_REPO)/conf/distributions; \
 	fi
-	@grep $(DIST) $(UPDATE_REPO)/conf/distributions > /dev/null; \
+	${Q}grep $(DIST) $(UPDATE_REPO)/conf/distributions > /dev/null; \
 	if [ $$? -ne 0 ]; then \
 		echo "$$aptdistributions" >> $(UPDATE_REPO)/conf/distributions; \
 	fi
@@ -241,13 +241,13 @@ update-repo-do:
 ifndef UPDATE_REPO
 	$(error "You need to specify destination repo in UPDATE_REPO variable")
 endif
-	@if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(release_name_dist)" ]; then \
+	${Q}if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(release_name_dist)" ]; then \
 		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_dist)_amd64.changes </dev/null >/dev/null || exit 1; \
 	else \
 		$(REPREPRO) $(EXTRA_REPREPRO_OPTS) -b $(UPDATE_REPO) include $(DEBIANVERSION)$(REPO_SUFFIX) $(BUILDER_REPO_DIR)/deb/$(release_name_full)+$(DIST_TAG)u1_amd64.changes </dev/null >/dev/null || exit 1; \
 	fi
 ifdef SNAPSHOT_FILE
-	@if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(package_ver_dist)" ]; then \
+	${Q}if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(package_ver_dist)" ]; then \
 		echo '$$Source (== $(source_name)), Version (== $(package_ver_dist))' > $(SNAPSHOT_FILE); \
 	else \
 		echo '$$Source (== $(source_name)), Version (== $(package_ver)+$(DIST_TAG)u1)' > $(SNAPSHOT_FILE); \
@@ -262,7 +262,7 @@ update-repo-from-snapshot-do:
 
 ifeq (,$(DEBIAN_BUILD_DIRS))
 check-repo:
-	@true
+	${Q}true
 else
 check-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 check-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
@@ -275,12 +275,12 @@ endif
 
 ifeq (,$(PACKAGE_LIST))
 sign:
-	@true
+	${Q}true
 else
 sign: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 sign: release_name_full_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.$(DIST))
 sign:
-	@if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(release_name_full_dist)" ]; then \
+	${Q}if [ "0$(INCREMENT_DEVEL_VERSIONS)" -eq 1 -a -n "$(release_name_full_dist)" ]; then \
 		debsign $(DEBSIGN_ARGS) --no-re-sign \
 			$(BUILDER_REPO_DIR)/deb/$(release_name_full_dist)_amd64.changes; \
 	else \

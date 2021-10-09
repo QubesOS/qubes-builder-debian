@@ -2,38 +2,38 @@
 
 dist-prepare-chroot: $(CHROOT_DIR)/home/user/.prepared_base
 	# Make sure repo directory exists
-	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
+	${Q}if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
 	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
 	fi
-	@if [ $(VERBOSE) -gt 0 ]; then \
+	${Q}if [ $(VERBOSE) -gt 0 ]; then \
 		echo "-> dist-prepare-chroot for $(DIST)"; \
 		echo "-> sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_DIR)/tmp/qubes-deb;"; \
 	fi
-	@if [ ! -r $(CHROOT_DIR)/proc/cpuinfo ]; then\
+	${Q}if [ ! -r $(CHROOT_DIR)/proc/cpuinfo ]; then\
 		sudo mount -t proc proc $(CHROOT_DIR)/proc;\
 	fi
-	@if ! [ -d $(CHROOT_DIR)/tmp/qubes-deb/deb ]; then\
+	${Q}if ! [ -d $(CHROOT_DIR)/tmp/qubes-deb/deb ]; then\
 		mkdir -p $(CHROOT_DIR)/tmp/qubes-deb;\
 		sudo mount --bind $(BUILDER_REPO_DIR) $(CHROOT_DIR)/tmp/qubes-deb;\
 	fi
-	@if [ "$(shell stat -f -c '%T' ${CHROOT_DIR}/dev/shm 2>/dev/null)" != tmpfs ]; then\
+	${Q}if [ "$(shell stat -f -c '%T' ${CHROOT_DIR}/dev/shm 2>/dev/null)" != tmpfs ]; then\
 		sudo mkdir -p "$(CHROOT_DIR)/dev/shm";\
 		sudo mount -t tmpfs shm "$(CHROOT_DIR)/dev/shm";\
 		sudo chmod 1777 "$(CHROOT_DIR)/dev/shm";\
 	fi
-	@sudo cp -f /etc/resolv.conf $(CHROOT_DIR)/etc/resolv.conf
+	${Q}sudo cp -f /etc/resolv.conf $(CHROOT_DIR)/etc/resolv.conf
 
 $(CHROOT_DIR)/home/user/.prepared_base: $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION)
 	@echo "-> Preparing $(DIST) build environment"
-	@sudo -E $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION) $(CHROOT_DIR) $(DIST)
-	@touch $(CHROOT_DIR)/home/user/.prepared_base
+	${Q}sudo -E $(DEBIAN_PLUGIN_DIR)/prepare-chroot-$(DISTRIBUTION) $(CHROOT_DIR) $(DIST)
+	${Q}touch $(CHROOT_DIR)/home/user/.prepared_base
 
 dist-prep: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 dist-prep:
-	@rm -f "$(CHROOT_DIR)/$(DIST_SRC)/../$(release_name)"*
+	${Q}rm -f "$(CHROOT_DIR)/$(DIST_SRC)/../$(release_name)"*
 
 dist-build-dep: 
-	@if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
+	${Q}if ! [ -d "$(BUILDER_REPO_DIR)/dists" ]; then\
 	    mkdir -p "$(BUILDER_REPO_DIR)/dists";\
 	fi
 	$(DEBIAN_PLUGIN_DIR)/update-local-repo.sh $(DIST)

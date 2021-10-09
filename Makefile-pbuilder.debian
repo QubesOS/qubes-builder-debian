@@ -3,12 +3,12 @@
 PBUILDER_BASEDIR = $(CHROOT_DIR)/pbuilder
 
 dist-prepare-chroot: $(PBUILDER_BASEDIR)/.prepared_pbuilder
-	@true
+	${Q}true
 
 # TODO: avoid loading user ~/.pbuilderrc
 $(PBUILDER_BASEDIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
-	@mkdir -p $(CHROOT_DIR)
-	@if [ $$(stat -c %u $(CHROOT_DIR)) -eq 0 ]; then \
+	${Q}mkdir -p $(CHROOT_DIR)
+	${Q}if [ $$(stat -c %u $(CHROOT_DIR)) -eq 0 ]; then \
 		sudo mkdir -p $(PBUILDER_BASEDIR); \
 		sudo chown $$UID $(PBUILDER_BASEDIR); \
 	else \
@@ -29,14 +29,14 @@ $(PBUILDER_BASEDIR)/.prepared_pbuilder: $(DEBIAN_PLUGIN_DIR)/pbuilderrc
 		--configfile $(DEBIAN_PLUGIN_DIR)/pbuilderrc \
 		--othermirror "deb [trusted=yes] file:/tmp/qubes-deb $(DIST) main" || \
 		{ rm -f "$(PBUILDER_BASEDIR)/base.tgz"; exit 1; }
-	@touch $(PBUILDER_BASEDIR)/.prepared_pbuilder
+	${Q}touch $(PBUILDER_BASEDIR)/.prepared_pbuilder
 
 dist-prep: release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 dist-prep:
-	@rm -f "$(CHROOT_DIR)/$(DIST_SRC)/../$(release_name)"*
+	${Q}rm -f "$(CHROOT_DIR)/$(DIST_SRC)/../$(release_name)"*
 
 dist-build-dep:
-	@true
+	${Q}true
 
 .PHONY: build-source-package
 build-source-package: debian-prepare-dist-src
