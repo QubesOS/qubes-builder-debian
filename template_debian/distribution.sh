@@ -283,7 +283,7 @@ function updateDebianSourceList() {
     fi
 
     # Add Debian security repositories
-    if [ "${DEBIANVERSION}" != "bullseye" ]; then
+    if [ "${DEBIANVERSION}" == "buster" ] || [ "${DEBIANVERSION}" == "stretch" ]; then
         security_suffix="/updates"
     else
         security_suffix="-security"

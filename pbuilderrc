@@ -14,7 +14,7 @@ LOGLEVEL=I
 USECOLORS=auto
 
 case ${DISTRIBUTION} in
-    wheezy|jessie|stretch|buster|bullseye|sid|experimental)
+    stretch|buster|bullseye|bookworm|sid|experimental)
         DIST_VENDOR=debian
         MIRRORSITE=http://deb.debian.org/debian
         ;;
