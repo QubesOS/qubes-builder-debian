@@ -3,7 +3,7 @@ ifneq (,$(findstring $(DIST),stretch buster bullseye bookworm))
     DISTRIBUTION := debian
     BUILDER_MAKEFILE = $(DEBIAN_PLUGIN_DIR)Makefile.debian
     TEMPLATE_SCRIPTS = $(DEBIAN_PLUGIN_DIR)template_debian
-    DIST_TAG := $(strip $(subst buster, deb9, $(DIST_TAG)))
+    DIST_TAG := $(strip $(subst stretch, deb9, $(DIST)))
     DIST_TAG := $(strip $(subst buster, deb10, $(DIST_TAG)))
     DIST_TAG := $(strip $(subst bullseye, deb11, $(DIST_TAG)))
     DIST_TAG := $(strip $(subst bookworm, deb12, $(DIST_TAG)))
