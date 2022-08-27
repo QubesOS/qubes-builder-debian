@@ -48,6 +48,7 @@ bootstrap() {
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main,universe \
+            --variant=minbase \
             --download-only \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "${mirror}" && \
@@ -69,6 +70,7 @@ bootstrap() {
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main,universe \
+            --variant=minbase \
             --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
             "${DIST}" "${INSTALLDIR}" "file://${INSTALLDIR}/${TMPDIR}/dummy-repo" && \
         echo "deb ${mirror} ${DIST} main universe" > ${INSTALLDIR}/etc/apt/sources.list && \
