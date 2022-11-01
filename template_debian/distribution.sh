@@ -358,7 +358,8 @@ EOF
 # ==============================================================================
 function updateLocale() {
     debug "Updating locales"
-    chroot_cmd localedef -f UTF-8 -i en_US -c en_US.UTF-8
+    chroot_cmd sh -c 'printf "\\nen_US.UTF-8 UTF-8" >> /etc/locales.gen'
+    chroot_cmd localedef -i en_US -c -f UTF-8 en_US.UTF-8
     chroot_cmd update-locale LANG=en_US.UTF-8
 }
 
