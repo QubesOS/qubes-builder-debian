@@ -2,11 +2,13 @@
 # vim: set ts=4 sw=4 sts=4 et :
 
 # Source external scripts
-source "${SCRIPTSDIR}/vars.sh"
-source "${SCRIPTSDIR}/distribution.sh"
+# shellcheck source=qubesbuilder/plugins/template_debian/vars.sh
+source "${PLUGINS_DIR}/template_debian/vars.sh"
+# shellcheck source=qubesbuilder/plugins/template_debian/distribution.sh
+source "${PLUGINS_DIR}/template_debian/distribution.sh"
 
-# Make sure ${INSTALLDIR} is not mounted
-umount_all "${INSTALLDIR}" || true
+## Make sure ${INSTALL_DIR} is not mounted
+umount_all "${INSTALL_DIR}" || true
 
 # ==============================================================================
 # Execute any template flavor or sub flavor 'pre' scripts
@@ -14,32 +16,31 @@ umount_all "${INSTALLDIR}" || true
 buildStep "${0}" "pre"
 
 # ==============================================================================
-# Use a snapshot of the debootstraped debian image
+# Use a snapshot of the debootstrapped debian image
 # ==============================================================================
 manage_snapshot() {
     local snapshot="${1}"
 
-    umount_kill "${INSTALLDIR}" || true
-    mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
+    umount_kill "${INSTALL_DIR}" || true
+    mount -o loop "${IMG}" "${INSTALL_DIR}" || exit 1
 
     # Remove old snapshots if groups completed
-    if [ -e "${INSTALLDIR}/${TMPDIR}/.prepared_groups" ]; then
+    if [ -e "${INSTALL_DIR}/${TMPDIR}/.prepared_groups" ]; then
         outputc stout "Removing stale snapshots"
-        umount_kill "${INSTALLDIR}" || true
+        umount_kill "${INSTALL_DIR}" || true
         rm -rf "${debootstrap_snapshot}"
         rm -rf "${packages_snapshot}"
         return
     fi
 
     outputc stout "Replacing ${IMG} with snapshot ${snapshot}"
-    umount_kill "${INSTALLDIR}" || true
+    umount_kill "${INSTALL_DIR}" || true
     cp -f "${snapshot}" "${IMG}"
 }
 
 
-# generate metadata in pkgs-for-template even if the repository is empty
-BUILDER_REPO_DIR=pkgs-for-template/$DIST \
-    $SCRIPTSDIR/../update-local-repo.sh ${DIST}
+# generate metadata in PACKAGES_DIR even if the repository is empty
+"${PLUGINS_DIR}"/build_deb/scripts/create-local-repo "${PACKAGES_DIR}" "${DIST_NAME}" "${DIST_CODENAME}"
 
 # ==============================================================================
 # Determine if a snapshot should be used, reuse an existing image or
@@ -48,6 +49,7 @@ BUILDER_REPO_DIR=pkgs-for-template/$DIST \
 # SNAPSHOT=1 - Use snapshots; Will remove after successful build
 # If debootstrap did not complete, the existing image will be deleted
 # ==============================================================================
+path_parts=
 splitPath "${IMG}" path_parts
 packages_snapshot="${path_parts[dir]}${path_parts[base]}-packages${path_parts[dotext]}"
 debootstrap_snapshot="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
@@ -65,19 +67,19 @@ debootstrap_snapshot="${path_parts[dir]}${path_parts[base]}-debootstrap${path_pa
 #
 #    else
 #        # Use '$IMG' if debootstrap did not fail
-#        mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
+#        mount -o loop "${IMG}" "${INSTALL_DIR}" || exit 1
 #
 #        # Assume a failed debootstrap installation if .prepared_debootstrap does not exist
-#        if [ -e "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
+#        if [ -e "${INSTALL_DIR}/${TMPDIR}/.prepared_debootstrap" ]; then
 #            debug "Reusing existing image ${IMG}"
 #        else
 #            outputc stout "Removing stale or incomplete ${IMG}"
-#            umount_kill "${INSTALLDIR}" || true
+#            umount_kill "${INSTALL_DIR}" || true
 #            rm -f "${IMG}"
 #        fi
 #
 #        # Umount image; don't fail if its already umounted
-#        umount_kill "${INSTALLDIR}" || true
+#        umount_kill "${INSTALL_DIR}" || true
 #    fi
 #fi
 

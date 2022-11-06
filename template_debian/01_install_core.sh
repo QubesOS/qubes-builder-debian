@@ -1,13 +1,15 @@
 #!/bin/bash -e
 # vim: set ts=4 sw=4 sts=4 et :
 
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+if [ "$DEBUG" == "1" ]; then
     set -x
 fi
 
 # Source external scripts
-source "${SCRIPTSDIR}/vars.sh"
-source "${SCRIPTSDIR}/distribution.sh"
+# shellcheck source=qubesbuilder/plugins/template_debian/vars.sh
+source "${PLUGINS_DIR}/template_debian/vars.sh"
+# shellcheck source=qubesbuilder/plugins/template_debian/distribution.sh
+source "${PLUGINS_DIR}/template_debian/distribution.sh"
 
 ##### '-------------------------------------------------------------------------
 debug ' Installing base system using debootstrap'
@@ -20,22 +22,23 @@ buildStep "${0}" "pre"
 
 
 bootstrap() {
-    for mirror in ${DEBIAN_MIRRORS[@]}; do
-        if [ ! -d "${INSTALLDIR}/${TMPDIR}" ]; then
-            mkdir -m 1777 -p "${INSTALLDIR}/${TMPDIR}"
+    for mirror in "${DEBIAN_MIRRORS[@]}"; do
+        if [ ! -d "${INSTALL_DIR}/${TMPDIR}" ]; then
+            # shellcheck disable=SC2174
+            mkdir -m 1777 -p "${INSTALL_DIR}/${TMPDIR}"
         fi
-        rm -rf "${INSTALLDIR}/${TMPDIR}/dummy-repo"
-        mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}"
-        mkdir -p "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/main/binary-amd64"
-        echo ${mirror} > "${INSTALLDIR}/${TMPDIR}/.mirror"
+        rm -rf "${INSTALL_DIR}/${TMPDIR}/dummy-repo"
+        mkdir -p "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}"
+        mkdir -p "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/main/binary-amd64"
+        echo "${mirror}" > "${INSTALL_DIR}/${TMPDIR}/.mirror"
 
         mirror_no_proto=${mirror#*://}
         # depending on debootstrap version, Release files can be stored under
         # different names; this function needs _some_ correctly signed file for
         # dummy repository
         release_location_candidates=( \
-            "${INSTALLDIR}/var/lib/apt/lists/${mirror_no_proto//\//_}_dists_${DIST}_Release" \
-            "${INSTALLDIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST}_Release" \
+            "${INSTALL_DIR}/var/lib/apt/lists/${mirror_no_proto//\//_}_dists_${DIST_CODENAME}_Release" \
+            "${INSTALL_DIR}/var/lib/apt/lists/debootstrap.invalid_dists_${DIST_CODENAME}_Release" \
         )
 
         apt_https_pkgs="apt-transport-https,ca-certificates"
@@ -43,48 +46,49 @@ bootstrap() {
         # them. Needs to copy Release{,.gpg} to a dummy _local_ repo, because
         # debootstrap insists on downloading it each time but we want to be sure to use
         # packages downloaded earlier (and logged)
-        COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
+        # shellcheck disable=SC2154
+        COMPONENTS="" "${DEBOOTSTRAP_PREFIX[@]}" debootstrap \
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main \
             --download-only \
-            --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
-            "${DIST}" "${INSTALLDIR}" "${mirror}" && \
-        sha256sum "${INSTALLDIR}/var/cache/apt/archives"/*.deb && \
+            --keyring="${PLUGINS_DIR}/source_deb/keys/${DIST_CODENAME}-${DIST_NAME}-archive-keyring.gpg" \
+            "${DIST_CODENAME}" "${INSTALL_DIR}" "${mirror}" && \
+        sha256sum "${INSTALL_DIR}/var/cache/apt/archives"/*.deb && \
         for release_location in "${release_location_candidates[@]}"; do
             if [ -r "${release_location}" ]; then
                 cp "${release_location}" \
-                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release"
+                    "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/Release"
                 inrelease_location="${release_location%Release}InRelease"
                 if [ -r "$inrelease_location" ]; then
                     cp "${inrelease_location}" \
-                        "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/InRelease"
+                        "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/InRelease"
                 fi
                 if [ -r "${release_location}.gpg" ]; then
                     cp "${release_location}.gpg" \
-                        "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/Release.gpg"
+                        "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/Release.gpg"
                 fi
                 cp "${release_location%_Release}_main_binary-amd64_Packages" \
-                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST}/main/binary-amd64/Packages"
+                    "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/main/binary-amd64/Packages"
                 break
             fi
         done && \
-        COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap \
+        COMPONENTS="" "${DEBOOTSTRAP_PREFIX[@]}" debootstrap \
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main \
-            --keyring="${SCRIPTSDIR}/../keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
-            "${DIST}" "${INSTALLDIR}" "file://${INSTALLDIR}/${TMPDIR}/dummy-repo" && \
-        echo "deb ${mirror} ${DIST} main" > ${INSTALLDIR}/etc/apt/sources.list && \
+            --keyring="${PLUGINS_DIR}/source_deb/keys/${DIST_CODENAME}-${DIST_NAME}-archive-keyring.gpg" \
+            "${DIST_CODENAME}" "${INSTALL_DIR}" "file://${INSTALL_DIR}/${TMPDIR}/dummy-repo" && \
+        echo "deb ${mirror} ${DIST_CODENAME} main" > "${INSTALL_DIR}"/etc/apt/sources.list && \
         return 0
     done
     return 1
 }
 
 
-if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
+if ! [ -f "${INSTALL_DIR}/${TMPDIR}/.prepared_debootstrap" ]; then
     #### "------------------------------------------------------------------
-    info " $(templateName): Installing base '${DISTRIBUTION}-${DIST}' system"
+    info " $(templateName): Installing base '${DIST_NAME}-${DIST_CODENAME}' system"
     #### "------------------------------------------------------------------
     retry=0
     while ! bootstrap
@@ -122,10 +126,11 @@ if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
 
     # TMPDIR is set in vars.  /tmp should not be used since it will be cleared
     # if building template with LXC contaniners on a reboot
-    mkdir -m 1777 -p "${INSTALLDIR}/${TMPDIR}"
+    # shellcheck disable=SC2174
+    mkdir -m 1777 -p "${INSTALL_DIR}/${TMPDIR}"
 
     # Mark section as complete
-    touch "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap"
+    touch "${INSTALL_DIR}/${TMPDIR}/.prepared_debootstrap"
 
     # If SNAPSHOT=1, Create a snapshot of the already debootstraped image
     createSnapshot "debootstrap"

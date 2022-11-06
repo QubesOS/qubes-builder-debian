@@ -1,10 +1,12 @@
 #!/bin/bash -e
 # vim: set ts=4 sw=4 sts=4 et :
 
-source ./functions.sh >/dev/null
-source ./umount_kill.sh >/dev/null
+# shellcheck source=qubesbuilder/plugins/template/scripts/functions.sh
+source "${PLUGINS_DIR}/template/scripts/functions.sh" >/dev/null
+# shellcheck source=qubesbuilder/plugins/template/scripts/umount-kill
+source "${PLUGINS_DIR}/template/scripts/umount-kill" >/dev/null
 
-output "${bold}${under}INFO: ${SCRIPTSDIR}/distribution.sh imported by: ${0}${reset}"
+output "INFO: ${PLUGINS_DIR}/template_debian/distribution.sh imported by: ${0}"
 
 # ==============================================================================
 # Cleanup function
@@ -14,7 +16,7 @@ function cleanup() {
     trap - ERR EXIT
     trap
     error "${1:-"${0}: Error.  Cleaning up and un-mounting any existing mounts"}"
-    umount_all || true
+    umount_all "${INSTALL_DIR}" || true
 
     exit $errval
 }
@@ -28,19 +30,19 @@ function exitOnNoFile() {
 
     if ! [ -f "${file}" ]; then
         error "${message}"
-        umount_all || true
+        umount_all "${INSTALL_DIR}" || true
         exit 1
     fi
 }
 
 # ==============================================================================
-# Umount everthing within INSTALLDIR or $1 but kill all processes within first
+# Umount everything within INSTALL_DIR or $1 but kill all processes within first
 # ==============================================================================
 function umount_all() {
-    directory="${1:-"${INSTALLDIR}"}"
+    directory="${1:-"${INSTALL_DIR}"}"
 
-    # Only remove dirvert policies, etc if base INSTALLDIR mount is being umounted
-    if [ "${directory}" == "${INSTALLDIR}" -o "${directory}" == "${INSTALLDIR}/" ]; then
+    # Only remove dirvert policies, etc if base INSTALL_DIR mount is being umounted
+    if [ "${directory}" == "${INSTALL_DIR}" ] || [ "${directory}" == "${INSTALL_DIR}/" ]; then
         if [ -n "$(mountPoints)" ]; then
             removeDbusUuid
             removeDivertPolicy
@@ -57,6 +59,7 @@ function createSnapshot() {
     snapshot_name="${1}"
 
     if [ "${SNAPSHOT}" == "1" ]; then
+        local path_parts
         splitPath "${IMG}" path_parts
         snapshot_path="${path_parts[dir]}${path_parts[base]}-${snapshot_name}${path_parts[dotext]}"
 
@@ -71,9 +74,9 @@ function createSnapshot() {
 # Create DBUS uuid
 # ==============================================================================
 function createDbusUuid() {
-    outputc green "Creating DBUS uuid..."
+    output "Creating DBUS uuid..."
     removeDbusUuid
-    if [ -e "${INSTALLDIR}/bin/dbus-uuidgen" ]; then
+    if [ -e "${INSTALL_DIR}/bin/dbus-uuidgen" ]; then
         chroot_cmd dbus-uuidgen --ensure 1>/dev/null 2>&1
     fi
 }
@@ -82,9 +85,9 @@ function createDbusUuid() {
 # Remove DBUS uuid
 # ==============================================================================
 function removeDbusUuid() {
-    if [ -e "${INSTALLDIR}"/var/lib/dbus/machine-id ]; then
-        outputc red "Removing generated machine uuid..."
-        rm "${INSTALLDIR}/var/lib/dbus/machine-id"
+    if [ -e "${INSTALL_DIR}"/var/lib/dbus/machine-id ]; then
+        output "Removing generated machine uuid..."
+        rm "${INSTALL_DIR}/var/lib/dbus/machine-id"
     fi
 }
 
@@ -93,15 +96,15 @@ function removeDbusUuid() {
 # on package installation
 # ==============================================================================
 function addDivertPolicy() {
-    outputc green "Deactivating initctl..."
+    output "Deactivating initctl..."
     chroot_cmd dpkg-divert --local --rename --add /sbin/initctl || true
 
-    outputc green "Creating policy-rc.d"
-    echo exit 101 > "${INSTALLDIR}/usr/sbin/policy-rc.d"
-    chmod +x "${INSTALLDIR}/usr/sbin/policy-rc.d"
+    output "Creating policy-rc.d"
+    echo exit 101 > "${INSTALL_DIR}/usr/sbin/policy-rc.d"
+    chmod +x "${INSTALL_DIR}/usr/sbin/policy-rc.d"
 
     # utopic systemd install still broken...
-    outputc green "Hacking invoke-rc.d to ignore missing init scripts..."
+    output "Hacking invoke-rc.d to ignore missing init scripts..."
     chroot_cmd sed -i -e "s/exit 100/exit 0 #exit 100/" /usr/sbin/invoke-rc.d
 }
 
@@ -109,13 +112,13 @@ function addDivertPolicy() {
 # Remove temporary dpkg-divert policy
 # ==============================================================================
 function removeDivertPolicy() {
-    outputc red "Reactivating initctl..."
+    output "Reactivating initctl..."
     chroot_cmd dpkg-divert --local --rename --remove /sbin/initctl || true
 
-    outputc green "Removing policy-rc.d"
-    rm -f "${INSTALLDIR}/usr/sbin/policy-rc.d"
+    output "Removing policy-rc.d"
+    rm -f "${INSTALL_DIR}/usr/sbin/policy-rc.d"
 
-    outputc red "Restoring invoke-rc.d..."
+    output "Restoring invoke-rc.d..."
     chroot_cmd sed -i -e "s/exit 0 #exit 100/exit 100/" /usr/sbin/invoke-rc.d
 }
 
@@ -123,14 +126,12 @@ function removeDivertPolicy() {
 # Create system mount points
 # ==============================================================================
 function prepareChroot() {
-    # Make sure nothing is mounted within $INSTALLDIR
-    umount_kill "${INSTALLDIR}/"
+#    # Make sure nothing is mounted within $INSTALL_DIR
+#    umount_kill "${INSTALL_DIR}" || true
 
-    mount -t tmpfs none "${INSTALLDIR}/run"
-    if [ "${SYSTEMD_NSPAWN_ENABLE}"  != "1" ]; then
-        mount -t proc proc "${INSTALLDIR}/proc"
-        mount -t sysfs sys "${INSTALLDIR}/sys"
-    fi
+    mount -t tmpfs none "${INSTALL_DIR}/run"
+    mount -t proc proc "${INSTALL_DIR}/proc"
+    mount -t sysfs sys "${INSTALL_DIR}/sys"
     createDbusUuid
     addDivertPolicy
 }
@@ -140,13 +141,14 @@ function prepareChroot() {
 # ==============================================================================
 function aptUpgrade() {
     aptUpdate
-    chroot_cmd apt-get ${APT_GET_OPTIONS} --download-only upgrade -u -y
-    find "${INSTALLDIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
+    chroot_cmd apt-get "${APT_GET_OPTIONS[@]}" --download-only upgrade -u -y
+    find "${INSTALL_DIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
         xargs -0r sha256sum
+    # shellcheck disable=2086,2154
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot_cmd env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
-            apt-get ${APT_GET_OPTIONS} upgrade -u -y
-    chroot_cmd apt-get ${APT_GET_OPTIONS} clean
+            apt-get "${APT_GET_OPTIONS[@]}" upgrade -u -y
+    chroot_cmd apt-get "${APT_GET_OPTIONS[@]}" clean
 }
 
 # ==============================================================================
@@ -154,13 +156,14 @@ function aptUpgrade() {
 # ==============================================================================
 function aptDistUpgrade() {
     aptUpdate
-    chroot_cmd apt-get ${APT_GET_OPTIONS} --download-only dist-upgrade -u -y
-    find "${INSTALLDIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
+    chroot_cmd apt-get "${APT_GET_OPTIONS[@]}" --download-only dist-upgrade -u -y
+    find "${INSTALL_DIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
         xargs -0r sha256sum
+    # shellcheck disable=SC2086
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot_cmd env APT_LISTCHANGES_FRONTEND=none $eatmydata_maybe \
-            apt-get ${APT_GET_OPTIONS} dist-upgrade -u -y
-    chroot_cmd apt-get ${APT_GET_OPTIONS} clean
+            apt-get "${APT_GET_OPTIONS[@]}" dist-upgrade -u -y
+    chroot_cmd apt-get "${APT_GET_OPTIONS[@]}" clean
 }
 
 # ==============================================================================
@@ -169,38 +172,40 @@ function aptDistUpgrade() {
 function aptUpdate() {
     debug "Updating system"
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot_cmd apt-get ${APT_GET_OPTIONS} update
+        chroot_cmd apt-get "${APT_GET_OPTIONS[@]}" update
     # check for CVE-2016-1252 - directly after debootstrap, still vulnerable
     # apt is installed
-    wc -L "${INSTALLDIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
+    wc -L "${INSTALL_DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 }
 
 # ==============================================================================
 # apt-get remove
 # ==============================================================================
 function aptRemove() {
-    files="$@"
+    read -r -a files <<<"$@"
+    # shellcheck disable=SC2086
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot_cmd $eatmydata_maybe apt-get ${APT_GET_OPTIONS} --force-yes remove ${files[@]}
+        chroot_cmd $eatmydata_maybe apt-get "${APT_GET_OPTIONS[@]}" --force-yes remove "${files[@]}"
 }
 
 # ==============================================================================
 # apt-get install
 # ==============================================================================
 function aptInstall() {
-    files="$@"
-    chroot_cmd apt-get ${APT_GET_OPTIONS} --download-only install ${files[@]}
-    find "${INSTALLDIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
+    read -r -a files <<<"$@"
+    chroot_cmd apt-get "${APT_GET_OPTIONS[@]}" --download-only install "${files[@]}"
+    find "${INSTALL_DIR}/var/cache/apt/archives" -name '*.deb' -print0 |\
         xargs -0r sha256sum
+    # shellcheck disable=SC2086
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
-        chroot_cmd $eatmydata_maybe apt-get ${APT_GET_OPTIONS} install ${files[@]}
+        chroot_cmd $eatmydata_maybe apt-get "${APT_GET_OPTIONS[@]}" install "${files[@]}"
     retcode=$?
-    chroot_cmd apt-get ${APT_GET_OPTIONS} clean
+    chroot_cmd apt-get "${APT_GET_OPTIONS[@]}" clean
     return $retcode
 }
 
 # ==============================================================================
-# Install extra packages in script_${DIST}/packages.list file
+# Install extra packages in script_${DIST_CODENAME}/packages.list file
 # -and / or- TEMPLATE_FLAVOR directories
 # ==============================================================================
 function installPackages() {
@@ -213,26 +218,26 @@ function installPackages() {
 
         # Example: installPackages somefile1.list somefile2.list
         else
-            packages_list="$@"
+            packages_list="$*"
         fi
 
     # Install distribution related packages
     # Example: installPackages
     else
-        getFileLocations packages_list "packages.list" "${DIST}"
+        getFileLocations packages_list "packages.list" "${DIST_CODENAME}"
         if [ -z "${packages_list}" ]; then
             error "Can not locate a package.list file!"
-            umount_all || true
+            umount_all "${INSTALL_DIR}" || true
             exit 1
         fi
     fi
 
-    for package_list in ${packages_list[@]}; do
+    for package_list in "${packages_list[@]}"; do
         debug "Installing extra packages from: ${package_list}"
         declare -a packages
         readarray -t packages < "${package_list}"
 
-        info "Packages: "${packages[@]}""
+        info "Packages: ${packages[*]}"
         aptInstall "${packages[@]}"
     done
 }
@@ -269,12 +274,13 @@ function installSystemd() {
 # Update Debian sources.list
 # ==============================================================================
 function updateDebianSourceList() {
-    local list="${INSTALLDIR}/etc/apt/sources.list"
-    local mirror="$(cat ${INSTALLDIR}/${TMPDIR}/.mirror)"
+    local list="${INSTALL_DIR}/etc/apt/sources.list"
+    local mirror
+    mirror="$(cat "${INSTALL_DIR}/${TMPDIR}/.mirror")"
     touch "${list}"
 
     # Add contrib and non-free component to repository
-    sed -i "s/${DIST} main$/${DEBIANVERSION} main contrib non-free/g" "${list}"
+    sed -i "s/${DIST_CODENAME} main$/${DEBIANVERSION} main contrib non-free/g" "${list}"
 
     # Add main deb-src repository
     source="#deb-src ${mirror} ${DEBIANVERSION} main contrib non-free"
@@ -302,21 +308,21 @@ function updateDebianSourceList() {
 # Add to sources.list
 # ==============================================================================
 function updateQubuntuSourceList() {
-    sed -i "s/${DIST} main$/${DIST} main universe multiverse restricted/g" "${INSTALLDIR}/etc/apt/sources.list"
-    source="deb http://archive.canonical.com/ubuntu ${DIST} partner"
-    if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
-        touch "${INSTALLDIR}/etc/apt/sources.list"
-        echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
+    sed -i "s/${DIST_CODENAME} main$/${DIST_CODENAME} main universe multiverse restricted/g" "${INSTALL_DIR}/etc/apt/sources.list"
+    source="deb http://archive.canonical.com/ubuntu ${DIST_CODENAME} partner"
+    if ! grep -r -q "$source" "${INSTALL_DIR}/etc/apt/sources.list"*; then
+        touch "${INSTALL_DIR}/etc/apt/sources.list"
+        echo "$source" >> "${INSTALL_DIR}/etc/apt/sources.list"
     fi
-    source="deb http://archive.ubuntu.com/ubuntu ${DIST}-security main universe multiverse restricted "
-    if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
-        touch "${INSTALLDIR}/etc/apt/sources.list"
-        echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
+    source="deb http://archive.ubuntu.com/ubuntu ${DIST_CODENAME}-security main universe multiverse restricted "
+    if ! grep -r -q "$source" "${INSTALL_DIR}/etc/apt/sources.list"*; then
+        touch "${INSTALL_DIR}/etc/apt/sources.list"
+        echo "$source" >> "${INSTALL_DIR}/etc/apt/sources.list"
     fi
-    source="deb http://archive.ubuntu.com/ubuntu ${DIST}-updates main universe multiverse restricted "
-    if ! grep -r -q "$source" "${INSTALLDIR}/etc/apt/sources.list"*; then
-        touch "${INSTALLDIR}/etc/apt/sources.list"
-        echo "$source" >> "${INSTALLDIR}/etc/apt/sources.list"
+    source="deb http://archive.ubuntu.com/ubuntu ${DIST_CODENAME}-updates main universe multiverse restricted "
+    if ! grep -r -q "$source" "${INSTALL_DIR}/etc/apt/sources.list"*; then
+        touch "${INSTALL_DIR}/etc/apt/sources.list"
+        echo "$source" >> "${INSTALL_DIR}/etc/apt/sources.list"
     fi
     aptUpdate
 }
@@ -325,15 +331,15 @@ function updateQubuntuSourceList() {
 # Make sure there is a resolv.conf with network of this AppVM for building
 # ==============================================================================
 function createResolvConf() {
-    rm -f "${INSTALLDIR}/etc/resolv.conf"
-    cp /etc/resolv.conf "${INSTALLDIR}/etc/resolv.conf"
+    rm -f "${INSTALL_DIR}/etc/resolv.conf"
+    cp /etc/resolv.conf "${INSTALL_DIR}/etc/resolv.conf"
 }
 
 # ==============================================================================
 # Ensure umask set in /etc/login.defs is used (022)
 # ==============================================================================
 function configureUmask() {
-    echo "session optional pam_umask.so" >> "${INSTALLDIR}/etc/pam.d/common-session"
+    echo "session optional pam_umask.so" >> "${INSTALL_DIR}/etc/pam.d/common-session"
 }
 
 # ==============================================================================
@@ -341,7 +347,7 @@ function configureUmask() {
 # ==============================================================================
 function configureKeyboard() {
     debug "Setting keyboard layout"
-    cat > "${INSTALLDIR}/tmp/keyboard.conf" <<'EOF'
+    cat > "${INSTALL_DIR}/tmp/keyboard.conf" <<'EOF'
 keyboard-configuration  keyboard-configuration/variant  select  English (US)
 keyboard-configuration  keyboard-configuration/layout   select  English (US)
 keyboard-configuration  keyboard-configuration/model    select  Generic 105-key (Intl) PC
@@ -371,24 +377,22 @@ function setDefaultApplications() {
     # fix default for text/plain - make sure it is not a console app (if
     # possible)
     text_plain_app=$(chroot_cmd xdg-mime query default text/plain)
-    if grep -q '^Terminal=[tT]' "${INSTALLDIR}/usr/share/applications/$text_plain_app"; then
+    if grep -q '^Terminal=[tT]' "${INSTALL_DIR}/usr/share/applications/$text_plain_app"; then
         text_plain_apps=
         # prefer gedit, if installed
-        for app in "${INSTALLDIR}/usr/share/applications/"*gedit*desktop; do
+        for app in "${INSTALL_DIR}/usr/share/applications/"*gedit*desktop; do
             if [ -r "$app" ]; then
                 text_plain_apps="$text_plain_apps$(basename "$app");"
             fi
         done
-        for app in $(grep -rl '^MimeType=.*text/plain;' \
-                "${INSTALLDIR}/usr/share/applications" \
-                | fgrep -v gedit \
-                | LC_ALL=C sort); do
+        # shellcheck disable=SC2013
+        for app in $(grep -rl '^MimeType=.*text/plain;' "${INSTALL_DIR}/usr/share/applications" | grep -F -v gedit | LC_ALL=C sort); do
             if ! grep -q '^Terminal=[tT]' "$app"; then
                 text_plain_apps="$text_plain_apps$(basename "$app");"
             fi
         done
         if [ -n "$text_plain_apps" ]; then
-            mimeapps_file="${INSTALLDIR}/usr/share/applications/mimeapps.list"
+            mimeapps_file="${INSTALL_DIR}/usr/share/applications/mimeapps.list"
             touch "$mimeapps_file"
             awk -v apps="$text_plain_apps" '
                 /^\[/ {
@@ -428,27 +432,27 @@ function setDefaultApplications() {
 # Install Qubes Repo
 # ==============================================================================
 installQubesRepo() {
-    info " Defining Qubes CUSTOMREPO Location: ${PWD}/pkgs-for-template/${DIST}"
-    export CUSTOMREPO="${PWD}/pkgs-for-template/${DIST}"
+    info " Defining Qubes CUSTOMREPO Location: ${PACKAGES_DIR}"
+    export CUSTOMREPO="${PACKAGES_DIR}"
 
     info "Mounting local qubes_repo"
-    mkdir -p "${INSTALLDIR}/tmp/qubes_repo"
-    mount --bind "${CUSTOMREPO}" "${INSTALLDIR}/tmp/qubes_repo"
+    mkdir -p "${INSTALL_DIR}/tmp/qubes_repo"
+    mount --bind "${CUSTOMREPO}" "${INSTALL_DIR}/tmp/qubes_repo"
 
-    cat > "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
-deb [trusted=yes] file:/tmp/qubes_repo ${DIST} main
+    cat > "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+deb [trusted=yes] file:/tmp/qubes_repo ${DIST_CODENAME} main
 EOF
-    if [[ -n "$USE_QUBES_REPO_VERSION" &&  $DISTRIBUTION != "qubuntu" ]]; then
-            cat >> "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
-deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm $DIST main
+    if [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} != "qubuntu" ]]; then
+            cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME} main
 EOF
            if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
-              cat >> "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
-deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST}-testing main
+              cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
             fi
-        chroot_cmd apt-key add - < ${SCRIPTSDIR}/../keys/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc
-    elif [[ -n "$USE_QUBES_REPO_VERSION" &&  $DISTRIBUTION == "qubuntu" ]] ; then
+        chroot_cmd apt-key add - < "${PLUGINS_DIR}/source_deb/keys/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc"
+    elif [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} == "qubuntu" ]] ; then
         echo "Cannot use Pre-built packages from Qubes when building Ubuntu template"
     fi
 }
@@ -460,6 +464,6 @@ uninstallQubesRepo() {
     info ' Removing Qubes build repo from sources.list.d'
 
     # Lets not umount; we do that anyway when 04 exits
-    umount_kill "${INSTALLDIR}/tmp/qubes_repo"
-    rm -f "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list"
+    umount_kill "${INSTALL_DIR}/tmp/qubes_repo"
+    rm -f "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list"
 }
