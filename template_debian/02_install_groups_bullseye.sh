@@ -5,10 +5,11 @@ if [ "$DEBUG" == "1" ]; then
     set -x
 fi
 
+# Source external scripts
 # shellcheck source=qubesbuilder/plugins/template_debian/vars.sh
-source "${PLUGINS_DIR}/template_debian/vars.sh"
+source "${TEMPLATE_CONTENT_DIR}/vars.sh"
 # shellcheck source=qubesbuilder/plugins/template_debian/distribution.sh
-source "${PLUGINS_DIR}/template_debian/distribution.sh"
+source "${TEMPLATE_CONTENT_DIR}/distribution.sh"
 
 ##### "=========================================================================
 debug " Installing custom packages and customizing ${DIST_CODENAME}"

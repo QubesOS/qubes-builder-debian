@@ -3,9 +3,9 @@
 
 # Source external scripts
 # shellcheck source=qubesbuilder/plugins/template_debian/vars.sh
-source "${PLUGINS_DIR}/template_debian/vars.sh"
+source "${TEMPLATE_CONTENT_DIR}/vars.sh"
 # shellcheck source=qubesbuilder/plugins/template_debian/distribution.sh
-source "${PLUGINS_DIR}/template_debian/distribution.sh"
+source "${TEMPLATE_CONTENT_DIR}/distribution.sh"
 
 ## Make sure ${INSTALL_DIR} is not mounted
 umount_all "${INSTALL_DIR}" || true
@@ -38,9 +38,12 @@ manage_snapshot() {
     cp -f "${snapshot}" "${IMG}"
 }
 
-
 # generate metadata in PACKAGES_DIR even if the repository is empty
-"${PLUGINS_DIR}"/build_deb/scripts/create-local-repo "${PACKAGES_DIR}" "${DIST_NAME}" "${DIST_CODENAME}"
+if [ "0${IS_LEGACY_BUILDER}" -eq 1 ]; then
+    BUILDER_REPO_DIR=pkgs-for-template/$DIST ${SCRIPTSDIR}/../update-local-repo.sh ${DIST}
+else
+    "${PLUGINS_DIR}"/build_deb/scripts/create-local-repo "${PACKAGES_DIR}" "${DIST_NAME}" "${DIST_CODENAME}"
+fi
 
 # ==============================================================================
 # Determine if a snapshot should be used, reuse an existing image or

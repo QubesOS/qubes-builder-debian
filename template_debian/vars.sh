@@ -3,8 +3,22 @@
 
 # shellcheck disable=SC2034
 
+#
+# Handle legacy builder
+#
+
+if [ "0${IS_LEGACY_BUILDER}" -eq 1 ]; then
+    TEMPLATE_SCRIPTS_DIR="$(readlink -f .)"
+    KEYS_DIR="$SCRIPTSDIR/../keys"
+    DIST_CODENAME="$DIST"
+    DIST_NAME="$DISTRIBUTION"
+    PACKAGES_DIR="$BUILDER_REPO_DIR"
+    # shellcheck disable=SC2153
+    INSTALL_DIR="${INSTALLDIR}"
+fi
+
 # shellcheck source=qubesbuilder/plugins/template/scripts/functions.sh
-source "${PLUGINS_DIR}/template/scripts/functions.sh" >/dev/null
+source "${TEMPLATE_SCRIPTS_DIR}/functions.sh" >/dev/null
 
 # ==============================================================================
 # Global variables and functions

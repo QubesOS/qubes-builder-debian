@@ -7,9 +7,9 @@ fi
 
 # Source external scripts
 # shellcheck source=qubesbuilder/plugins/template_debian/vars.sh
-source "${PLUGINS_DIR}/template_debian/vars.sh"
+source "${TEMPLATE_CONTENT_DIR}/vars.sh"
 # shellcheck source=qubesbuilder/plugins/template_debian/distribution.sh
-source "${PLUGINS_DIR}/template_debian/distribution.sh"
+source "${TEMPLATE_CONTENT_DIR}/distribution.sh"
 
 ##### '-------------------------------------------------------------------------
 debug ' Installing base system using debootstrap'
@@ -52,7 +52,7 @@ bootstrap() {
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main \
             --download-only \
-            --keyring="${PLUGINS_DIR}/source_deb/keys/${DIST_CODENAME}-${DIST_NAME}-archive-keyring.gpg" \
+            --keyring="${KEYS_DIR}/${DIST_CODENAME}-${DIST_NAME}-archive-keyring.gpg" \
             "${DIST_CODENAME}" "${INSTALL_DIR}" "${mirror}" && \
         sha256sum "${INSTALL_DIR}/var/cache/apt/archives"/*.deb && \
         for release_location in "${release_location_candidates[@]}"; do
@@ -77,7 +77,7 @@ bootstrap() {
             --arch=amd64 \
             --include="ncurses-term,locales,tasksel,$apt_https_pkgs,$eatmydata_maybe" \
             --components=main \
-            --keyring="${PLUGINS_DIR}/source_deb/keys/${DIST_CODENAME}-${DIST_NAME}-archive-keyring.gpg" \
+            --keyring="${KEYS_DIR}/${DIST_CODENAME}-${DIST_NAME}-archive-keyring.gpg" \
             "${DIST_CODENAME}" "${INSTALL_DIR}" "file://${INSTALL_DIR}/${TMPDIR}/dummy-repo" && \
         echo "deb ${mirror} ${DIST_CODENAME} main" > "${INSTALL_DIR}"/etc/apt/sources.list && \
         return 0

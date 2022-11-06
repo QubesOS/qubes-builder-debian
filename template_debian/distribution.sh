@@ -1,10 +1,20 @@
 #!/bin/bash -e
 # vim: set ts=4 sw=4 sts=4 et :
 
+#
+# Handle legacy builder
+#
+
+if [ "0${IS_LEGACY_BUILDER}" -eq 1 ]; then
+    TEMPLATE_SCRIPTS_DIR="$(readlink -f .)"
+    PACKAGES_DIR="${PWD}/pkgs-for-template/${DIST}"
+    KEYS_DIR="$SCRIPTSDIR/../keys"
+fi
+
 # shellcheck source=qubesbuilder/plugins/template/scripts/functions.sh
-source "${PLUGINS_DIR}/template/scripts/functions.sh" >/dev/null
+source "${TEMPLATE_SCRIPTS_DIR}/functions.sh" >/dev/null
 # shellcheck source=qubesbuilder/plugins/template/scripts/umount-kill
-source "${PLUGINS_DIR}/template/scripts/umount-kill" >/dev/null
+source "${TEMPLATE_SCRIPTS_DIR}/umount-kill" >/dev/null
 
 output "INFO: ${PLUGINS_DIR}/template_debian/distribution.sh imported by: ${0}"
 
@@ -451,7 +461,7 @@ EOF
 deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
             fi
-        chroot_cmd apt-key add - < "${PLUGINS_DIR}/source_deb/keys/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc"
+        chroot_cmd apt-key add - < "${KEYS_DIR}/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc"
     elif [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} == "qubuntu" ]] ; then
         echo "Cannot use Pre-built packages from Qubes when building Ubuntu template"
     fi

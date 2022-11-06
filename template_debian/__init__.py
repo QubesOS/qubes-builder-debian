@@ -55,6 +55,9 @@ class DEBTemplateBuilderPlugin(TemplateBuilderPlugin):
             {
                 "TEMPLATE_CONTENT_DIR": str(
                     executor.get_plugins_dir() / "template_debian"
+                ),
+                "KEYS_DIR": str(
+                    executor.get_plugins_dir() / "source_deb/keys"
                 )
             }
         )
