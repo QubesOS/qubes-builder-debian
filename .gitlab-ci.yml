@@ -32,49 +32,49 @@ prep:sources:
   variables:
     COMPONENTS: "linux-template-builder core-vchan-xen linux-utils python-u2flib-host app-shutdown-idle"
 
-tests:vm-buster:no-upstream-tarball:
+tests:vm-bullseye:no-upstream-tarball:
   extends: .components_build
   stage: tests
   needs:
     - prep:sources
-    - chroot:vm-buster
+    - chroot:vm-bullseye
   tags:
     - docker-runner
     - short-living-job
   variables:
-    DISTS_VM: buster
+    DISTS_VM: bullseye
     USE_QUBES_REPO_VERSION: "4.1"
     USE_QUBES_REPO_TESTING: "1"
     USE_DIST_BUILD_TOOL: 1
     COMPONENTS: core-vchan-xen
 
-tests:vm-buster:native-package:
+tests:vm-bullseye:native-package:
   extends: .components_build
   stage: tests
   needs:
     - prep:sources
-    - chroot:vm-buster
+    - chroot:vm-bullseye
   tags:
     - docker-runner
     - short-living-job
   variables:
-    DISTS_VM: buster
+    DISTS_VM: bullseye
     USE_QUBES_REPO_VERSION: "4.1"
     USE_QUBES_REPO_TESTING: "1"
     USE_DIST_BUILD_TOOL: 1
     COMPONENTS: linux-utils
 
-tests:vm-buster:upstream-tarball:
+tests:vm-bullseye:upstream-tarball:
   extends: .components_build
   stage: tests
   needs:
     - prep:sources
-    - chroot:vm-buster
+    - chroot:vm-bullseye
   tags:
     - docker-runner
     - short-living-job
   variables:
-    DISTS_VM: buster
+    DISTS_VM: bullseye
     USE_QUBES_REPO_VERSION: "4.1"
     USE_QUBES_REPO_TESTING: "1"
     USE_DIST_BUILD_TOOL: 1
