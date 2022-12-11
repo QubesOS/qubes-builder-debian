@@ -8,12 +8,6 @@ include:
   - project: 'QubesOS/qubes-continuous-integration'
     ref: main
     file: '/r4.1/gitlab-vm-debian-build-template.yml'
-  - project: 'QubesOS/qubes-continuous-integration'
-    ref: main
-    file: '/r4.0/gitlab-vm-debian-chroot.yml'
-  - project: 'QubesOS/qubes-continuous-integration'
-    ref: main
-    file: '/r4.0/gitlab-vm-debian-build-template.yml'
 
 default:
   tags:
