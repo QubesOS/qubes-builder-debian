@@ -17,7 +17,7 @@ if [ "0${IS_LEGACY_BUILDER}" -eq 1 ]; then
     INSTALL_DIR="${INSTALLDIR}"
 fi
 
-# shellcheck source=qubesbuilder/plugins/template/scripts/functions.sh
+# shellcheck disable=SC1091
 source "${TEMPLATE_SCRIPTS_DIR}/functions.sh" >/dev/null
 
 # ==============================================================================
@@ -70,7 +70,7 @@ if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
 fi
 
 if [ -n "$REPO_PROXY" ]; then
-    APT_GET_OPTIONS+=("-o Acquire::http::Proxy=${REPO_PROXY}")
+    APT_GET_OPTIONS+=("-o" "Acquire::http::Proxy=${REPO_PROXY}")
     DEBOOTSTRAP_PREFIX+=("env" "http_proxy=${REPO_PROXY}")
     DEBOOTSTRAP_PREFIX+=("env" "https_proxy=${REPO_PROXY}")
 fi

@@ -11,9 +11,9 @@ if [ "0${IS_LEGACY_BUILDER}" -eq 1 ]; then
     KEYS_DIR="$SCRIPTSDIR/../keys"
 fi
 
-# shellcheck source=qubesbuilder/plugins/template/scripts/functions.sh
+# shellcheck disable=SC1091
 source "${TEMPLATE_SCRIPTS_DIR}/functions.sh" >/dev/null
-# shellcheck source=qubesbuilder/plugins/template/scripts/umount-kill
+# shellcheck disable=SC1091
 source "${TEMPLATE_SCRIPTS_DIR}/umount-kill" >/dev/null
 
 output "INFO: ${PLUGINS_DIR}/template_debian/distribution.sh imported by: ${0}"

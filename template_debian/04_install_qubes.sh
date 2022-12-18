@@ -6,9 +6,9 @@ if [ "$DEBUG" == "1" ]; then
 fi
 
 # Source external scripts
-# shellcheck source=qubesbuilder/plugins/template_debian/vars.sh
+# shellcheck source=template_debian/vars.sh
 source "${TEMPLATE_CONTENT_DIR}/vars.sh"
-# shellcheck source=qubesbuilder/plugins/template_debian/distribution.sh
+# shellcheck source=template_debian/distribution.sh
 source "${TEMPLATE_CONTENT_DIR}/distribution.sh"
 
 ##### '-------------------------------------------------------------------------
