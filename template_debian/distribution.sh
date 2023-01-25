@@ -16,7 +16,7 @@ source "${TEMPLATE_SCRIPTS_DIR}/functions.sh" >/dev/null
 # shellcheck disable=SC1091
 source "${TEMPLATE_SCRIPTS_DIR}/umount-kill" >/dev/null
 
-output "INFO: ${PLUGINS_DIR}/template_debian/distribution.sh imported by: ${0}"
+output "INFO: ${TEMPLATE_CONTENT_DIR}/distribution.sh imported by: ${0}"
 
 # ==============================================================================
 # Cleanup function
