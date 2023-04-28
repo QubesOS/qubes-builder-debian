@@ -39,16 +39,16 @@ INITIAL=
 
 if ! [ -d $DIR/home/user ]; then
     # --------------------------------------------------------------------------
-    # Install qubuntu choot if /home/user does not exist (initial run)
+    # Install Ubuntu choot if /home/user does not exist (initial run)
     # --------------------------------------------------------------------------
     INITIAL=1
     mkdir -p $DIR
-    echo "-> Installing qubuntu build chroot..."
+    echo "-> Installing Ubuntu build chroot..."
     retry=0
     apt_https_pkgs="apt-transport-https,ca-certificates"
     while ! COMPONENTS="" $DEBOOTSTRAP_PREFIX debootstrap --arch=amd64 \
                 --include=ncurses-term,ubuntu-keyring,$eatmydata_maybe \
-                --keyring=${DEBIAN_PLUGIN_DIR}/keys/$DIST-qubuntu-archive-keyring.gpg \
+                --keyring=${DEBIAN_PLUGIN_DIR}/keys/$DIST-ubuntu-archive-keyring.gpg \
                 $DIST $DIR http://archive.ubuntu.com/ubuntu
     do
         if [ $retry -le 3 ]; then
@@ -142,7 +142,7 @@ wc -L "${DIR}/var/lib/apt/lists/"*InRelease | awk '$1 > 1024 {print; exit 1}'
 chroot $DIR apt-get $APT_GET_OPTIONS install -y libpulse-dev
 
 # ------------------------------------------------------------------------------
-# Update qubuntu apt sources list to use local qubes repo
+# Update Ubuntu apt sources list to use local qubes repo
 # ------------------------------------------------------------------------------
 cat > $DIR/etc/apt/sources.list.d/qubes-builder.list <<EOF
 deb [trusted=yes] file:/tmp/qubes-deb $DIST main

@@ -72,7 +72,7 @@ bootstrap() {
                 cp "${release_location%_Release}_main_binary-amd64_Packages" \
                     "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/main/binary-amd64/Packages"
                 cp "${release_location%_Release}_universe_binary-amd64_Packages" \
-                    "${INSTALLDIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/universe/binary-amd64/Packages"
+                    "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/universe/binary-amd64/Packages"
                 break
             fi
         done && \
