@@ -8,7 +8,7 @@ ifneq (,$(findstring $(DIST),stretch buster bullseye bookworm))
     DIST_TAG := $(strip $(subst bullseye, deb11, $(DIST_TAG)))
     DIST_TAG := $(strip $(subst bookworm, deb12, $(DIST_TAG)))
 endif
-ifneq (,$(findstring $(DIST),trusty xenial bionic focal))
+ifneq (,$(findstring $(DIST),trusty xenial bionic focal jammy))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
     TEMPLATE_ENV_WHITELIST += SYSTEMD_NSPAWN_ENABLE
     DISTRIBUTION := qubuntu

@@ -18,7 +18,12 @@ set -e
 # ------------------------------------------------------------------------------
 # Build packages to be installed to allow building of Qubes modules
 # ------------------------------------------------------------------------------
-BUILDPACKAGES="reprepro build-essential devscripts git git-buildpackage pbuilder debhelper quilt libxen-dev python libpulse-dev libtool automake xorg-dev xutils-dev libxdamage-dev libxcomposite-dev libxt-dev libx11-dev equivs"
+BUILDPACKAGES="reprepro build-essential devscripts git git-buildpackage pbuilder debhelper quilt libxen-dev libpulse-dev libtool automake xorg-dev xutils-dev libxdamage-dev libxcomposite-dev libxt-dev libx11-dev equivs"
+if [ ${DIST} == 'jammy' ]; then
+  BUILDPACKAGES+=" python-is-python3"
+else
+  BUILDPACKAGES+=" python"
+fi
 if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
     APT_GET_OPTIONS+=" -o Dpkg::Options::=--force-unsafe-io"
     eatmydata_maybe=eatmydata
@@ -114,7 +119,7 @@ fi
 # ------------------------------------------------------------------------------
 # Add universe to sources.list
 # ------------------------------------------------------------------------------
-sed -i "s/${DIST} main$/${DIST} main universe/g" $DIR/etc/apt/sources.list
+sed -i "s/${DIST} main\s*$/${DIST} main universe/g" $DIR/etc/apt/sources.list
 chroot $DIR apt-get $APT_GET_OPTIONS update
 # check for CVE-2016-1252 - directly after debootstrap, still vulnerable
 # apt is installed

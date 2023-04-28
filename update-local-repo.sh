@@ -10,7 +10,16 @@ DIST=$1
 mkdir -p "$REPO_DIR"
 cd "$REPO_DIR"
 mkdir -p "dists/$DIST/main/binary-amd64"
-dpkg-scanpackages --multiversion . > "dists/$DIST/main/binary-amd64/Packages"
+if [ ${DIST} == 'jammy' ]; then
+  case  $BUILDER_REPO_DIR in
+    *qubes-packages-mirror-repo*)
+      sudo chroot $CHROOT_DIR sh -c "cd /tmp/qubes-deb && dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages"
+      ;;
+  esac
+else
+  dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages
+fi
+
 gzip -9c "dists/$DIST/main/binary-amd64/Packages" > "dists/$DIST/main/binary-amd64/Packages.gz"
 cat > "dists/$DIST/Release" <<EOF
 Label: Qubes builder repo
