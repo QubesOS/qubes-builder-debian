@@ -289,11 +289,16 @@ function updateDebianSourceList() {
     mirror="$(cat "${INSTALL_DIR}/${TMPDIR}/.mirror")"
     touch "${list}"
 
+    nonfree=non-free
+    if [ "${DIST_CODENAME}" = "bookworm" ]; then
+        nonfree=non-free-firmware
+    fi
+
     # Add contrib and non-free component to repository
-    sed -i "s/${DIST_CODENAME} main$/${DEBIANVERSION} main contrib non-free/g" "${list}"
+    sed -i "s/${DIST_CODENAME} main$/${DEBIANVERSION} main contrib $nonfree/g" "${list}"
 
     # Add main deb-src repository
-    source="#deb-src ${mirror} ${DEBIANVERSION} main contrib non-free"
+    source="#deb-src ${mirror} ${DEBIANVERSION} main contrib $nonfree"
     if ! grep -r -q "$source" "${list}"*; then
         echo -e "$source\n" >> "${list}"
     fi
@@ -304,11 +309,11 @@ function updateDebianSourceList() {
     else
         security_suffix="-security"
     fi
-    source="deb https://deb.debian.org/debian-security ${DEBIANVERSION}${security_suffix} main contrib non-free"
+    source="deb https://deb.debian.org/debian-security ${DEBIANVERSION}${security_suffix} main contrib $nonfree"
     if ! grep -r -q "$source" "${list}"*; then
         echo -e "$source" >> "${list}"
     fi
-    source="#deb-src https://deb.debian.org/debian-security ${DEBIANVERSION}${security_suffix} main contrib non-free"
+    source="#deb-src https://deb.debian.org/debian-security ${DEBIANVERSION}${security_suffix} main contrib $nonfree"
     if ! grep -r -q "$source" "${list}"*; then
         echo -e "$source\n" >> "${list}"
     fi
