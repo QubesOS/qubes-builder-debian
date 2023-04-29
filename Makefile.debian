@@ -118,7 +118,11 @@ ifneq (,$(GNUPG))
   DEBSIGN_ARGS += -p$(GNUPG)
 endif
 
-REPREPRO := $(firstword $(wildcard /usr/bin/reprepro $(DEBIAN_PLUGIN_DIR)/scripts/reprepro-wrapper))
+ifeq ($(DIST),jammy)
+  REPREPRO := $(DEBIAN_PLUGIN_DIR)/scripts/reprepro-wrapper
+else
+  REPREPRO := $(firstword $(wildcard /usr/bin/reprepro $(DEBIAN_PLUGIN_DIR)/scripts/reprepro-wrapper))
+endif
 
 EXTRA_REPREPRO_OPTS ?=
 EXTRA_REPREPRO_OPTS += --ignore=surprisingbinary --ignore=surprisingarch

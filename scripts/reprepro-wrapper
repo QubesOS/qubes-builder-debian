@@ -3,7 +3,11 @@
 set -e
 
 # which release to use for reprepro
-reprepro_debian_release=buster
+if [ ${DIST} = jammy ]; then
+  reprepro_debian_release=jammy
+else
+  reprepro_debian_release=buster
+fi
 reprepro_args=()
 basedir=
 sourcedir=
