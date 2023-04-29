@@ -4,20 +4,20 @@ set -e
 
 [ -z "$1" ] && { echo "Usage: $0 <dist>"; exit 1; }
 
-REPO_DIR=$BUILDER_REPO_DIR
+REPO_DIR="$BUILDER_REPO_DIR"
 DIST=$1
 
 mkdir -p "$REPO_DIR"
 cd "$REPO_DIR"
 mkdir -p "dists/$DIST/main/binary-amd64"
-if [ ${DIST} == 'jammy' ]; then
-  case  $BUILDER_REPO_DIR in
-    *qubes-packages-mirror-repo*)
-      sudo chroot $CHROOT_DIR sh -c "cd /tmp/qubes-deb && dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages"
-      ;;
-  esac
+if [ "${DIST}" == 'jammy' ] && [ -e "${CHROOT_DIR}/usr/bin/sh" ]; then
+    case "$BUILDER_REPO_DIR" in
+        *qubes-packages-mirror-repo*)
+            sudo chroot "${CHROOT_DIR}" sh -c "cd /tmp/qubes-deb && dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages"
+        ;;
+    esac
 else
-  dpkg-scanpackages --multiversion . > dists/$DIST/main/binary-amd64/Packages
+    dpkg-scanpackages --multiversion . > "dists/$DIST/main/binary-amd64/Packages"
 fi
 
 gzip -9c "dists/$DIST/main/binary-amd64/Packages" > "dists/$DIST/main/binary-amd64/Packages.gz"
