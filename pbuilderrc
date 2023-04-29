@@ -57,7 +57,14 @@ BUILDRESULT="${CHROOT_DIR}/pbuilder/results"
 # specifying the components of the distribution, for instance to enable all
 # components on Debian use "main contrib non-free" and on Ubuntu "main
 # restricted universe multiverse"
-COMPONENTS="main"
+case ${DISTRIBUTION} in
+    buster|bullseye|bookworm|sid|experimental)
+        COMPONENTS="main"
+        ;;
+    focal|jammy|lunar)
+        COMPONENTS="main restricted universe multiverse"
+        ;;
+esac
 #specify the cache for APT
 APTCACHE="$CACHEDIR"
 APTCACHEHARDLINK="yes"

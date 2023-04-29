@@ -74,16 +74,30 @@ tests:vm-bullseye:upstream-tarball:
     USE_DIST_BUILD_TOOL: 1
     COMPONENTS: python-u2flib-host
 
-tests:vm-bionic:package:
+tests:vm-focal:package:
   extends: .components_build
   stage: tests
   needs:
     - prep:sources
-    - chroot:vm-bionic
+    - chroot:vm-focal
   tags:
     - docker-runner
     - short-living-job
   variables:
-    DISTS_VM: bionic
+    DISTS_VM: focal
+    USE_DIST_BUILD_TOOL: 1
+    COMPONENTS: app-shutdown-idle
+
+tests:vm-jammy:package:
+  extends: .components_build
+  stage: tests
+  needs:
+    - prep:sources
+    - chroot:vm-jammy
+  tags:
+    - docker-runner
+    - short-living-job
+  variables:
+    DISTS_VM: jammy
     USE_DIST_BUILD_TOOL: 1
     COMPONENTS: app-shutdown-idle
