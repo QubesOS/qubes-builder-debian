@@ -10,5 +10,4 @@ source "${TEMPLATE_CONTENT_DIR}/distribution.sh"
 #### '----------------------------------------------------------------------
 info ' Installing Ubuntu-desktop (GNOME)'
 #### '----------------------------------------------------------------------
-read -r -a packages <<<"$(chroot_cmd tasksel --new-install --task-packages ubuntu-desktop)"
-aptInstall "${packages[@]}"
+aptInstall ubuntu-desktop
