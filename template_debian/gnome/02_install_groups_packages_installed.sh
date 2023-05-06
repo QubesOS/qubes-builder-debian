@@ -7,9 +7,7 @@ source "${TEMPLATE_CONTENT_DIR}/vars.sh"
 source "${TEMPLATE_CONTENT_DIR}/distribution.sh"
 
 #### '----------------------------------------------------------------------
-info ' Installing Gnome'
+info ' Installing GNOME'
 #### '----------------------------------------------------------------------
-#packages="$(chroot_cmd tasksel --new-install --task-packages desktop)"
-#packages+=" $(chroot_cmd tasksel --new-install --task-packages gnome-desktop)"
 read -r -a packages <<<"$(chroot_cmd tasksel --new-install --task-packages gnome-desktop)"
 aptInstall "${packages[@]}"

@@ -16,7 +16,7 @@ debug ' Installing Qubes packages'
 ##### '-------------------------------------------------------------------------
 
 # If .prepared_debootstrap has not been completed, don't continue
-exitOnNoFile "${INSTALL_DIR}/${TMPDIR}/.prepared_groups" "prepared_groups installataion has not completed!... Exiting"
+exitOnNoFile "${INSTALL_DIR}/${TMPDIR}/.prepared_groups" "prepared_groups installation has not completed!... Exiting"
 
 # Create system mount points
 prepareChroot

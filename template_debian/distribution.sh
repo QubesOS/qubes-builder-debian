@@ -219,18 +219,15 @@ function aptInstall() {
 # -and / or- TEMPLATE_FLAVOR directories
 # ==============================================================================
 function installPackages() {
-
     # Install custom (specified) packages -or- a list of package names
     if [ -n "${1}" ]; then
         # Example: installPackages packages_qubes.list
         if [ ${#@} == "1" ]; then
             getFileLocations packages_list "${1}" ""
-
         # Example: installPackages somefile1.list somefile2.list
         else
             packages_list="$*"
         fi
-
     # Install distribution related packages
     # Example: installPackages
     else
@@ -245,7 +242,7 @@ function installPackages() {
     for package_list in "${packages_list[@]}"; do
         debug "Installing extra packages from: ${package_list}"
         declare -a packages
-        readarray -t packages < "${package_list}"
+        readarray -t packages <<< "$(sed '/^ *#/d; s/  *#.*//' "${package_list}" | sed ':a;N;$!ba; s/\n/ /g; s/  */ /g')"
 
         info "Packages: ${packages[*]}"
         aptInstall "${packages[@]}"
@@ -447,7 +444,7 @@ function setDefaultApplications() {
 # Install Qubes Repo
 # ==============================================================================
 installQubesRepo() {
-    info " Defining Qubes CUSTOMREPO Location: ${PACKAGES_DIR}"
+    info "Defining Qubes CUSTOMREPO Location: ${PACKAGES_DIR}"
     export CUSTOMREPO="${PACKAGES_DIR}"
 
     info "Mounting local qubes_repo"
@@ -476,7 +473,7 @@ EOF
 # Uninstall Qubes Repo
 # ==============================================================================
 uninstallQubesRepo() {
-    info ' Removing Qubes build repo from sources.list.d'
+    info "Removing Qubes build repo from sources.list.d"
 
     # Lets not umount; we do that anyway when 04 exits
     umount_kill "${INSTALL_DIR}/tmp/qubes_repo"
