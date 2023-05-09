@@ -465,7 +465,15 @@ EOF
             fi
         chroot_cmd apt-key add - < "${KEYS_DIR}/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc"
     elif [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} == "ubuntu" ]] ; then
-        echo "Cannot use Pre-built packages from Qubes when building Ubuntu template"
+            cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME} main
+EOF
+           if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
+              cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
+EOF
+            fi
+        chroot_cmd apt-key add - < "${KEYS_DIR}/qubes-ubuntu-r${USE_QUBES_REPO_VERSION}.asc"
     fi
 }
 
