@@ -20,3 +20,4 @@ vim-nox
 xdg-user-dirs
 xsettingsd
 gnupg
+systemd-timesyncd
