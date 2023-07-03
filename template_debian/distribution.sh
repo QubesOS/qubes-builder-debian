@@ -53,7 +53,7 @@ function umount_all() {
 
     # Only remove dirvert policies, etc if base INSTALL_DIR mount is being umounted
     if [ "${directory}" == "${INSTALL_DIR}" ] || [ "${directory}" == "${INSTALL_DIR}/" ]; then
-        if [ -n "$(mountPoints)" ]; then
+        if [ -n "$(mountPoints "$directory")" ]; then
             removeDbusUuid
             removeDivertPolicy
         fi
