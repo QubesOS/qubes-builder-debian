@@ -47,7 +47,14 @@ if ! [ -f "${INSTALL_DIR}/${TMPDIR}/.prepared_qubes" ]; then
     #### '----------------------------------------------------------------------
     info ' Install Qubes packages listed in packages_qubes.list file(s)'
     #### '----------------------------------------------------------------------
-    installPackages packages_qubes.list
+    packages_list_basename=packages_qubes
+    if containsFlavor "minimal"; then
+        packages_list_basename="${packages_list_basename}_minimal"
+    elif [ -n "${TEMPLATE_FLAVOR}" ]; then
+        packages_list_basename="${packages_list_basename}_${TEMPLATE_FLAVOR}"
+    fi
+    packages_list="${packages_list_basename}.list"
+    installPackages "${packages_list}"
 
     if ! containsFlavor "minimal" && [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
         #### '------------------------------------------------------------------

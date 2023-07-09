@@ -63,7 +63,9 @@ info " Installing extra packages from packages list"
 #### '----------------------------------------------------------------------
 
 packages_list_basename=packages_${DIST_CODENAME}
-if [ -n "${TEMPLATE_FLAVOR}" ]; then
+if containsFlavor "minimal"; then
+    packages_list_basename="${packages_list_basename}_minimal"
+elif [ -n "${TEMPLATE_FLAVOR}" ]; then
     packages_list_basename="${packages_list_basename}_${TEMPLATE_FLAVOR}"
 fi
 packages_list="${packages_list_basename}.list"
