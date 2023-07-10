@@ -61,17 +61,7 @@ buildStep "$0" "${DIST_CODENAME}"
 #### '----------------------------------------------------------------------
 info " Installing extra packages from packages list"
 #### '----------------------------------------------------------------------
-
-packages_list_basename=packages_${DIST_CODENAME}
-if containsFlavor "minimal"; then
-    packages_list_basename="${packages_list_basename}_minimal"
-elif [ -n "${TEMPLATE_FLAVOR}" ]; then
-    packages_list_basename="${packages_list_basename}_${TEMPLATE_FLAVOR}"
-fi
-packages_list="${packages_list_basename}.list"
-
-# shellcheck disable=SC2119
-installPackages "${packages_list}"
+installPackages
 createSnapshot "packages"
 touch "${INSTALL_DIR}/${TMPDIR}/.prepared_packages"
 

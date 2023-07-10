@@ -231,7 +231,19 @@ function installPackages() {
     # Install distribution related packages
     # Example: installPackages
     else
-        getFileLocations packages_list "packages.list" "${DIST_CODENAME}"
+        if containsFlavor "minimal"; then
+            getFileLocations packages_list "packages.list" "${DIST_CODENAME}_minimal"
+            if [ -z "${packages_list}" ]; then
+                getFileLocations packages_list "packages.list" "${DIST_CODENAME}"
+            fi
+        elif [ -n "$TEMPLATE_FLAVOR" ]; then
+            getFileLocations packages_list "packages.list" "${DIST_CODENAME}_${TEMPLATE_FLAVOR}"
+            if [ -z "${packages_list}" ]; then
+                getFileLocations packages_list "packages.list" "${DIST_CODENAME}"
+            fi
+        else
+            getFileLocations packages_list "packages.list" "${DIST_CODENAME}"
+        fi
         if [ -z "${packages_list}" ]; then
             error "Can not locate a package.list file!"
             umount_all "${INSTALL_DIR}" || true
