@@ -60,6 +60,18 @@ if ! [ -f "${INSTALL_DIR}/${TMPDIR}/.prepared_qubes" ]; then
         #### '------------------------------------------------------------------
         info ' Install kernel and bootloader'
         #### '------------------------------------------------------------------
+        # We have MODULES=dep in qubes conf for initramfs. It does not detect the block
+        # device for /. For template build, this is loop device with chroot into. It would
+        # never find necessary modules to be added.
+        cat > "${INSTALL_DIR}/usr/share/initramfs-tools/modules.d/qubes-template-build" << EOF
+xen-blkfront
+dm-mod
+dm-thin-pool
+dm-persistent-data
+ext4
+EOF
+        aptInstall initramfs-tools
+        echo MODULES=list > "${INSTALL_DIR}/etc/initramfs-tools/conf.d/99-template-build.conf"
         aptInstall qubes-kernel-vm-support
         aptInstall "${KERNEL_PACKAGE_NAME}"
         aptInstall grub-pc
