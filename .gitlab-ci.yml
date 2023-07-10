@@ -29,6 +29,8 @@ variables:
 
 r4.2:prep:sources:
   extends: .r4.2_components_prepare
+  variables:
+    qb_opts: "-c template-whonix"
 
 prep:sources:
   extends: .components_prepare
