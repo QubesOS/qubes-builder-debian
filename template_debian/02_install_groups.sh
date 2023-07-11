@@ -61,7 +61,7 @@ buildStep "$0" "${DIST_CODENAME}"
 #### '----------------------------------------------------------------------
 info " Installing extra packages from packages list"
 #### '----------------------------------------------------------------------
-installPackages
+installPackages packages.list
 createSnapshot "packages"
 touch "${INSTALL_DIR}/${TMPDIR}/.prepared_packages"
 
