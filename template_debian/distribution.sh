@@ -219,24 +219,35 @@ function aptInstall() {
 # -and / or- TEMPLATE_FLAVOR directories
 # ==============================================================================
 function installPackages() {
-    # Install custom (specified) packages -or- a list of package names
-    if [ -n "${1}" ]; then
-        # Example: installPackages packages_qubes.list
-        if [ ${#@} == "1" ]; then
-            getFileLocations packages_list "${1}" ""
-        # Example: installPackages somefile1.list somefile2.list
-        else
-            packages_list="$*"
-        fi
-    # Install distribution related packages
-    # Example: installPackages
-    else
-        getFileLocations packages_list "packages.list" "${DIST_CODENAME}"
+    local packages_list_name="${1:-packages.list}"
+
+    if containsFlavor "minimal"; then
+        getFileLocations packages_list "${packages_list_name}" "${DIST_CODENAME}_minimal"
         if [ -z "${packages_list}" ]; then
-            error "Can not locate a package.list file!"
-            umount_all "${INSTALL_DIR}" || true
-            exit 1
+            getFileLocations packages_list "${packages_list_name}" "minimal"
         fi
+        if [ -z "${packages_list}" ]; then
+            getFileLocations packages_list "${packages_list_name}" "${DIST_CODENAME}"
+        fi
+    elif [ -n "$TEMPLATE_FLAVOR" ]; then
+        getFileLocations packages_list "${packages_list_name}" "${DIST_CODENAME}_${TEMPLATE_FLAVOR}"
+        if [ -z "${packages_list}" ]; then
+            getFileLocations packages_list "${packages_list_name}" "${TEMPLATE_FLAVOR}"
+        fi
+        if [ -z "${packages_list}" ]; then
+            getFileLocations packages_list "${packages_list_name}" "${DIST_CODENAME}"
+        fi
+    else
+        getFileLocations packages_list "${packages_list_name}" "${DIST_CODENAME}"
+    fi
+    if [ -z "${packages_list}" ]; then
+        getFileLocations packages_list "${packages_list_name}" ""
+    fi
+
+    if [ -z "${packages_list}" ]; then
+        error "Can not locate a package.list file!"
+        umount_all "${INSTALL_DIR}" || true
+        exit 1
     fi
 
     for package_list in "${packages_list[@]}"; do

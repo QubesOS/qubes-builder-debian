@@ -59,10 +59,9 @@ info ' Distribution specific steps (install systemd, add sources, etc)'
 buildStep "$0" "${DIST_CODENAME}"
 
 #### '----------------------------------------------------------------------
-info " Installing extra packages in script_${DIST_CODENAME}/packages.list file"
+info " Installing extra packages from packages list"
 #### '----------------------------------------------------------------------
-# shellcheck disable=SC2119
-installPackages
+installPackages packages.list
 createSnapshot "packages"
 touch "${INSTALL_DIR}/${TMPDIR}/.prepared_packages"
 
