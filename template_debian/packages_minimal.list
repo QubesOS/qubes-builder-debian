@@ -11,6 +11,4 @@ libglib2.0-bin
 ltrace
 strace
 haveged
-wireless-tools
-wpasupplicant
 dbus-x11
