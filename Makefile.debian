@@ -52,6 +52,7 @@ DIST_BUILD_DIR = /home/user
 ifneq (1,$(NO_ARCHIVE))
   ifeq ($(shell cat $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/source/format 2>/dev/null),3.0 (quilt))
     GIT_TARBALL_NAME ?= $(DEBIAN_BUILD_DIRS)/../../$(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog 2>/dev/null).orig.tar.xz
+    unexport GIT_TARBALL_NAME
   endif
 endif
 
@@ -93,7 +94,7 @@ ifdef SNAPSHOT_REPO
   endif
 endif
 
-DISTRIBUTION_CAP=$(shell echo $(DISTRIBUTION) | sed -e 's/^./\U&/';)
+DISTRIBUTION_CAP := $(shell echo $(DISTRIBUTION) | sed -e 's/^./\U&/';)
 define aptdistributions
 Origin: Qubes $(DISTRIBUTION_CAP)
 Label: Qubes $(DISTRIBUTION_CAP)
@@ -167,6 +168,7 @@ ifeq ($(DEBUG),1)
 endif
 
 ifneq (,$(DEBIAN_BUILD_DIRS))
+unexport release_name
 debian-prepare-dist-src:  release_name = $(shell $(DEBIAN_PARSER) changelog --package-release-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 endif
 # fixups for DIST_SRC dir - adjust changelog, cleanup
@@ -224,6 +226,7 @@ ifeq (,$(DEBIAN_BUILD_DIRS))
 update-repo:
 	${Q}true
 else
+unexport source_name package_ver package_ver_dist release_name_dist release_name_full
 update-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 update-repo: package_ver_dist = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.$(DIST) 2>/dev/null)
@@ -268,6 +271,7 @@ ifeq (,$(DEBIAN_BUILD_DIRS))
 check-repo:
 	${Q}true
 else
+unexport source_name package_ver
 check-repo: source_name = $(shell $(DEBIAN_PARSER) changelog --package-name $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 check-repo: package_ver = $(shell $(DEBIAN_PARSER) changelog --package-version-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 check-repo:
@@ -281,6 +285,7 @@ ifeq (,$(PACKAGE_LIST))
 sign:
 	${Q}true
 else
+unexport release_name_full release_name_full_dist
 sign: release_name_full = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog)
 sign: release_name_full_dist = $(shell $(DEBIAN_PARSER) changelog --package-release-name-full $(ORIG_SRC)/$(DEBIAN_BUILD_DIRS)/changelog.$(DIST))
 sign:
