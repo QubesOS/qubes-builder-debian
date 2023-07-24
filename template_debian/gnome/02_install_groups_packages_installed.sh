@@ -10,4 +10,7 @@ source "${TEMPLATE_CONTENT_DIR}/distribution.sh"
 info ' Installing GNOME'
 #### '----------------------------------------------------------------------
 read -r -a packages <<<"$(chroot_cmd tasksel --new-install --task-packages gnome-desktop)"
-aptInstall "${packages[@]}"
+# Exclude ibus by default, it causes all kind of issues: 
+# - spurious tray icon and notification: https://github.com/QubesOS/qubes-issues/issues/8286
+# - reordered input events: https://openqa.qubes-os.org/tests/77996#step/clipboard_and_web/8
+aptInstall "${packages[@]}" "ibus-"
