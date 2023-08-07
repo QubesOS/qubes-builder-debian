@@ -30,7 +30,7 @@ rm -f "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list"
 rm -rf "${INSTALL_DIR}/${TMPDIR:?}"
 rm -f "${INSTALL_DIR}/var/lib/systemd/random-seed"
 sed -i "s/$(hostname)/${DIST_NAME}/"  "${INSTALL_DIR}/etc/hosts" || true
-rm -rf "${INSTALL_DIR}/etc/initramfs/conf.d/99-template-build.conf" \
+rm -f "${INSTALL_DIR}/etc/initramfs-tools/conf.d/99-template-build.conf" \
     "${INSTALL_DIR}/usr/share/initramfs-tools/modules.d/qubes-template-build"
 # ==============================================================================
 # Execute any template flavor or sub flavor 'post' scripts
