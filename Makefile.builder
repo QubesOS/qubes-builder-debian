@@ -1,4 +1,4 @@
-ifneq (,$(findstring $(DIST),stretch buster bullseye bookworm))
+ifneq (,$(findstring $(DIST),stretch buster bullseye bookworm trixie))
     DEBIAN_PLUGIN_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
     DISTRIBUTION := debian
     BUILDER_MAKEFILE = $(DEBIAN_PLUGIN_DIR)Makefile.debian

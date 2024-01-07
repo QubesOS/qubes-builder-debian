@@ -298,7 +298,7 @@ function updateDebianSourceList() {
     touch "${list}"
 
     nonfree=non-free
-    if [ "${DIST_CODENAME}" = "bookworm" ]; then
+    if [ "${DIST_CODENAME}" = "bookworm" ] || [ "${DIST_CODENAME}" = "trixie" ]; then
         nonfree=non-free-firmware
     fi
 
