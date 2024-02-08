@@ -32,6 +32,7 @@ bootstrap() {
         mkdir -p "${INSTALL_DIR}/${TMPDIR}/dummy-repo/dists/${DIST_CODENAME}/main/binary-amd64"
         echo "${mirror}" > "${INSTALL_DIR}/${TMPDIR}/.mirror"
 
+        mirror=${mirror%/}
         mirror_no_proto=${mirror#*://}
         # depending on debootstrap version, Release files can be stored under
         # different names; this function needs _some_ correctly signed file for
