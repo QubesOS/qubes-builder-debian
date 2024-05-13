@@ -14,6 +14,12 @@ include:
   - project: 'QubesOS/qubes-continuous-integration'
     ref: main
     file: '/r4.2/gitlab-vm-debian-build-template.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    ref: main
+    file: '/r4.3/gitlab-base.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    ref: main
+    file: '/r4.3/gitlab-vm-debian-build-template.yml'
 
 default:
   tags:
@@ -29,6 +35,11 @@ variables:
 
 r4.2:prep:sources:
   extends: .r4.2_components_prepare
+  variables:
+    qb_opts: "-c template-whonix"
+
+r4.3:prep:sources:
+  extends: .r4.3_components_prepare
   variables:
     qb_opts: "-c template-whonix"
 
