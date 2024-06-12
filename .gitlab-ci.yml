@@ -23,8 +23,7 @@ include:
 
 default:
   tags:
-    - vm-runner
-    - long-living-job
+    - vm
 
 after_script:
   - ls -l ~/qubes-builder/qubes-src/linux-template-builder/rpm/noarch
