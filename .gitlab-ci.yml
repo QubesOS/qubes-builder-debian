@@ -54,8 +54,7 @@ tests:vm-bullseye:no-upstream-tarball:
     - prep:sources
     - chroot:vm-bullseye
   tags:
-    - docker-runner
-    - short-living-job
+    - docker
   variables:
     DISTS_VM: bullseye
     USE_QUBES_REPO_VERSION: "4.1"
@@ -70,8 +69,7 @@ tests:vm-bullseye:native-package:
     - prep:sources
     - chroot:vm-bullseye
   tags:
-    - docker-runner
-    - short-living-job
+    - docker
   variables:
     DISTS_VM: bullseye
     USE_QUBES_REPO_VERSION: "4.1"
@@ -86,8 +84,7 @@ tests:vm-bullseye:upstream-tarball:
     - prep:sources
     - chroot:vm-bullseye
   tags:
-    - docker-runner
-    - short-living-job
+    - docker
   variables:
     DISTS_VM: bullseye
     USE_QUBES_REPO_VERSION: "4.1"
@@ -102,8 +99,7 @@ tests:vm-focal:package:
     - prep:sources
     - chroot:vm-focal
   tags:
-    - docker-runner
-    - short-living-job
+    - docker
   variables:
     DISTS_VM: focal
     USE_DIST_BUILD_TOOL: 1
@@ -116,8 +112,7 @@ tests:vm-jammy:package:
     - prep:sources
     - chroot:vm-jammy
   tags:
-    - docker-runner
-    - short-living-job
+    - docker
   variables:
     DISTS_VM: jammy
     USE_DIST_BUILD_TOOL: 1
