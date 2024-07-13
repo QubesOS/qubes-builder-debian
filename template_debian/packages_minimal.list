@@ -10,3 +10,4 @@ libfile-mimeinfo-perl
 libglib2.0-bin
 haveged
 dbus-x11
+distro-info-data
