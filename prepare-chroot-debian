@@ -190,7 +190,7 @@ if [ -n "$USE_QUBES_REPO_VERSION" ]; then
     if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
         add_repo "deb [arch=amd64 signed-by=/usr/share/keyrings/qubes-archive-keyring.gpg] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST}-testing main"
     fi
-    cp ${DEBIAN_PLUGIN_DIR}keys/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc "${DIR}/usr/share/keyrings/qubes-archive-keyring.gpg"
+    gpg --dearmor < ${DEBIAN_PLUGIN_DIR}keys/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc > "${DIR}/usr/share/keyrings/qubes-archive-keyring.gpg"
 fi
 
 # ------------------------------------------------------------------------------
