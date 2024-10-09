@@ -1,8 +1,2 @@
-ncurses-term
-sudo
-dmsetup
-psmisc
-gnupg
 xterm
 libfile-mimeinfo-perl
-libglib2.0-bin
