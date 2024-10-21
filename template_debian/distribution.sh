@@ -325,6 +325,20 @@ function updateDebianSourceList() {
     if ! grep -r -q "$source" "${list}"*; then
         echo -e "$source\n" >> "${list}"
     fi
+    if [ "${DIST_CODENAME}" = "bookworm" ]; then
+        # make bookworm-backports available for newer firmware packages,
+        # but it needs to be explicitly selected for a package to be installed
+        # from there
+        source="deb https://deb.debian.org/debian ${DEBIANVERSION}-backports main contrib $nonfree"
+        if ! grep -r -q "$source" "${list}"*; then
+            echo -e "$source\n" >> "${list}"
+        fi
+
+        source="#deb-src https://deb.debian.org/debian ${DEBIANVERSION}-backports main contrib $nonfree"
+        if ! grep -r -q "$source" "${list}"*; then
+            echo -e "$source\n" >> "${list}"
+        fi
+    fi
 }
 
 # ==============================================================================
