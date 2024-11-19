@@ -49,7 +49,7 @@ if ! [ -f "${INSTALL_DIR}/${TMPDIR}/.prepared_qubes" ]; then
     #### '----------------------------------------------------------------------
     installPackages packages_qubes.list
 
-    if ! containsFlavor "minimal" && [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
+    if ! containsFlavor "minimal" || containsFlavor "install-kernel" && [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
         #### '------------------------------------------------------------------
         info ' Install kernel and bootloader'
         #### '------------------------------------------------------------------
