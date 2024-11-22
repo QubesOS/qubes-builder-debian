@@ -346,11 +346,11 @@ function updateDebianSourceList() {
 # ==============================================================================
 function updateQubuntuSourceList() {
     sed -i "s/${DIST_CODENAME} main$/${DIST_CODENAME} main universe multiverse restricted/g" "${INSTALL_DIR}/etc/apt/sources.list"
-    source="deb http://archive.canonical.com/ubuntu ${DIST_CODENAME} partner"
-    if ! grep -r -q "$source" "${INSTALL_DIR}/etc/apt/sources.list"*; then
-        touch "${INSTALL_DIR}/etc/apt/sources.list"
-        echo "$source" >> "${INSTALL_DIR}/etc/apt/sources.list"
-    fi
+#    source="deb http://archive.canonical.com/ubuntu ${DIST_CODENAME} partner"
+#    if ! grep -r -q "$source" "${INSTALL_DIR}/etc/apt/sources.list"*; then
+#        touch "${INSTALL_DIR}/etc/apt/sources.list"
+#        echo "$source" >> "${INSTALL_DIR}/etc/apt/sources.list"
+#    fi
     source="deb http://archive.ubuntu.com/ubuntu ${DIST_CODENAME}-security main universe multiverse restricted "
     if ! grep -r -q "$source" "${INSTALL_DIR}/etc/apt/sources.list"*; then
         touch "${INSTALL_DIR}/etc/apt/sources.list"
