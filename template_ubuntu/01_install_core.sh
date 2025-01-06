@@ -107,6 +107,8 @@ if ! [ -f "${INSTALL_DIR}/${TMPDIR}/.prepared_debootstrap" ]; then
         fi
     done
 
+    prepareChroot
+
     #### '----------------------------------------------------------------------
     info ' Download APT metadata'
     #### '----------------------------------------------------------------------
