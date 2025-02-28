@@ -12,7 +12,7 @@ info ' Installing firmware'
 chroot_cmd sh -c 'echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted select true" |debconf-set-selections'
 read -r -a packages <<<"atmel-firmware firmware-ath9k-htc firmware-atheros firmware-brcm80211 firmware-ipw2x00 firmware-iwlwifi firmware-misc-nonfree firmware-ralink firmware-realtek firmware-zd1211"
 if [ "${DIST_CODENAME}" = "bookworm" ]; then
-    aptInstall -t ${DIST_CODENAME}-backports
+    aptInstall -t ${DIST_CODENAME}-backports "${packages[@]}"
 else
     aptInstall "${packages[@]}"
 fi
