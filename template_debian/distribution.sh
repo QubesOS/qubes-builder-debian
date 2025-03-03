@@ -489,7 +489,7 @@ EOF
 deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
             fi
-        chroot_cmd apt-key add - < "${KEYS_DIR}/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc"
+        cp "${KEYS_DIR}/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc" "${INSTALL_DIR}/etc/apt/trusted.gpg.d/"
     elif [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} == "ubuntu" ]] ; then
             cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME} main
@@ -499,7 +499,7 @@ EOF
 deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
             fi
-        chroot_cmd apt-key add - < "${KEYS_DIR}/qubes-ubuntu-r${USE_QUBES_REPO_VERSION}.asc"
+        cp "${KEYS_DIR}/qubes-ubuntu-r${USE_QUBES_REPO_VERSION}.asc" "${INSTALL_DIR}/etc/apt/trusted.gpg.d/"
     fi
 }
 
