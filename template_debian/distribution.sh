@@ -481,24 +481,24 @@ installQubesRepo() {
 deb [trusted=yes] file:/tmp/qubes_repo ${DIST_CODENAME} main
 EOF
     if [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} != "ubuntu" ]]; then
-            cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+        cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME} main
 EOF
-           if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
-              cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+        if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
+            cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
-           fi
+        fi
         cp "${KEYS_DIR}/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc" "${INSTALL_DIR}/etc/apt/trusted.gpg.d/qubes-builder.asc"
     elif [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} == "ubuntu" ]] ; then
-            cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+        cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME} main
 EOF
-           if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
-              cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
+        if [ "0$USE_QUBES_REPO_TESTING" -gt 0 ]; then
+            cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
-           fi
+        fi
         cp "${KEYS_DIR}/qubes-ubuntu-r${USE_QUBES_REPO_VERSION}.asc" "${INSTALL_DIR}/etc/apt/trusted.gpg.d/qubes-builder.asc"
     fi
 }
