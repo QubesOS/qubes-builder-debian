@@ -488,8 +488,8 @@ EOF
               cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://deb.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
-            fi
-        chroot_cmd apt-key add - < "${KEYS_DIR}/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc"
+           fi
+        cp "${KEYS_DIR}/qubes-debian-r${USE_QUBES_REPO_VERSION}.asc" "${INSTALL_DIR}/etc/apt/trusted.gpg.d/qubes-builder.asc"
     elif [[ -n "$USE_QUBES_REPO_VERSION" &&  ${DIST_NAME} == "ubuntu" ]] ; then
             cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME} main
@@ -498,8 +498,8 @@ EOF
               cat >> "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" <<EOF
 deb [arch=amd64] https://debu.qubes-os.org/r${USE_QUBES_REPO_VERSION}/vm ${DIST_CODENAME}-testing main
 EOF
-            fi
-        chroot_cmd apt-key add - < "${KEYS_DIR}/qubes-ubuntu-r${USE_QUBES_REPO_VERSION}.asc"
+           fi
+        cp "${KEYS_DIR}/qubes-ubuntu-r${USE_QUBES_REPO_VERSION}.asc" "${INSTALL_DIR}/etc/apt/trusted.gpg.d/qubes-builder.asc"
     fi
 }
 
@@ -511,5 +511,5 @@ uninstallQubesRepo() {
 
     # Lets not umount; we do that anyway when 04 exits
     umount_kill "${INSTALL_DIR}/tmp/qubes_repo"
-    rm -f "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list"
+    rm -rf "${INSTALL_DIR}/etc/apt/sources.list.d/qubes-builder.list" "${INSTALL_DIR}/etc/apt/trusted.gpg.d/qubes-builder.asc"
 }
