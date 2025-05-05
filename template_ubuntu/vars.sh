@@ -63,6 +63,7 @@ APT_GET_OPTIONS=("-o" "Dpkg::Options::=--force-confnew" "--yes")
 APT_GET_OPTIONS+=("-o" "Acquire::Retries=3")
 APT_GET_OPTIONS+=("-o" "Acquire::Language=none")
 APT_GET_OPTIONS+=("-o" "Acquire::IndexTargets::deb::Contents-deb::DefaultEnabled=false")
+APT_GET_OPTIONS+=("-o" "APT::Update::Error-Mode=any")
 
 if [ "0${BUILDER_TURBO_MODE}" -gt 0 ]; then
     APT_GET_OPTIONS+=("-o" "Dpkg::Options::=--force-unsafe-io")
