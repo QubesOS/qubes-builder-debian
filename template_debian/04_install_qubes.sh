@@ -49,6 +49,11 @@ if ! [ -f "${INSTALL_DIR}/${TMPDIR}/.prepared_qubes" ]; then
     #### '----------------------------------------------------------------------
     installPackages packages_qubes.list
 
+    if [ "$USE_QUBES_REPO_VERSION" = "devel" ]; then
+        # include devel repo too
+        aptInstall qubes-repo-devel
+    fi
+
     if ! containsFlavor "minimal" || containsFlavor "install-kernel" && [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
         #### '------------------------------------------------------------------
         info ' Install kernel and bootloader'
